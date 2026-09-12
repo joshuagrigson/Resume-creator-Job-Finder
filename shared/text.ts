@@ -189,13 +189,26 @@ export function normalizeText(s: string): string {
 const TOKEN_RE = /[a-z]\+\+|[a-z]#|\.net|[a-z0-9]+(?:\.[a-z0-9]+)*(?:\/[a-z0-9]+)+|[a-z0-9]+(?:\.[a-z0-9]+)*/g;
 
 /**
+ * Tokenize a string that has already been through {@link normalizeText}. Skips the
+ * (comparatively expensive) unicode normalization, which matters when a caller tokenizes
+ * many small segments of one already-normalized document.
+ */
+export function tokenizeNormalized(normalized: string, keepSingleChars = false): string[] {
+  if (!normalized) return [];
+  const all = normalized.match(TOKEN_RE);
+  if (!all) return [];
+  if (keepSingleChars) return all;
+  const out: string[] = [];
+  for (const t of all) if (t.length > 1) out.push(t);
+  return out;
+}
+
+/**
  * Split normalized text into tokens, keeping every token including single characters.
  * Used internally by dictionary matching, where "c", "r" and "go" are meaningful.
  */
 export function tokenizeAll(s: string): string[] {
-  const normalized = normalizeText(s);
-  if (!normalized) return [];
-  return normalized.match(TOKEN_RE) ?? [];
+  return tokenizeNormalized(normalizeText(s), true);
 }
 
 /**
@@ -204,11 +217,7 @@ export function tokenizeAll(s: string): string[] {
  * `c++`, `c#`, `.net`, `node.js`, `react.js`, `ci/cd`, `a/b`, `3d`, `k8s`.
  */
 export function tokenize(s: string): string[] {
-  const all = tokenizeAll(s);
-  if (all.length === 0) return [];
-  const out: string[] = [];
-  for (const t of all) if (t.length > 1) out.push(t);
-  return out;
+  return tokenizeNormalized(normalizeText(s), false);
 }
 
 /** True when the token is only digits (and optional decimal point) — never a keyword. */

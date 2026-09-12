@@ -1,0 +1,110 @@
+{
+  "page": 1,
+  "page_count": 20607,
+  "items_per_page": 20,
+  "total": 412135,
+  "results": [
+    {
+      "contents": "<p><b>Position Summary...</b><br><br>Are you ready to help shape a member's entire shopping experience by giving them a positive first and last impression? We are looking for people who take pride in their work to join our team. As a Maintenance Associate at Sam's Club, you are responsible for ensuring members see a well-kept parking lot, clean restrooms, an</p>",
+      "name": "Maintenance Custodian Associate",
+      "type": "external",
+      "publication_date": "2025-08-13T03:27:06Z",
+      "short_name": "maintenance-custodian-associate-f7df71",
+      "model_type": "jobs",
+      "id": 18887714,
+      "locations": [
+        {
+          "name": "Ellicott City, MD"
+        }
+      ],
+      "categories": [
+        {
+          "name": "Installation, Maintenance, and Repairs"
+        }
+      ],
+      "levels": [
+        {
+          "name": "Entry Level",
+          "short_name": "entry"
+        }
+      ],
+      "tags": [],
+      "refs": {
+        "landing_page": "https://www.themuse.com/jobs/walmart/maintenance-custodian-associate-f7df71"
+      },
+      "company": {
+        "id": 12010,
+        "short_name": "walmart",
+        "name": "Walmart"
+      }
+    },
+    {
+      "contents": "<p><b>Position Summary...</b><br><br>Do you have a knack for helping people, following recipes, and organization? Our prepared meal and rotisserie chicken associates prepare fresh food items daily for our members through following recipes and preparing our always warm and ready rotisserie chicken. We'll also count on you to properly wrap, label, and store me</p>",
+      "name": "Café Associate",
+      "type": "external",
+      "publication_date": "2025-08-13T03:58:51Z",
+      "short_name": "cafe-associate-55ad73",
+      "model_type": "jobs",
+      "id": 18936324,
+      "locations": [
+        {
+          "name": "Clive, IA"
+        }
+      ],
+      "categories": [
+        {
+          "name": "Food and Hospitality Services"
+        }
+      ],
+      "levels": [
+        {
+          "name": "Entry Level",
+          "short_name": "entry"
+        }
+      ],
+      "tags": [],
+      "refs": {
+        "landing_page": "https://www.themuse.com/jobs/walmart/cafe-associate-55ad73"
+      },
+      "company": {
+        "id": 12010,
+        "short_name": "walmart",
+        "name": "Walmart"
+      }
+    },
+    {
+      "contents": "<p><b>What you can expect</b><br><br>Workvivo enhances organizational connections, engagement, and communication through its AI-powered employee experience platform. Acquired by Zoom in 2023, it blends SaaS agility with global technology innovation.<br><br>The Field Marketing Manager EMEA oversees regional marketing efforts. Responsibilities include executin</p>",
+      "name": "EMEA Field Marketing Manager - Workvivo",
+      "type": "external",
+      "publication_date": "2026-09-09T20:58:58Z",
+      "short_name": "emea-field-marketing-manager-workvivo",
+      "model_type": "jobs",
+      "id": 22068115,
+      "locations": [
+        {
+          "name": "Dublin, Ireland"
+        }
+      ],
+      "categories": [
+        {
+          "name": "Advertising and Marketing"
+        }
+      ],
+      "levels": [
+        {
+          "name": "Senior Level",
+          "short_name": "senior"
+        }
+      ],
+      "tags": [],
+      "refs": {
+        "landing_page": "https://www.themuse.com/jobs/zoom/emea-field-marketing-manager-workvivo"
+      },
+      "company": {
+        "id": 15000590,
+        "short_name": "zoom",
+        "name": "Zoom"
+      }
+    }
+  ]
+}

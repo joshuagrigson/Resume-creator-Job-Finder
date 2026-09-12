@@ -123,7 +123,8 @@ export function stripHtml(html: unknown): string {
   out = out.replace(DANGEROUS_BLOCK_RE, ' ');
   out = out.replace(DANGEROUS_TAG_RE, ' ');
   out = out.replace(BLOCK_BOUNDARY_RE, '\n');
-  out = out.replace(/<[^>]*>/g, ' ');
+  // Inline elements (<b>, <a>, <span>…) carry no whitespace of their own in HTML.
+  out = out.replace(/<[^>]*>/g, '');
   out = decodeEntities(out);
   out = out.replace(/\r\n?/g, '\n');
   out = out.replace(/[^\S\n]+/g, ' ');

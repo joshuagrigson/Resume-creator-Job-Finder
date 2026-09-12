@@ -1,0 +1,58 @@
+{
+  "data": [
+    {
+      "slug": "steuerberater-in-steinwenden-auf-wunsch-mit-partnerperspektive-gesucht-mindestens-90000eur-395925",
+      "company_name": "Taxtalente.de",
+      "title": "Steuerberater (m/w/d) in Steinwenden, auf Wunsch mit Partnerperspektive, gesucht - mindestens 90.000€",
+      "description": "<p>TaxTalente ist die Nr. 1 Job-Matching Plattform für Jobsuchende in der Steuerberatung.</p>\n<p>Sie suchen eine positive berufliche Veränderung? Sie möchten den nächsten Schritt in Ihrer Karriere gehen und streben möglicherweise sogar eine Partnerschaft in einer zukunftsorientierten Kanzlei an? Sie möchten endlich wieder in einem positiven Arbeitsumfeld arb</p>",
+      "remote": false,
+      "url": "https://www.arbeitnow.com/jobs/companies/taxtalentede/steuerberater-in-steinwenden-auf-wunsch-mit-partnerperspektive-gesucht-mindestens-90000eur-395925",
+      "tags": [
+        "Directors",
+        "Chief Executives"
+      ],
+      "job_types": [],
+      "location": "Steinwenden",
+      "created_at": 1789194661
+    },
+    {
+      "slug": "steuerberater-in-pirna-auf-wunsch-mit-partnerperspektive-gesucht-mindestens-90000eur-282663",
+      "company_name": "Taxtalente.de",
+      "title": "Steuerberater (m/w/d) in Pirna, auf Wunsch mit Partnerperspektive, gesucht - mindestens 90.000€",
+      "description": "<p>TaxTalente ist die Nr. 1 Job-Matching Plattform für Jobsuchende in der Steuerberatung.</p>\n<p>Sie suchen eine positive berufliche Veränderung? Sie möchten den nächsten Schritt in Ihrer Karriere gehen und streben möglicherweise sogar eine Partnerschaft in einer zukunftsorientierten Kanzlei an? Sie möchten endlich wieder in einem positiven Arbeitsumfeld arb</p>",
+      "remote": false,
+      "url": "https://www.arbeitnow.com/jobs/companies/taxtalentede/steuerberater-in-pirna-auf-wunsch-mit-partnerperspektive-gesucht-mindestens-90000eur-282663",
+      "tags": [
+        "Directors",
+        "Chief Executives"
+      ],
+      "job_types": [],
+      "location": "Pirna",
+      "created_at": 1789194661
+    },
+    {
+      "slug": "steuerberater-in-althegnenberg-auf-wunsch-mit-partnerperspektive-gesucht-mindestens-90000eur-408155",
+      "company_name": "Taxtalente.de",
+      "title": "Steuerberater (m/w/d) in Althegnenberg, auf Wunsch mit Partnerperspektive, gesucht - mindestens 90.000€",
+      "description": "<p>TaxTalente ist die Nr. 1 Job-Matching Plattform für Jobsuchende in der Steuerberatung.</p>\n<p>Sie suchen eine positive berufliche Veränderung? Sie möchten den nächsten Schritt in Ihrer Karriere gehen und streben möglicherweise sogar eine Partnerschaft in einer zukunftsorientierten Kanzlei an? Sie möchten endlich wieder in einem positiven Arbeitsumfeld arb</p>",
+      "remote": false,
+      "url": "https://www.arbeitnow.com/jobs/companies/taxtalentede/steuerberater-in-althegnenberg-auf-wunsch-mit-partnerperspektive-gesucht-mindestens-90000eur-408155",
+      "tags": [
+        "Directors",
+        "Chief Executives"
+      ],
+      "job_types": [],
+      "location": "Althegnenberg",
+      "created_at": 1789194660
+    }
+  ],
+  "links": {
+    "first": "https://www.arbeitnow.com/api/job-board-api?page=1",
+    "last": null,
+    "prev": null,
+    "next": "https://www.arbeitnow.com/api/job-board-api?page=2"
+  },
+  "meta": {
+    "current_page": 1
+  }
+}

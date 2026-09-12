@@ -1,0 +1,347 @@
+/* App shell: sidebar + top bar + content, bottom tab bar on mobile. */
+
+.app-shell {
+  display: flex;
+  min-height: 100%;
+  background: var(--color-bg);
+}
+
+.app-frame {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 100vh;
+}
+
+.app-main {
+  flex: 1 1 auto;
+  min-width: 0;
+  outline: none;
+}
+
+.app-content {
+  width: 100%;
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: var(--space-6);
+}
+
+/* ---------------------------------------------------------------- skip link */
+
+.app-skip-link {
+  position: fixed;
+  top: var(--space-2);
+  left: var(--space-2);
+  z-index: calc(var(--z-toast) + 1);
+  transform: translateY(-200%);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  font-weight: var(--weight-medium);
+  box-shadow: var(--shadow-lg);
+  transition: transform var(--dur-fast) var(--ease);
+}
+
+.app-skip-link:focus-visible {
+  transform: none;
+  text-decoration: none;
+}
+
+/* ------------------------------------------------------------------ sidebar */
+
+.app-sidebar {
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  height: 100vh;
+  flex: none;
+  width: var(--sidebar-width);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-3);
+  background: var(--color-surface);
+  border-right: 1px solid var(--color-border);
+  transition: width var(--dur-base) var(--ease);
+}
+
+.app-sidebar--collapsed {
+  width: var(--sidebar-width-collapsed);
+  padding-left: var(--space-2);
+  padding-right: var(--space-2);
+  align-items: center;
+}
+
+.app-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  color: var(--color-text);
+  min-width: 0;
+}
+
+.app-brand:hover {
+  text-decoration: none;
+}
+
+.app-brand__mark {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(140deg, var(--accent-400), var(--accent-600));
+  color: #fff;
+  font-weight: var(--weight-bold);
+  font-size: var(--text-md);
+  box-shadow: var(--shadow-xs);
+}
+
+.app-brand__name {
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-tight);
+  white-space: nowrap;
+}
+
+.app-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: var(--space-2);
+  width: 100%;
+}
+
+.app-nav__link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  height: 38px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-md);
+  color: var(--color-text-muted);
+  font-size: var(--text-md);
+  font-weight: var(--weight-medium);
+  white-space: nowrap;
+  transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+
+.app-nav__link:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.app-nav__link--active {
+  background: var(--color-accent-soft);
+  color: var(--color-accent-text);
+}
+
+.app-sidebar--collapsed .app-nav__link {
+  justify-content: center;
+  padding: 0;
+  width: 40px;
+  align-self: center;
+}
+
+/* Collapsed links are wrapped in a Tooltip anchor — keep them centred. */
+.app-nav .ui-tooltip-anchor,
+.app-sidebar__footer .ui-tooltip-anchor {
+  width: 100%;
+}
+
+.app-sidebar--collapsed .ui-tooltip-anchor {
+  justify-content: center;
+}
+
+.app-sidebar__footer {
+  margin-top: auto;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.app-status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-2);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  min-width: 0;
+}
+
+.app-sidebar--collapsed .app-status {
+  justify-content: center;
+  padding: var(--space-2);
+}
+
+.app-status__dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-text-subtle);
+  box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.app-status__dot--on {
+  background: var(--color-success);
+}
+.app-status__dot--off {
+  background: var(--color-text-subtle);
+}
+.app-status__dot--error {
+  background: var(--color-danger);
+}
+
+.app-privacy {
+  font-size: var(--text-2xs);
+  line-height: var(--leading-snug);
+  color: var(--color-text-subtle);
+  padding: 0 var(--space-2);
+}
+
+.app-sidebar__collapse {
+  align-self: flex-start;
+}
+
+.app-sidebar--collapsed .app-sidebar__collapse {
+  align-self: center;
+}
+
+/* ------------------------------------------------------------------ top bar */
+
+.app-topbar {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  height: var(--topbar-height);
+  padding: 0 var(--space-6);
+  background: color-mix(in srgb, var(--color-bg) 88%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.app-topbar__title {
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-tight);
+  margin: 0;
+  min-width: 0;
+}
+
+.app-topbar__slot {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-left: auto;
+  min-width: 0;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.app-topbar__slot::-webkit-scrollbar {
+  display: none;
+}
+
+.app-topbar__tools {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex: none;
+}
+
+.app-topbar__brand {
+  display: none;
+}
+
+/* --------------------------------------------------------------- mobile nav */
+
+.app-mobilenav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--z-nav);
+  display: none;
+  height: calc(var(--mobilenav-height) + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: color-mix(in srgb, var(--color-surface) 94%, transparent);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--color-border);
+}
+
+.app-mobilenav__link {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: var(--space-1) 2px;
+  color: var(--color-text-subtle);
+  font-size: 10px;
+  font-weight: var(--weight-medium);
+  transition: color var(--dur-fast) var(--ease);
+}
+
+.app-mobilenav__link:hover {
+  text-decoration: none;
+}
+
+.app-mobilenav__link--active {
+  color: var(--color-accent-text);
+}
+
+.app-mobilenav__label {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* -------------------------------------------------------------- responsive */
+
+@media (max-width: 767px) {
+  .app-sidebar {
+    display: none;
+  }
+
+  .app-mobilenav {
+    display: flex;
+  }
+
+  .app-frame {
+    padding-bottom: calc(var(--mobilenav-height) + env(safe-area-inset-bottom, 0px));
+    min-height: 100vh;
+  }
+
+  .app-content {
+    padding: var(--space-4);
+  }
+
+  .app-topbar {
+    padding: 0 var(--space-4);
+  }
+
+  .app-topbar__brand {
+    display: flex;
+  }
+
+  .app-topbar__title {
+    display: none;
+  }
+}

@@ -65,8 +65,10 @@ export interface Page<T> {
 
 /** Slice after ranking. Out-of-range pages return an empty list with an honest total. */
 export function paginate<T>(items: readonly T[], page: number, pageSize: number): Page<T> {
-  const safeSize = Math.max(1, Math.min(100, Math.floor(pageSize) || 25));
-  const safePage = Math.max(1, Math.floor(page) || 1);
+  const requestedSize = Math.floor(pageSize);
+  const safeSize = Number.isFinite(requestedSize) && requestedSize > 0 ? Math.min(100, requestedSize) : 25;
+  const requestedPage = Math.floor(page);
+  const safePage = Number.isFinite(requestedPage) && requestedPage > 0 ? requestedPage : 1;
   const start = (safePage - 1) * safeSize;
   return {
     items: items.slice(start, start + safeSize),

@@ -7,7 +7,11 @@ import { z } from 'zod';
 import { getJob, searchJobs } from '../jobs/index';
 import type { ApiError, JobSearchQuery } from '../../shared/types';
 
-export const jobsRouter = Router();
+/** Swappable service layer so the route can be exercised without touching the network. */
+export interface JobsRouterDeps {
+  searchJobs: typeof searchJobs;
+  getJob: typeof getJob;
+}
 
 /** Express 5 propagates rejected promises, but only when we hand them to `next`. */
 function asyncHandler(handler: (req: Request, res: Response, next: NextFunction) => Promise<unknown>): RequestHandler {
@@ -53,7 +57,6 @@ const SearchQuerySchema = z.object({
         ctx.addIssue({
           code: 'custom',
           message: `Unknown source(s): ${invalid.join(', ')}. Valid sources: ${JOB_SOURCE_VALUES.join(', ')}`,
-          path: ['sources'],
         });
         return z.NEVER;
       }
@@ -72,56 +75,69 @@ function badRequest(res: Response, message: string, details?: unknown): void {
   res.status(400).json(body);
 }
 
-jobsRouter.get(
-  '/search',
-  asyncHandler(async (req, res) => {
-    const parsed = SearchQuerySchema.safeParse(req.query);
-    if (!parsed.success) {
-      const issues = parsed.error.issues.map((issue) => ({
-        field: issue.path.join('.') || 'query',
-        message: issue.message,
-      }));
-      badRequest(res, issues[0]?.message ?? 'Invalid search query', issues);
-      return;
-    }
+/**
+ * Build the router. The default dependencies are the real job service; tests pass stubs so
+ * the HTTP contract can be verified without touching a job board.
+ */
+export function createJobsRouter(deps: JobsRouterDeps = { searchJobs, getJob }): Router {
+  const router = Router();
 
-    const data = parsed.data;
-    const query: JobSearchQuery = {
-      q: data.q.trim(),
-      remoteOnly: data.remoteOnly,
-      page: data.page,
-      pageSize: data.pageSize,
-      sort: data.sort,
-    };
-    const location = data.location?.trim();
-    if (location) query.location = location;
-    if (data.sources && data.sources.length > 0) query.sources = data.sources;
-    if (data.postedWithinDays !== undefined) query.postedWithinDays = data.postedWithinDays;
-    if (data.employmentType !== undefined) query.employmentType = data.employmentType;
+  router.get(
+    '/search',
+    asyncHandler(async (req, res) => {
+      const parsed = SearchQuerySchema.safeParse(req.query);
+      if (!parsed.success) {
+        const issues = parsed.error.issues.map((issue) => ({
+          field: issue.path.join('.') || 'query',
+          message: issue.message,
+        }));
+        badRequest(res, issues[0]?.message ?? 'Invalid search query', issues);
+        return;
+      }
 
-    const response = await searchJobs(query);
-    // Search results are cheap to re-fetch and change often; let the browser reuse briefly.
-    res.setHeader('Cache-Control', 'private, max-age=30');
-    res.json(response);
-  }),
-);
+      const data = parsed.data;
+      const query: JobSearchQuery = {
+        q: data.q.trim(),
+        remoteOnly: data.remoteOnly,
+        page: data.page,
+        pageSize: data.pageSize,
+        sort: data.sort,
+      };
+      const location = data.location?.trim();
+      if (location) query.location = location;
+      if (data.sources && data.sources.length > 0) query.sources = data.sources;
+      if (data.postedWithinDays !== undefined) query.postedWithinDays = data.postedWithinDays;
+      if (data.employmentType !== undefined) query.employmentType = data.employmentType;
 
-jobsRouter.get(
-  '/:id',
-  asyncHandler(async (req, res) => {
-    const id = typeof req.params.id === 'string' ? req.params.id.trim() : '';
-    if (!id || id.length > 300) {
-      badRequest(res, 'A job id is required');
-      return;
-    }
+      const response = await deps.searchJobs(query);
+      // Results change often but a double-render shouldn't re-query; 30s is plenty.
+      res.setHeader('Cache-Control', 'private, max-age=30');
+      res.json(response);
+    }),
+  );
 
-    const job = await getJob(id);
-    if (!job) {
-      const body: ApiError = { error: 'Job not found', code: 'not_found' };
-      res.status(404).json(body);
-      return;
-    }
-    res.setHeader('Cache-Control', 'private, max-age=60');
-    res.json(job);
-  }),
-);
+  router.get(
+    '/:id',
+    asyncHandler(async (req, res) => {
+      const id = typeof req.params.id === 'string' ? req.params.id.trim() : '';
+      if (!id || id.length > 300) {
+        badRequest(res, 'A job id is required');
+        return;
+      }
+
+      const job = await deps.getJob(id);
+      if (!job) {
+        const body: ApiError = { error: 'Job not found', code: 'not_found' };
+        res.status(404).json(body);
+        return;
+      }
+      res.setHeader('Cache-Control', 'private, max-age=60');
+      res.json(job);
+    }),
+  );
+
+  return router;
+}
+
+/** Mounted at `/api/jobs` by server/index.ts. */
+export const jobsRouter = createJobsRouter();

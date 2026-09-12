@@ -18,13 +18,15 @@ import type { ApiError } from '../../shared/types';
 import { getAiStatus, isAiEnabled } from '../ai/client';
 import { AiError, aiDisabledError, mapUpstreamError, rateLimitedError } from '../ai/errors';
 import { aiRateLimiter } from '../ai/ratelimit';
-import { REQUEST_CAPS, validateRequest, type SizeCap } from '../ai/schemas';
 import {
   CoverLetterRequestSchema,
   ImproveBulletRequestSchema,
   ParseResumeRequestSchema,
+  REQUEST_CAPS,
   SummaryRequestSchema,
   TailorRequestSchema,
+  validateRequest,
+  type SizeCap,
 } from '../ai/schemas';
 import { improveBullet } from '../ai/handlers/improve-bullet';
 import { summary } from '../ai/handlers/summary';

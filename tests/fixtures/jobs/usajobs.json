@@ -1,0 +1,55 @@
+{
+  "LanguageCode": "EN",
+  "SearchResult": {
+    "SearchResultCount": 2,
+    "SearchResultCountAll": 2,
+    "SearchResultItems": [
+      {
+        "MatchedObjectId": "829110500",
+        "MatchedObjectDescriptor": {
+          "PositionID": "ST-12610931-26-AB",
+          "PositionTitle": "IT Specialist (Applications Software)",
+          "PositionURI": "https://www.usajobs.gov/job/829110500",
+          "OrganizationName": "Internal Revenue Service",
+          "DepartmentName": "Department of the Treasury",
+          "PositionLocationDisplay": "Austin, Texas",
+          "JobCategory": [{ "Name": "Information Technology Management", "Code": "2210" }],
+          "PositionSchedule": [{ "Name": "Full-time", "Code": "1" }],
+          "PositionRemuneration": [
+            { "MinimumRange": "99200", "MaximumRange": "153354", "RateIntervalCode": "PA" }
+          ],
+          "PublicationStartDate": "2026-09-04",
+          "ApplicationCloseDate": "2026-09-25",
+          "UserArea": {
+            "Details": {
+              "JobSummary": "<p>Design, develop and maintain applications software for taxpayer-facing systems.</p>",
+              "TeleworkEligible": "true"
+            }
+          }
+        }
+      },
+      {
+        "MatchedObjectId": "829110501",
+        "MatchedObjectDescriptor": {
+          "PositionID": "NPS-26-11842345",
+          "PositionTitle": "Park Ranger (Interpretation)",
+          "PositionURI": "https://www.usajobs.gov/job/829110501",
+          "OrganizationName": "National Park Service",
+          "PositionLocationDisplay": "Multiple Locations",
+          "JobCategory": [{ "Name": "Park Ranging", "Code": "0025" }],
+          "PositionSchedule": [{ "Name": "Part-time", "Code": "2" }],
+          "PositionRemuneration": [
+            { "MinimumRange": "21.45", "MaximumRange": "27.89", "RateIntervalCode": "PH" }
+          ],
+          "PublicationStartDate": "2026-08-28",
+          "UserArea": {
+            "Details": {
+              "JobSummary": "Lead interpretive programs for visitors.",
+              "TeleworkEligible": "false"
+            }
+          }
+        }
+      }
+    ]
+  }
+}

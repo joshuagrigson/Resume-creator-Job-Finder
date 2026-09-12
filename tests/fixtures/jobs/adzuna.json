@@ -1,0 +1,34 @@
+{
+  "count": 2,
+  "results": [
+    {
+      "id": "4812993001",
+      "title": "Senior React Developer",
+      "company": { "display_name": "Northwind Systems" },
+      "location": { "display_name": "Austin, Texas", "area": ["US", "Texas", "Austin"] },
+      "description": "<p>We are hiring a Senior React Developer to own our design system and component library. TypeScript, testing and accessibility matter here.</p>",
+      "redirect_url": "https://www.adzuna.com/details/4812993001",
+      "created": "2026-09-08T14:12:07Z",
+      "salary_min": 140000,
+      "salary_max": 175000,
+      "salary_is_predicted": "0",
+      "contract_time": "full_time",
+      "contract_type": "permanent",
+      "category": { "label": "IT Jobs", "tag": "it-jobs" }
+    },
+    {
+      "id": "4812993002",
+      "title": "Marketing Operations Contractor (Remote)",
+      "company": { "display_name": "Beacon Media" },
+      "location": { "display_name": "Remote, United States", "area": ["US"] },
+      "description": "<p>Own HubSpot and Salesforce lifecycle automation for a 40-person revenue team.</p>",
+      "redirect_url": "https://www.adzuna.com/details/4812993002",
+      "created": "2026-09-01T09:00:00Z",
+      "salary_min": 0,
+      "salary_max": 0,
+      "contract_time": "part_time",
+      "contract_type": "contract",
+      "category": { "label": "PR, Advertising & Marketing Jobs" }
+    }
+  ]
+}

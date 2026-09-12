@@ -5,7 +5,7 @@ import './controls.css';
 
 export type ChipTone = 'neutral' | 'accent' | 'success' | 'warning' | 'danger' | 'info';
 
-export interface ChipProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'onSelect'> {
+export interface ChipProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'onSelect' | 'onToggle'> {
   tone?: ChipTone;
   /** Renders as a toggle button with `aria-pressed`. */
   selected?: boolean;

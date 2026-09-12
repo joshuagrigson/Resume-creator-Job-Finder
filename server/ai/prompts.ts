@@ -104,11 +104,11 @@ export function describeResume(resume: ResumeInput, options: { includeIds?: bool
   lines.push(section('CERTIFICATIONS', certifications));
 
   const custom = resume.customSections
-    .map((custom_) => {
-      const items = custom_.items
+    .map((customSection) => {
+      const items = customSection.items
         .map((item) => `    - ${[item.heading.trim(), item.subheading.trim(), item.date.trim()].filter(Boolean).join(' — ')}`)
         .join('\n');
-      return `- ${custom_.title.trim() || 'Section'}\n${items}`.trimEnd();
+      return `- ${customSection.title.trim() || 'Section'}\n${items}`.trimEnd();
     })
     .join('\n');
   lines.push(section('OTHER SECTIONS', custom));

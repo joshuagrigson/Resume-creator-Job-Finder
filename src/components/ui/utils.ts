@@ -1,8 +1,8 @@
 import { useCallback, useRef, useState } from 'react';
 
-/** Tiny classname joiner. Falsy entries are dropped. */
-export function cx(...parts: Array<string | false | null | undefined>): string {
-  return parts.filter(Boolean).join(' ');
+/** Tiny classname joiner. Anything that is not a non-empty string is dropped. */
+export function cx(...parts: unknown[]): string {
+  return parts.filter((p): p is string => typeof p === 'string' && p.length > 0).join(' ');
 }
 
 /**

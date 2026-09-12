@@ -5,8 +5,8 @@
  * OS preference decides (so the very first paint, before JS runs, is already correct).
  * `useTheme()` sets the attribute, so the media query below is only the no-JS fallback.
  *
- * Naming: --color-* (semantic), --accent-*/--success-* … (palettes), --space-*, --radius-*,
- * --shadow-*, --font-*/--text-*/--weight-*/--leading-*, --z-*, --dur-*/--ease-*.
+ * Naming: --color-… (semantic), --accent-… and --success-… (palettes), --space-…, --radius-…,
+ * --shadow-…, --font-…, --text-…, --weight-…, --leading-…, --z-…, --dur-…, --ease-….
  */
 
 :root {

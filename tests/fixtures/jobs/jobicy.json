@@ -1,0 +1,67 @@
+{
+  "apiVersion": "2.2.16",
+  "jobCount": 3,
+  "jobs": [
+    {
+      "id": 145744,
+      "url": "https://jobicy.com/jobs/145744-frontend-engineer-react-and-aws",
+      "jobSlug": "145744-frontend-engineer-react-and-aws",
+      "jobTitle": "Frontend Engineer React and AWS",
+      "companyName": "Numentica",
+      "companyLogo": "https://jobicy.com/data/server-nyc0409/galaxy/mercury/2025/08/11dcb1a2-221.png",
+      "jobIndustry": [
+        "Software Engineering"
+      ],
+      "jobType": [
+        "Contract"
+      ],
+      "jobGeo": "USA",
+      "jobLevel": "Midweight",
+      "jobExcerpt": "This is a remote position. Onsite/ Hybrid/ Remote: Remote (EST Work Hours) Duration: ​12 Months to start with Rate Range: Upto $80/hr W2 or $88/hr C2C Work Authorization: GC, USC, ",
+      "jobDescription": "<p> This is a remote position. </p>\r\n<div>\r\n<b> Onsite/ Hybrid/ Remote: </b> Remote (EST Work Hours) </div>\r\n<div>\r\n<b> Duration: </b> ​12 Months to start with </div>\r\n<div>\r\n<b> Rate Range: </b> Upto $80/hr W2 or $88/hr C2C </div>\r\n<div>\r\n<b> Work Authorization: </b> GC, USC, H1B All valid EADs except OPT, CPT </div>\r\n<p> Must Have: </p>\r\n<ul>\r\n<li> 5+ year</p>",
+      "pubDate": "2026-09-10T04:30:27+00:00",
+      "salaryMin": 160000,
+      "salaryMax": 176000,
+      "salaryCurrency": "USD",
+      "salaryPeriod": "yearly"
+    },
+    {
+      "id": 152377,
+      "url": "https://jobicy.com/jobs/152377-senior-full-stack-engineer-elixir-react-veterinary-software-company-remote-mexico",
+      "jobSlug": "152377-senior-full-stack-engineer-elixir-react-veterinary-software-company-remote-mexico",
+      "jobTitle": "Senior Full-stack Engineer (Elixir/React) – veterinary software company - (Remote - Mexico)",
+      "companyName": "Truelogic",
+      "companyLogo": "https://jobicy.com/data/server-nyc0409/galaxy/mercury/2025/06/e7ae6cb6-221-1.png",
+      "jobIndustry": [
+        "Software Engineering"
+      ],
+      "jobType": [
+        "Contract"
+      ],
+      "jobGeo": "Mexico",
+      "jobLevel": "Senior",
+      "jobExcerpt": "Truelogic is a leading provider of nearshore staff augmentation services, located in New York. Our team of 500 tech talents is driving digital disruption from Latin America to the ",
+      "jobDescription": "<p>Truelogic is a leading provider of nearshore staff augmentation services, located in New York. Our team of 500 tech talents is driving digital disruption from Latin America to the top projects in U.S. companies. Truelogic has been helping companies of all sizes to achieve their digital transformation goals.</p>\r\n<p>Would you like to make innovation happen</p>",
+      "pubDate": "2026-09-02T12:36:23+00:00"
+    },
+    {
+      "id": 152372,
+      "url": "https://jobicy.com/jobs/152372-senior-full-stack-engineer-elixir-react-veterinary-software-company-remote-brazil",
+      "jobSlug": "152372-senior-full-stack-engineer-elixir-react-veterinary-software-company-remote-brazil",
+      "jobTitle": "Senior Full-stack Engineer (Elixir/React) – veterinary software company - (Remote - Brazil)",
+      "companyName": "Truelogic",
+      "companyLogo": "https://jobicy.com/data/server-nyc0409/galaxy/mercury/2025/06/e7ae6cb6-221-1.png",
+      "jobIndustry": [
+        "Software Engineering"
+      ],
+      "jobType": [
+        "Contract"
+      ],
+      "jobGeo": "Brazil",
+      "jobLevel": "Senior",
+      "jobExcerpt": "Truelogic is a leading provider of nearshore staff augmentation services, located in New York. Our team of 500 tech talents is driving digital disruption from Latin America to the ",
+      "jobDescription": "<p>Truelogic is a leading provider of nearshore staff augmentation services, located in New York. Our team of 500 tech talents is driving digital disruption from Latin America to the top projects in U.S. companies. Truelogic has been helping companies of all sizes to achieve their digital transformation goals.</p>\r\n<p>Would you like to make innovation happen</p>",
+      "pubDate": "2026-09-02T12:34:38+00:00"
+    }
+  ]
+}
