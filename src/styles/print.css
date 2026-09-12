@@ -1,0 +1,64 @@
+/*
+ * Print base. Deliberately minimal so the resume preview module can own @page,
+ * page breaks, and sheet sizing without fighting these rules.
+ */
+
+@media print {
+  /* App chrome never prints. */
+  .no-print,
+  .app-sidebar,
+  .app-topbar,
+  .app-mobilenav,
+  .app-skip-link,
+  .toast-viewport {
+    display: none !important;
+  }
+
+  html,
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  /* Neutralize the shell's grid/scroll containers so content flows onto pages. */
+  .app-shell,
+  .app-main,
+  .app-content {
+    display: block !important;
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+    width: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+  }
+
+  a {
+    color: inherit !important;
+    text-decoration: none !important;
+  }
+
+  /* Avoid orphaned headings / split rows in printed lists. */
+  h1,
+  h2,
+  h3,
+  h4 {
+    break-after: avoid-page;
+  }
+
+  li,
+  tr,
+  img {
+    break-inside: avoid;
+  }
+
+  * {
+    box-shadow: none !important;
+    animation: none !important;
+    transition: none !important;
+  }
+}
