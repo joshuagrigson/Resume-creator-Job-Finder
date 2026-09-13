@@ -39,7 +39,8 @@ export default function ResumeBuilderPage() {
   const { resumeId: routeId } = useParams<{ resumeId: string }>();
   const navigate = useNavigate();
 
-  const resumes = useResumeStore((s) => s.resumes);
+  const activeId = useResumeStore((s) => s.activeResumeId);
+  const routeExists = useResumeStore((s) => (routeId ? Boolean(s.resumes[routeId]) : false));
   const setActiveResume = useResumeStore((s) => s.setActiveResume);
   const createResume = useResumeStore((s) => s.createResume);
   const resume = useActiveResume();
@@ -54,9 +55,9 @@ export default function ResumeBuilderPage() {
   // Deep link: /resume/:resumeId selects that resume when it exists.
   useEffect(() => {
     if (!routeId) return;
-    if (resumes[routeId]) setActiveResume(routeId);
-    else navigate('/resume', { replace: true });
-  }, [routeId, resumes, setActiveResume, navigate]);
+    if (!routeExists) navigate('/resume', { replace: true });
+    else if (routeId !== activeId) setActiveResume(routeId);
+  }, [routeId, routeExists, activeId, setActiveResume, navigate]);
 
   const goTo = (id: string) => {
     setActiveResume(id);
@@ -134,6 +135,7 @@ export default function ResumeBuilderPage() {
   return (
     <div className="re-page">
       <PageHeader
+        className="no-print"
         eyebrow="Resume"
         title={resume.name}
         description="Edit on the left; the sheet on the right is exactly what prints."
@@ -143,16 +145,16 @@ export default function ResumeBuilderPage() {
 
       {narrow ? (
         <Tabs value={tab} onValueChange={(v) => setTab(v as 'edit' | 'preview')}>
-          <TabList aria-label="Resume builder panes" variant="pills">
+          <TabList aria-label="Resume builder panes" variant="pills" className="no-print">
             <Tab value="edit">Edit</Tab>
             <Tab value="preview">Preview</Tab>
           </TabList>
-          <TabPanel value="edit">{editorPane}</TabPanel>
+          <TabPanel value="edit" className="no-print">{editorPane}</TabPanel>
           <TabPanel value="preview">{previewPane}</TabPanel>
         </Tabs>
       ) : (
         <div className="re-split">
-          <div className="re-split__editor">{editorPane}</div>
+          <div className="re-split__editor no-print">{editorPane}</div>
           <aside className="re-split__preview" aria-label="Live resume preview">
             {previewPane}
           </aside>

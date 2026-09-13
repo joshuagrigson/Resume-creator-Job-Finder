@@ -20,11 +20,9 @@ import {
   educationDegreeLine,
   educationMeta,
   experienceDates,
-  joinParts,
   linkHref,
   projectMeta,
   sectionItems,
-  skillGroupLine,
   type ResumeSection,
 } from '@/lib/export/format';
 import type {
@@ -367,5 +365,3 @@ export function NameBlock({
     </div>
   );
 }
-
-export { joinParts };

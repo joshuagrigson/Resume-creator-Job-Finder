@@ -23,9 +23,13 @@ export function buildResumeJson(resume: Resume, now: Date = new Date()): ResumeJ
   };
 }
 
+/** The pretty-printed JSON text, newline-terminated. */
+export function resumeJsonText(resume: Resume): string {
+  return `${JSON.stringify(buildResumeJson(resume), null, 2)}\n`;
+}
+
 export function resumeJsonBlob(resume: Resume): Blob {
-  const text = `${JSON.stringify(buildResumeJson(resume), null, 2)}\n`;
-  return new Blob([text], { type: 'application/json' });
+  return new Blob([resumeJsonText(resume)], { type: 'application/json' });
 }
 
 /** Downloads `"<Name> Resume.json"`. */

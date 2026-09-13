@@ -233,6 +233,12 @@
   padding: 0;
 }
 
+/* The empty-resume placeholder still needs the page margin the columns would have drawn. */
+.rp-sheet--sidebar > .rp-blank {
+  display: block;
+  padding: var(--rp-pad);
+}
+
 .rp-body--sidebar {
   display: grid;
   grid-template-columns: 32% 1fr;
@@ -248,6 +254,8 @@
   background: var(--rp-accent-tint);
   border-right: 1px solid var(--rp-accent-tint-strong);
   font-size: 0.94em;
+  min-width: 0;
+  overflow-wrap: anywhere;
   /* Make sure the tint prints instead of being "helpfully" dropped. */
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;

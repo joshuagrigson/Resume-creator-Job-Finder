@@ -1,5 +1,5 @@
 /** Name, headline and the contact lines that print in the resume header. */
-import { AtSign, Github, Globe, Linkedin, MapPin, Phone } from 'lucide-react';
+import { AtSign, Briefcase, CodeXml, Globe, MapPin, Phone } from 'lucide-react';
 import type { ContactInfo, ResumeId } from '@shared/types';
 import { Field, Input } from '@/components/ui';
 import { useResumeSlice, useResumeUpdate } from './store-hooks';
@@ -88,7 +88,7 @@ export function ContactForm({ resumeId }: ContactFormProps) {
       <Field label="LinkedIn">
         <Input
           value={contact.linkedin}
-          leftIcon={<Linkedin size={14} />}
+          leftIcon={<Briefcase size={14} />}
           placeholder="linkedin.com/in/yourname"
           onChange={(e) => set('linkedin', e.target.value)}
         />
@@ -97,7 +97,7 @@ export function ContactForm({ resumeId }: ContactFormProps) {
       <Field label="GitHub">
         <Input
           value={contact.github}
-          leftIcon={<Github size={14} />}
+          leftIcon={<CodeXml size={14} />}
           placeholder="github.com/yourname"
           onChange={(e) => set('github', e.target.value)}
         />

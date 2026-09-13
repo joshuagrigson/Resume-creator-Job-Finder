@@ -1043,3 +1043,38 @@
   font-size: var(--text-sm);
   color: var(--color-text-muted);
 }
+
+/* ------------------------------------------------------------------ print */
+
+@media print {
+  .re-page {
+    display: block;
+    gap: 0;
+  }
+
+  .re-split {
+    display: block;
+  }
+
+  .re-split__preview {
+    position: static;
+  }
+
+  .re-previewpane {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    overflow: visible;
+  }
+
+  .re-previewpane__stage {
+    display: block;
+  }
+}
+
+/* Popover surfaces stay inside the viewport on short screens. */
+.re-stylepop,
+.re-aipop {
+  max-height: min(70vh, 620px);
+  overflow-y: auto;
+}
