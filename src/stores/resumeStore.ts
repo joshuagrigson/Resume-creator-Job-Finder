@@ -8,6 +8,7 @@
  */
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { createSafeStorage } from '@/stores/storage';
 import type { Resume, ResumeId, SectionKey } from '@shared/types';
 import { RESUME_SCHEMA_VERSION } from '@shared/types';
 import { cloneResume, createBlankResume, createSampleResume } from '@/lib/resume/defaults';
@@ -124,6 +125,7 @@ export const useResumeStore = create<ResumeStoreState>()(
     }),
     {
       name: 'launchpad.resumes.v1',
+      storage: createSafeStorage(),
       version: RESUME_SCHEMA_VERSION,
       partialize: (s) => ({ schemaVersion: s.schemaVersion, resumes: s.resumes, activeResumeId: s.activeResumeId }),
     },

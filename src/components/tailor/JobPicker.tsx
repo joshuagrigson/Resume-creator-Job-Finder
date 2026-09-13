@@ -26,7 +26,23 @@ export function JobPicker({ mode, selectedJobId, paste, onSelectJob, onPasteChan
   const tracked = useTrackedJobs();
   const results = useJobStore((s) => s.results);
   const recent = results?.jobs ?? [];
-  const [tab, setTab] = useState(() => (mode === 'paste' ? 'paste' : 'tracked'));
+  // Open on the tab the selected job actually lives in. Arriving from a search result
+  // via /tailor/:jobId used to land on "Tracked", where that job is not listed.
+  const originOf = (jobId: string | null | undefined): 'tracked' | 'recent' | null => {
+    if (!jobId) return null;
+    if (tracked.some((entry) => entry.job.id === jobId)) return 'tracked';
+    if (recent.some((job) => job.id === jobId)) return 'recent';
+    return null;
+  };
+  const [tab, setTab] = useState(() => (mode === 'paste' ? 'paste' : (originOf(selectedJobId) ?? 'tracked')));
+
+  // A job resolved asynchronously (deep link → api.getJob) can land after first render.
+  const origin = originOf(selectedJobId);
+  const [syncedFor, setSyncedFor] = useState<string | null>(selectedJobId ?? null);
+  if (mode !== 'paste' && origin && selectedJobId !== syncedFor) {
+    setSyncedFor(selectedJobId ?? null);
+    if (tab !== origin) setTab(origin);
+  }
 
   const handleTab = (value: string) => {
     setTab(value);

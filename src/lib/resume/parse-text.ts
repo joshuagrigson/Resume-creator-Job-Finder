@@ -77,7 +77,16 @@ function pad2(value: number): string {
  * A bare year has no month, so `prefer` decides: `'start'` → January, `'end'` → December.
  * Returns `''` when nothing usable is found.
  */
-export function toYearMonth(raw: string, prefer: 'start' | 'end' = 'start'): string {
+export interface YearMonthOptions {
+  /**
+   * Skip the two unanchored last-resort branches (a month name or a bare year found
+   * *anywhere* in the string). Callers that must not invent a month — free-text
+   * certification dates such as "Valid through 2027" — pass true.
+   */
+  strict?: boolean;
+}
+
+export function toYearMonth(raw: string, prefer: 'start' | 'end' = 'start', options: YearMonthOptions = {}): string {
   const text = (raw ?? '').trim().replace(/\s+/g, ' ');
   if (!text) return '';
   if (PRESENT_RE.test(text)) return '';
@@ -110,6 +119,8 @@ export function toYearMonth(raw: string, prefer: 'start' | 'end' = 'start'): str
 
   const yearOnly = new RegExp(`^(${LOOSE_YEAR_SRC})$`).exec(text);
   if (yearOnly) return `${yearOnly[1]}-${prefer === 'end' ? '12' : '01'}`;
+
+  if (options.strict) return '';
 
   // Last resort: a month name and a year anywhere in the string ("Spring, March 2021").
   const loose = new RegExp(`(${MONTH_SRC})\\.?\\s*,?\\s*(${LOOSE_YEAR_SRC})`, 'i').exec(text);

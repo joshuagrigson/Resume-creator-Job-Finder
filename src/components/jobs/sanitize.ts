@@ -12,9 +12,13 @@ export function sanitizeJobHtml(html: string | undefined): string {
   const raw = (html ?? '').trim();
   if (!raw) return '';
 
+  // `style` is forbidden as an attribute as well as an element: a surviving inline
+  // style can cover the viewport (clickjacking) or fetch a third-party background
+  // image (a tracking beacon). A job description needs neither.
   const clean = DOMPurify.sanitize(raw, {
     USE_PROFILES: { html: true },
     FORBID_TAGS: ['style', 'img', 'svg'],
+    FORBID_ATTR: ['style'],
   });
 
   if (typeof window === 'undefined' || typeof window.DOMParser !== 'function') return clean;

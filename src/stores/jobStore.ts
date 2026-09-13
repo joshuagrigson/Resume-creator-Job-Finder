@@ -3,6 +3,7 @@
  */
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { createSafeStorage } from '@/stores/storage';
 import type { ApplicationStatus, Job, JobSearchQuery, JobSearchResponse, TrackedJob } from '@shared/types';
 import { api, ApiClientError } from '@/lib/api';
 import { nowIso, uid } from '@/lib/id';
@@ -153,6 +154,7 @@ export const useJobStore = create<JobStoreState>()(
     }),
     {
       name: 'launchpad.jobs.v1',
+      storage: createSafeStorage(),
       version: 1,
       partialize: (s) => ({ tracked: s.tracked, savedSearches: s.savedSearches, query: s.query }),
     },

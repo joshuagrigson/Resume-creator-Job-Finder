@@ -4,6 +4,12 @@ import { focusableWithin } from './utils';
 let lockCount = 0;
 let previousOverflow = '';
 
+/**
+ * Every open dialog, innermost last. Escape acts on the last entry only, so a confirm
+ * dialog stacked over a drawer closes just the confirm.
+ */
+const openDialogs: symbol[] = [];
+
 function lockScroll() {
   if (typeof document === 'undefined') return;
   if (lockCount === 0) {
@@ -35,6 +41,9 @@ export function useDialogBehavior({ open, onClose, closeOnEscape = true, initial
   const dialogRef = useRef<HTMLDivElement | null>(null);
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
+  const tokenRef = useRef<symbol | null>(null);
+  if (tokenRef.current === null) tokenRef.current = Symbol('dialog');
+  const token = tokenRef.current;
 
   useEffect(() => {
     if (!open) return;
@@ -42,6 +51,7 @@ export function useDialogBehavior({ open, onClose, closeOnEscape = true, initial
 
     const previouslyFocused = document.activeElement as HTMLElement | null;
     lockScroll();
+    openDialogs.push(token);
 
     // Move focus inside on open.
     const focusTimer = window.setTimeout(() => {
@@ -51,7 +61,12 @@ export function useDialogBehavior({ open, onClose, closeOnEscape = true, initial
 
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && closeOnEscape) {
+        // Only the innermost open dialog may act. Capture-phase listeners on the same
+        // node fire in registration order, so an outer Drawer registered first would
+        // otherwise close underneath the confirm dialog stacked on top of it.
+        if (openDialogs[openDialogs.length - 1] !== token) return;
         e.stopPropagation();
+        e.preventDefault();
         onCloseRef.current();
         return;
       }
@@ -87,10 +102,12 @@ export function useDialogBehavior({ open, onClose, closeOnEscape = true, initial
     return () => {
       window.clearTimeout(focusTimer);
       document.removeEventListener('keydown', onKeyDown, true);
+      const at = openDialogs.lastIndexOf(token);
+      if (at !== -1) openDialogs.splice(at, 1);
       unlockScroll();
       if (previouslyFocused && typeof previouslyFocused.focus === 'function') previouslyFocused.focus();
     };
-  }, [open, closeOnEscape, initialFocusRef]);
+  }, [open, closeOnEscape, initialFocusRef, token]);
 
   return dialogRef;
 }

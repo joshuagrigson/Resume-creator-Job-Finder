@@ -213,7 +213,10 @@ class DateFixer {
     const value = text(raw);
     if (!value) return '';
     if (/^\d{4}$/.test(value)) return value;
-    const normalized = toYearMonth(value, 'end');
+    // Strict: only a date that really names a month becomes "YYYY-MM". Without this,
+    // "Valid through 2027" and "Renewed annually since 2019" were rewritten into a
+    // month the certificate never claimed.
+    const normalized = toYearMonth(value, 'end', { strict: true });
     return normalized || value;
   }
 
@@ -627,4 +630,71 @@ export function normalizeImportedResume(input: unknown): NormalizedResume | { er
   if (dateWarning) warnings.push(dateWarning);
 
   return { resume, warnings };
+}
+
+// ---------------------------------------------------------------------------
+// normalizeImportedResumeBundle
+// ---------------------------------------------------------------------------
+
+export interface NormalizedResumeBundle {
+  resumes: Resume[];
+  warnings: string[];
+}
+
+/**
+ * Restore EVERY resume in a file, for the Settings backup that exports them all.
+ *
+ * `normalizeImportedResume` deliberately returns a single resume — the editor's import
+ * dialog imports one document and names it after the file. That contract stays as it is;
+ * this is the fan-out sibling, so a multi-resume backup restores in full instead of
+ * silently keeping only the first one.
+ */
+export function normalizeImportedResumeBundle(input: unknown): NormalizedResumeBundle | { error: string } {
+  let data: unknown = input;
+
+  if (typeof data === 'string') {
+    const trimmed = data.trim();
+    if (!trimmed) return { error: 'That file is empty.' };
+    try {
+      data = JSON.parse(trimmed);
+    } catch {
+      return { error: 'That file is not valid JSON.' };
+    }
+  }
+
+  // Both shapes a backup can take: a bare array, or our envelope with a `resumes` array.
+  const list: unknown[] | null = Array.isArray(data)
+    ? data
+    : isPlainObject(data) && Array.isArray(data.resumes)
+      ? data.resumes
+      : null;
+
+  if (list === null) {
+    const single = normalizeImportedResume(data);
+    return 'error' in single ? single : { resumes: [single.resume], warnings: single.warnings };
+  }
+
+  const objects = objectList(list);
+  if (objects.length === 0) return { error: 'That export contains no resumes.' };
+
+  const resumes: Resume[] = [];
+  const warnings: string[] = [];
+  const failed: number[] = [];
+
+  objects.forEach((entry, index) => {
+    const result = normalizeImportedResume(entry);
+    if ('error' in result) {
+      failed.push(index + 1);
+      return;
+    }
+    resumes.push(result.resume);
+    // Per-resume warnings are prefixed so a 12-resume restore stays readable.
+    for (const warning of result.warnings) warnings.push(`${result.resume.name}: ${warning}`);
+  });
+
+  if (resumes.length === 0) return { error: 'None of the resumes in that file could be read.' };
+  if (failed.length > 0) {
+    warnings.push(`Skipped ${failed.length} unreadable ${failed.length === 1 ? 'entry' : 'entries'} (position ${failed.join(', ')}).`);
+  }
+  return { resumes, warnings };
 }

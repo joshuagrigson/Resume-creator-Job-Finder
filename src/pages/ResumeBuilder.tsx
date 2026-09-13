@@ -5,7 +5,7 @@
  * so the only "save" affordance is the freshness indicator in the header.
  */
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Check, FileUp, Palette, Sparkles, Upload } from 'lucide-react';
 import { AtsPanel } from '@/components/resume-editor/AtsPanel';
 import { ExportMenu } from '@/components/resume-editor/ExportMenu';
@@ -45,7 +45,17 @@ export default function ResumeBuilderPage() {
   const createResume = useResumeStore((s) => s.createResume);
   const resume = useActiveResume();
 
-  const [importOpen, setImportOpen] = useState(false);
+  // The dashboard's "Import a resume" CTA links to /resume?import=1 — open on arrival,
+  // then strip the param so Back or a refresh does not reopen the dialog.
+  const [params, setParams] = useSearchParams();
+  const [importOpen, setImportOpen] = useState(() => params.get('import') === '1');
+  useEffect(() => {
+    if (params.get('import') !== '1') return;
+    setImportOpen(true);
+    const next = new URLSearchParams(params);
+    next.delete('import');
+    setParams(next, { replace: true });
+  }, [params, setParams]);
   const [atsOpen, setAtsOpen] = useState(false);
   const [styleOpen, setStyleOpen] = useState(false);
   const [tab, setTab] = useState<'edit' | 'preview'>('edit');
@@ -150,7 +160,13 @@ export default function ResumeBuilderPage() {
             <Tab value="preview">Preview</Tab>
           </TabList>
           <TabPanel value="edit" className="no-print">{editorPane}</TabPanel>
-          <TabPanel value="preview">{previewPane}</TabPanel>
+          {/*
+            keepMounted: below 900px the panes are tabs, and an unmounted preview meant
+            a browser print from the Edit tab produced a blank page. The hidden panel
+            costs one extra render; PreviewFrame falls back to scale 1 while its width
+            measures 0 and the ResizeObserver corrects it when the tab becomes visible.
+          */}
+          <TabPanel value="preview" keepMounted>{previewPane}</TabPanel>
         </Tabs>
       ) : (
         <div className="re-split">

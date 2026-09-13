@@ -32,13 +32,11 @@ export function ImportDialog({ open, onClose, onImported }: ImportDialogProps) {
   const [text, setText] = useState('');
   const [busy, setBusy] = useState<null | 'file' | 'text' | 'ai'>(null);
   const [error, setError] = useState<string | null>(null);
-  const [warnings, setWarnings] = useState<string[]>([]);
 
   const reset = () => {
     setText('');
     setBusy(null);
     setError(null);
-    setWarnings([]);
   };
 
   const finish = (candidate: unknown, fallbackName: string) => {
@@ -49,10 +47,11 @@ export function ImportDialog({ open, onClose, onImported }: ImportDialogProps) {
     }
     const resume: Resume = { ...result.resume, name: result.resume.name?.trim() || fallbackName };
     const id = addResume(resume);
-    setWarnings(result.warnings);
+    // The dialog closes on the same tick, so the warnings have to travel in the toast —
+    // rendering them into dialog state below meant they were never visible.
     toast.push({
       title: 'Resume imported',
-      description: result.warnings.length ? `${result.warnings.length} field(s) needed cleanup.` : undefined,
+      description: result.warnings.length ? result.warnings.join(' ') : undefined,
       tone: 'success',
     });
     onImported?.(id);
@@ -194,15 +193,6 @@ export function ImportDialog({ open, onClose, onImported }: ImportDialogProps) {
         <p className="re-import__error" role="alert">
           {error}
         </p>
-      ) : null}
-      {warnings.length > 0 ? (
-        <ul className="re-import__warnings">
-          {warnings.map((warning, i) => (
-            <li key={i} className="small muted">
-              {warning}
-            </li>
-          ))}
-        </ul>
       ) : null}
     </Modal>
   );

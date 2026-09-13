@@ -572,12 +572,13 @@ export function analyzeResume(resume: Resume, jobText?: string): AtsReport {
       fix: 'Spell out the credential ("B.B.A., Marketing") — degree filters look for the exact word.',
       raw: 1,
     });
-  } else {
-    strengths.push(
-      certifications.length > 0
-        ? `Education plus ${certifications.length} ${plural(certifications.length, 'certification')} listed.`
-        : 'Education section is present.',
-    );
+  } else if (education.length > 0 && certifications.length > 0) {
+    strengths.push(`Education plus ${certifications.length} ${plural(certifications.length, 'certification')} listed.`);
+  } else if (education.length > 0) {
+    strengths.push('Education section is present.');
+  } else if (certifications.length > 0) {
+    // No education, but certifications carry real weight on their own — say only what is true.
+    strengths.push(`${certifications.length} ${plural(certifications.length, 'certification')} listed.`);
   }
 
   // -- Formatting & length -------------------------------------------------

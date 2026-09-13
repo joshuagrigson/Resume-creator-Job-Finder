@@ -194,6 +194,14 @@ const CURRENCY_SYMBOLS: Readonly<Record<string, string>> = {
   A$: 'AUD',
 };
 
+/**
+ * Symbols longest-first. Plain "$" is a prefix of "C$" and "A$", so scanning in object
+ * order matched "$" first and labelled every Canadian and Australian salary as USD.
+ */
+const SYMBOLS_BY_LENGTH: readonly (readonly [string, string])[] = Object.entries(CURRENCY_SYMBOLS).sort(
+  (a, b) => b[0].length - a[0].length,
+);
+
 const CURRENCY_CODE_RE = /\b(USD|EUR|GBP|CAD|AUD|NZD|CHF|SEK|NOK|DKK|PLN|INR|JPY|BRL|MXN|SGD|ZAR|AED|ILS)\b/i;
 
 export interface SalaryInput {
@@ -261,7 +269,8 @@ export function parseSalaryText(text: string): ParsedSalaryText {
   if (codeMatch?.[1]) {
     result.currency = codeMatch[1].toUpperCase();
   } else {
-    for (const [symbol, code] of Object.entries(CURRENCY_SYMBOLS)) {
+    // Longest symbol first, so "C$" and "A$" win over the "$" they contain.
+    for (const [symbol, code] of SYMBOLS_BY_LENGTH) {
       if (text.includes(symbol)) {
         result.currency = code;
         break;
@@ -271,30 +280,51 @@ export function parseSalaryText(text: string): ParsedSalaryText {
 
   result.period = mapSalaryPeriod(text);
 
-  const numbers: number[] = [];
-  const numberRe = /(\d[\d.,]*)\s*([kKmM])?/g;
-  let match: RegExpExecArray | null;
-  while ((match = numberRe.exec(text)) !== null) {
-    const rawNumber = match[1] ?? '';
-    const suffix = (match[2] ?? '').toLowerCase();
-    // "60.000" (European) vs "60.5" — treat a dot followed by exactly 3 digits as a separator.
-    const normalized = rawNumber.replace(/,/g, '').replace(/\.(?=\d{3}\b)/g, '');
-    const value = Number.parseFloat(normalized);
-    if (!Number.isFinite(value) || value <= 0) continue;
-    const scaled = suffix === 'k' ? value * 1000 : suffix === 'm' ? value * 1_000_000 : value;
-    if (scaled < 1 || scaled > 100_000_000) continue;
-    numbers.push(Math.round(scaled));
-    if (numbers.length >= 4) break;
-  }
+  // Match ONE pay expression rather than harvesting every digit in the sentence.
+  // Scanning the whole string turns "$120k base, 401k match, 15% bonus" into a
+  // 15–401,000 "range"; anchoring on a currency mark or an explicit range keeps
+  // unrelated numbers out.
+  const amount = String.raw`\d[\d.,]*\s*[kKmM]?`;
+  // Up to two letters may precede the sign so "C$", "A$", "US$" and "NZ$" read as cues too.
+  const cue = String.raw`[A-Za-z]{0,2}[$£€¥₹]|\b(?:usd|eur|gbp|cad|aud|chf|inr|jpy|sek|nok|dkk|pln|brl|mxn|zar|sgd|nzd)\b`;
+  const rangeSep = String.raw`\s*(?:-|–|—|to|up to|and)\s*`;
+  const payExpression = new RegExp(
+    // "$120k - $150k" / "120k–150k USD" / "$120,000" / "EUR 60.000 to 80.000"
+    `(?:${cue})\\s*(${amount})(?:${rangeSep}(?:${cue})?\\s*(${amount}))?` +
+      `|(${amount})${rangeSep}(${amount})\\s*(?:${cue})`,
+    'i',
+  );
 
-  if (numbers.length === 1) {
-    result.min = numbers[0];
-  } else if (numbers.length >= 2) {
-    const sorted = [...numbers].sort((a, b) => a - b);
-    result.min = sorted[0];
-    result.max = sorted[sorted.length - 1];
+  const found = payExpression.exec(text);
+  const rawLow = found?.[1] ?? found?.[3];
+  const rawHigh = found?.[2] ?? found?.[4];
+
+  const low = parseAmount(rawLow);
+  const high = parseAmount(rawHigh);
+  if (low !== undefined && high !== undefined) {
+    result.min = Math.min(low, high);
+    result.max = Math.max(low, high);
+  } else if (low !== undefined) {
+    result.min = low;
+  } else if (high !== undefined) {
+    result.min = high;
   }
   return result;
+}
+
+/** One amount token to a number, honoring k/m suffixes and both decimal conventions. */
+function parseAmount(raw: string | undefined): number | undefined {
+  if (!raw) return undefined;
+  const parts = /^(\d[\d.,]*)\s*([kKmM])?$/.exec(raw.trim());
+  if (!parts) return undefined;
+  const suffix = (parts[2] ?? '').toLowerCase();
+  // "60.000" (European) vs "60.5" — a dot followed by exactly 3 digits is a separator.
+  const normalized = (parts[1] ?? '').replace(/,/g, '').replace(/\.(?=\d{3}\b)/g, '');
+  const value = Number.parseFloat(normalized);
+  if (!Number.isFinite(value) || value <= 0) return undefined;
+  const scaled = suffix === 'k' ? value * 1000 : suffix === 'm' ? value * 1_000_000 : value;
+  if (scaled < 1 || scaled > 100_000_000) return undefined;
+  return Math.round(scaled);
 }
 
 // ---------------------------------------------------------------------------

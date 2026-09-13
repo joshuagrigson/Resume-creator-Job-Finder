@@ -6,16 +6,22 @@ import DOMPurify from 'dompurify';
 import type { Job, Resume, SkillGroup } from '@shared/types';
 import { createSkillGroup } from '@/lib/resume/defaults';
 import { ApiClientError } from '@/lib/api';
+import { canonicalSkillFor } from '@shared/keywords';
 
 /**
  * Sanitize untrusted posting HTML and force every surviving link to open safely.
  * Styles, images and inline SVG are dropped — a job ad has no business shipping those here.
+ *
+ * `style` is forbidden as an attribute too: a surviving inline style can position an
+ * element over the whole viewport (clickjacking) or pull a background image from a
+ * third party (a tracking beacon), neither of which a job description needs.
  */
 export function sanitizeJobHtml(html: string): string {
   if (!html) return '';
   const clean = DOMPurify.sanitize(html, {
     USE_PROFILES: { html: true },
     FORBID_TAGS: ['style', 'img', 'svg'],
+    FORBID_ATTR: ['style'],
   });
   if (typeof document === 'undefined') return clean;
   const holder = document.createElement('div');
@@ -40,16 +46,31 @@ export function jobTextOf(job: Pick<Job, 'descriptionText' | 'descriptionHtml'> 
     .trim();
 }
 
-/** Every skill already on the resume, lowercased, for "do I have this?" checks. */
+/**
+ * Every skill already on the resume, as lookup keys for "do I have this?" checks.
+ *
+ * Both the literal spelling and its canonical dictionary name go in, because the other
+ * side of every comparison (extractRequirements, extractSkills) emits canonical names.
+ * Without this a resume listing "JS" reads as missing "JavaScript", the keyword gap
+ * reports 0% coverage, and accepting the suggestion appends a duplicate skill.
+ */
 export function resumeSkillSet(resume: Resume | undefined): Set<string> {
   const set = new Set<string>();
   for (const group of resume?.skillGroups ?? []) {
     for (const skill of group.skills ?? []) {
       const clean = skill.trim().toLowerCase();
-      if (clean) set.add(clean);
+      if (!clean) continue;
+      set.add(clean);
+      const canonical = canonicalSkillFor(skill.trim());
+      if (canonical) set.add(canonical.toLowerCase());
     }
   }
   return set;
+}
+
+/** The lookup key for one skill: its canonical name when the dictionary knows it. */
+function skillKey(skill: string): string {
+  return (canonicalSkillFor(skill) ?? skill).trim().toLowerCase();
 }
 
 /**
@@ -62,8 +83,10 @@ export function withSkillsAdded(resume: Resume, incoming: readonly string[]): Re
   for (const raw of incoming) {
     const skill = raw.trim();
     if (!skill) continue;
-    const key = skill.toLowerCase();
-    if (existing.has(key)) continue;
+    // Key on the canonical name so "JavaScript" is recognised as already present
+    // on a resume that spells it "JS", instead of being appended alongside it.
+    const key = skillKey(skill);
+    if (existing.has(key) || existing.has(skill.toLowerCase())) continue;
     existing.add(key);
     additions.push(skill);
   }

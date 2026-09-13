@@ -18,10 +18,8 @@ const DANGEROUS_ELEMENTS = ['script', 'style', 'iframe', 'object', 'embed', 'nos
 const DANGEROUS_BLOCK_RE = new RegExp(`<(${DANGEROUS_ELEMENTS.join('|')})\\b[^>]*>[\\s\\S]*?<\\/\\1\\s*>`, 'gi');
 const DANGEROUS_TAG_RE = new RegExp(`<\\/?(?:${DANGEROUS_ELEMENTS.join('|')})\\b[^>]*>`, 'gi');
 const COMMENT_RE = /<!--[\s\S]*?-->/g;
-const EVENT_ATTR_RE = /\son[a-z0-9_-]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s"'>]+)/gi;
-const URL_ATTR_RE = /\s(href|src|xlink:href|action|formaction|background|poster|data)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+))/gi;
 const DANGEROUS_URL_RE = /^\s*(?:javascript|vbscript|data\s*:\s*text\/html|livescript|mocha)\b/i;
-const SRCDOC_RE = /\ssrcdoc\s*=\s*(?:"[^"]*"|'[^']*'|[^\s"'>]+)/gi;
+const CONTROL_CHARS_RE = /[\u0000-\u0020]/g;
 
 const NAMED_ENTITIES: Readonly<Record<string, string>> = {
   amp: '&',
@@ -140,6 +138,61 @@ export function toDescriptionText(html: unknown, maxChars = MAX_DESCRIPTION_TEXT
   return `${text.slice(0, maxChars).replace(/\s+\S*$/, '')}…`;
 }
 
+/** Attributes whose value is a URL, so a `javascript:` payload has to be neutralized. */
+const URL_ATTRS = new Set(['href', 'src', 'xlink:href', 'action', 'formaction', 'background', 'poster', 'data']);
+/** Attributes dropped outright wherever they appear. */
+const DROPPED_ATTRS = new Set(['srcdoc', 'style']);
+
+/** Matches one whole tag, so attributes are only ever rewritten inside a tag. */
+const TAG_RE = /<\/?[a-z][^>]*>/gi;
+/** One attribute inside a tag: a name, then optionally `=` and a quoted or bare value. */
+const ATTR_RE = /([a-z_:][-a-z0-9_:.]*)(\s*=\s*(?:"([^"]*)"|\'([^\']*)\'|([^\s"\'`=<>]+)))?/gi;
+
+function isDangerousUrl(raw: string): boolean {
+  return DANGEROUS_URL_RE.test(decodeEntities(raw).replace(CONTROL_CHARS_RE, ''));
+}
+
+/**
+ * Rewrite one tag, keeping only the attributes that are safe to keep.
+ *
+ * Parsing attributes properly, rather than pattern-matching `\son...=` across the whole
+ * document, is what makes this correct: an HTML tokenizer also accepts `/` as an
+ * attribute separator and lets an attribute butt straight against a closing quote, so
+ * `<a/onclick=x>` and `<a href="y"onclick=x>` both carry a live handler that a
+ * whitespace-anchored pattern walks right past.
+ */
+function sanitizeTag(tag: string): string {
+  const head = /^<\s*(\/?)\s*([a-z][a-z0-9:-]*)/i.exec(tag);
+  if (!head) return '';
+  if (head[1] === '/') return `</${head[2].toLowerCase()}>`;
+  const name = head[2].toLowerCase();
+
+  let body = tag.slice(head[0].length);
+  const selfClosing = /\/\s*>$/.test(body);
+  body = body.replace(/\/?\s*>$/, '');
+
+  const kept: string[] = [];
+  ATTR_RE.lastIndex = 0;
+  let match: RegExpExecArray | null;
+  while ((match = ATTR_RE.exec(body)) !== null) {
+    if (match[0] === '') {
+      ATTR_RE.lastIndex += 1; // never spin on a zero-length match
+      continue;
+    }
+    const attr = match[1].toLowerCase();
+    if (attr.startsWith('on') || DROPPED_ATTRS.has(attr)) continue;
+    if (match[2] === undefined) {
+      kept.push(attr);
+      continue;
+    }
+    const value = match[3] ?? match[4] ?? match[5] ?? '';
+    const safe = URL_ATTRS.has(attr) && isDangerousUrl(value) ? '#' : value;
+    kept.push(`${attr}="${safe.replace(/"/g, '&quot;')}"`);
+  }
+
+  return `<${name}${kept.length > 0 ? ` ${kept.join(' ')}` : ''}${selfClosing ? ' /' : ''}>`;
+}
+
 /**
  * First-pass sanitize of source HTML: removes script/style/iframe/object/embed blocks,
  * `on*=` handlers, `javascript:`/`vbscript:`/`data:text/html` URLs, and caps the size.
@@ -151,14 +204,7 @@ export function sanitizeHtml(html: unknown, maxBytes = MAX_DESCRIPTION_HTML_BYTE
   out = out.replace(COMMENT_RE, '');
   out = out.replace(DANGEROUS_BLOCK_RE, '');
   out = out.replace(DANGEROUS_TAG_RE, '');
-  out = out.replace(EVENT_ATTR_RE, '');
-  out = out.replace(SRCDOC_RE, '');
-  out = out.replace(URL_ATTR_RE, (match, name: string, dq?: string, sq?: string, bare?: string) => {
-    const raw = dq ?? sq ?? bare ?? '';
-    // Strip control characters used to smuggle `java\u0000script:` past naive checks.
-    const value = decodeEntities(raw).replace(/[\u0000-\u0020]/g, '');
-    return DANGEROUS_URL_RE.test(value) ? ` ${name}="#"` : match;
-  });
+  out = out.replace(TAG_RE, (tag) => sanitizeTag(tag));
   out = out.trim();
   if (out.length > maxBytes) {
     // Truncate on a tag boundary so we never leave a half-written element behind.

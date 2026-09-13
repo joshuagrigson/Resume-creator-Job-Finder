@@ -2,7 +2,7 @@ import { useRef, useState, type ChangeEvent } from 'react';
 import { Download, Trash2, Upload } from 'lucide-react';
 import type { Resume } from '@shared/types';
 import { RESUME_SCHEMA_VERSION } from '@shared/types';
-import { normalizeImportedResume } from '@/lib/resume/validate';
+import { normalizeImportedResumeBundle } from '@/lib/resume/validate';
 import { downloadBlob } from '@/lib/export';
 import { Button, Card, Field, Input, Modal, useToast } from '@/components/ui';
 import { useJobStore } from '@/stores/jobStore';
@@ -80,15 +80,23 @@ export function DataPanel({ className }: DataPanelProps) {
     setImporting(true);
     try {
       const text = await file.text();
-      const result = normalizeImportedResume(text);
+      // Settings exports every resume, so Settings restores every resume.
+      const result = normalizeImportedResumeBundle(text);
       if ('error' in result) {
         toast.push({ title: 'Could not import that file', description: result.error, tone: 'error' });
         return;
       }
-      addResume(result.resume);
+      for (const resume of result.resumes) addResume(resume);
+      const count = result.resumes.length;
+      const last = result.resumes[count - 1];
       toast.push({
-        title: `Imported “${result.resume.name}”`,
-        description: result.warnings.length > 0 ? result.warnings.join(' ') : 'It is now your active resume.',
+        title: count === 1 ? `Imported “${last.name}”` : `Imported ${count} resumes`,
+        description:
+          result.warnings.length > 0
+            ? result.warnings.join(' ')
+            : count === 1
+              ? 'It is now your active resume.'
+              : `“${last.name}” is now your active resume.`,
         tone: 'success',
       });
     } catch (error) {

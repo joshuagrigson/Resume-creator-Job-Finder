@@ -3,6 +3,7 @@
  */
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { createSafeStorage } from '@/stores/storage';
 import type { AiStatus, HealthResponse } from '@shared/types';
 import { api } from '@/lib/api';
 
@@ -46,6 +47,7 @@ export const useSettingsStore = create<SettingsState>()(
     }),
     {
       name: 'launchpad.settings.v1',
+      storage: createSafeStorage(),
       version: 1,
       partialize: (s) => ({ theme: s.theme, onboarded: s.onboarded }),
     },

@@ -20,7 +20,8 @@
 
 .tl-sticky {
   position: sticky;
-  top: 0;
+  /* Clear the app top bar, which is itself sticky — matches .jf-detail-col and .re-split__preview. */
+  top: calc(var(--topbar-height) + var(--space-4));
   z-index: var(--z-sticky);
   display: flex;
   flex-wrap: wrap;
