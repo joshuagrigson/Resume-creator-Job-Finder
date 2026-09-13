@@ -1,0 +1,194 @@
+/*
+ * TemplateThumb — a ~3:4 paper swatch drawn with nothing but divs, so the template picker can
+ * show what each layout feels like without rendering a whole resume.
+ */
+
+.rp-thumb {
+  display: block;
+  position: relative;
+  width: 100%;
+  aspect-ratio: 17 / 22; /* letter */
+  padding: 9%;
+  background: #ffffff;
+  border: 1px solid var(--color-border, #e2e5ec);
+  border-radius: var(--radius-xs, 4px);
+  overflow: hidden;
+  color-scheme: light;
+}
+
+.rp-thumb-head {
+  display: block;
+  margin-bottom: 11%;
+}
+
+.rp-thumb-name {
+  display: block;
+  height: 7px;
+  width: 62%;
+  border-radius: 1px;
+  background: #2a3140;
+}
+
+.rp-thumb-line {
+  display: block;
+  height: 2.5px;
+  width: 100%;
+  margin-top: 3.5px;
+  border-radius: 1px;
+  background: #cbd1dc;
+}
+
+.rp-thumb-line--sub {
+  width: 42%;
+  background: var(--rp-thumb-accent);
+  opacity: 0.75;
+}
+
+.rp-thumb-line--short {
+  width: 78%;
+}
+
+.rp-thumb-heading {
+  display: block;
+  height: 3.5px;
+  width: 34%;
+  margin-bottom: 4px;
+  border-radius: 1px;
+  background: var(--rp-thumb-accent);
+}
+
+.rp-thumb-block {
+  display: block;
+  margin-bottom: 9%;
+}
+
+.rp-thumb-block:last-child {
+  margin-bottom: 0;
+}
+
+/* ------------------------------------------------------------- classic --- */
+
+.rp-thumb--classic .rp-thumb-head {
+  text-align: center;
+  padding-bottom: 5%;
+  border-bottom: 1.5px double #2a3140;
+}
+
+.rp-thumb--classic .rp-thumb-name {
+  margin: 0 auto;
+  width: 70%;
+}
+
+.rp-thumb--classic .rp-thumb-line--sub {
+  margin: 3.5px auto 0;
+  background: #a3acbd;
+}
+
+.rp-thumb--classic .rp-thumb-heading {
+  width: 100%;
+  height: 3px;
+  background: transparent;
+  border-bottom: 1.5px solid var(--rp-thumb-accent);
+}
+
+/* -------------------------------------------------------------- modern --- */
+
+.rp-thumb--modern .rp-thumb-name {
+  height: 8px;
+  width: 55%;
+}
+
+.rp-thumb--modern .rp-thumb-heading {
+  width: 40%;
+  height: 4px;
+  border-left: 4px solid var(--rp-thumb-accent);
+  background: var(--rp-thumb-tint);
+}
+
+/* ------------------------------------------------------------- minimal --- */
+
+.rp-thumb--minimal {
+  padding: 13%;
+}
+
+.rp-thumb--minimal .rp-thumb-name {
+  height: 4px;
+  width: 48%;
+  background: #7b8699;
+}
+
+.rp-thumb--minimal .rp-thumb-line--sub {
+  width: 30%;
+  background: #cbd1dc;
+}
+
+.rp-thumb--minimal .rp-thumb-block {
+  margin-bottom: 13%;
+  padding-top: 5%;
+  border-top: 1px solid #eef0f4;
+}
+
+.rp-thumb--minimal .rp-thumb-heading {
+  width: 26%;
+  height: 2.5px;
+  background: #a3acbd;
+}
+
+/* ----------------------------------------------------------- executive --- */
+
+.rp-thumb--executive .rp-thumb-head {
+  padding-bottom: 6%;
+  border-bottom: 2px solid var(--rp-thumb-accent);
+}
+
+.rp-thumb--executive .rp-thumb-name {
+  height: 10px;
+  width: 76%;
+}
+
+.rp-thumb--executive .rp-thumb-line--sub {
+  width: 52%;
+  height: 3px;
+}
+
+.rp-thumb--executive .rp-thumb-heading {
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(to right, var(--rp-thumb-accent) 34%, var(--rp-thumb-tint) 34%);
+}
+
+/* ------------------------------------------------------------- sidebar --- */
+
+.rp-thumb--sidebar {
+  display: flex;
+  padding: 0;
+  gap: 0;
+}
+
+.rp-thumb-col {
+  display: block;
+}
+
+.rp-thumb-col--aside {
+  flex: 0 0 32%;
+  padding: 9% 7%;
+  background: var(--rp-thumb-tint);
+  border-right: 1px solid var(--rp-thumb-accent);
+}
+
+.rp-thumb-col--main {
+  flex: 1 1 auto;
+  padding: 9% 8%;
+  min-width: 0;
+}
+
+.rp-thumb--sidebar .rp-thumb-name {
+  height: 7px;
+  width: 74%;
+  margin-bottom: 9%;
+}
+
+.rp-thumb--sidebar .rp-thumb-col--aside .rp-thumb-heading {
+  width: 62%;
+  margin-top: 20%;
+}

@@ -1,0 +1,384 @@
+/*
+ * ResumePreview — the paper sheet, the screen scaling wrapper, the shared section/item
+ * typography, and every print rule.
+ *
+ * The sheet is a document, not app chrome: it is deliberately hard-coded to black-on-white
+ * so it looks identical in light mode, dark mode and on paper. Only `--rp-accent` varies.
+ *
+ * Everything inside the sheet is sized in `em` off the root `font-size` (the user's point
+ * size), so changing 10pt → 11pt rescales the whole page proportionally.
+ */
+
+.rp-preview {
+  position: relative;
+  overflow: hidden;
+  flex: none;
+  max-width: 100%;
+  /* Fallback if the inline size is missing (e.g. no layout yet). */
+  min-width: 0;
+  color-scheme: light;
+}
+
+.rp-sheet {
+  position: absolute;
+  inset: 0 auto auto 0;
+  box-sizing: border-box;
+  width: var(--rp-page-w);
+  min-height: var(--rp-page-h);
+  padding: var(--rp-pad);
+  transform: scale(var(--rp-scale));
+  transform-origin: top left;
+  background: #ffffff;
+  color: #16191f;
+  font-family: var(--rp-font-body);
+  font-weight: 400;
+  line-height: var(--rp-leading);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  box-shadow:
+    0 1px 2px rgba(16, 24, 40, 0.08),
+    0 8px 28px rgba(16, 24, 40, 0.12);
+}
+
+.rp-sheet *,
+.rp-sheet *::before,
+.rp-sheet *::after {
+  box-sizing: border-box;
+}
+
+.rp-sheet p,
+.rp-sheet ul,
+.rp-sheet ol,
+.rp-sheet h1,
+.rp-sheet h2,
+.rp-sheet h3 {
+  margin: 0;
+  padding: 0;
+}
+
+.rp-sheet ul {
+  list-style: none;
+}
+
+.rp-blank {
+  color: #6b7280;
+  font-size: 1em;
+  font-style: italic;
+}
+
+/* ------------------------------------------------------------------ header */
+
+.rp-nameblock {
+  display: block;
+}
+
+.rp-name {
+  margin: 0;
+  font-family: var(--rp-font-head);
+  font-size: 2.05em;
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.012em;
+  color: #101319;
+}
+
+.rp-headline {
+  margin-top: 0.18em;
+  font-size: 1.02em;
+  font-weight: 500;
+  line-height: 1.25;
+  color: var(--rp-accent-text);
+}
+
+.rp-contact {
+  margin-top: 0.5em;
+  font-size: 0.85em;
+  line-height: 1.45;
+  color: #3d434e;
+}
+
+.rp-contact--row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 0.42em;
+  row-gap: 0.1em;
+}
+
+.rp-contact--stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3em;
+  word-break: break-word;
+}
+
+.rp-contact-item {
+  display: inline;
+}
+
+.rp-contact--row .rp-contact-item {
+  white-space: nowrap;
+}
+
+.rp-contact--stack .rp-contact-item {
+  white-space: normal;
+}
+
+.rp-contact-sep {
+  margin-right: 0.42em;
+  color: #9aa1ae;
+}
+
+.rp-link {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 0;
+}
+
+/* ---------------------------------------------------------------- sections */
+
+.rp-sections {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rp-section-gap);
+}
+
+.rp-section {
+  display: block;
+}
+
+.rp-section-title {
+  font-family: var(--rp-font-head);
+  font-size: 0.88em;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--rp-accent-text);
+  margin-bottom: 0.42em;
+}
+
+.rp-items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--rp-item-gap);
+}
+
+.rp-summary {
+  font-size: 1em;
+  line-height: var(--rp-leading);
+  color: #23272f;
+}
+
+/* ------------------------------------------------------------------- items */
+
+.rp-item-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.9em;
+}
+
+.rp-item-headline {
+  min-width: 0;
+}
+
+.rp-item-title {
+  display: block;
+  font-family: var(--rp-font-head);
+  font-size: 1.02em;
+  font-weight: 700;
+  line-height: 1.25;
+  color: #101319;
+}
+
+.rp-item-title-sep {
+  font-weight: 400;
+}
+
+.rp-item-org {
+  display: block;
+  font-size: 0.98em;
+  font-weight: 500;
+  line-height: 1.3;
+  color: #3a4150;
+}
+
+.rp-item-title .rp-item-org {
+  display: inline;
+  font-size: 1em;
+  font-weight: 400;
+}
+
+.rp-item-meta {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.rp-dates {
+  font-size: 0.85em;
+  font-variant-numeric: tabular-nums;
+  color: #4b515e;
+}
+
+.rp-item-loc {
+  font-size: 0.82em;
+  font-style: italic;
+  color: #6b7280;
+}
+
+.rp-bullets {
+  margin-top: 0.3em;
+  display: flex;
+  flex-direction: column;
+  gap: var(--rp-bullet-gap);
+}
+
+.rp-bullet {
+  position: relative;
+  padding-left: 1.05em;
+  line-height: var(--rp-leading);
+  color: #23272f;
+}
+
+.rp-bullet::before {
+  content: '•';
+  position: absolute;
+  left: 0.15em;
+  top: 0;
+  color: var(--rp-accent-text);
+}
+
+.rp-item-desc {
+  margin-top: 0.18em;
+  color: #23272f;
+}
+
+.rp-item-linkline {
+  font-size: 0.86em;
+  color: #4b515e;
+}
+
+.rp-item-tech {
+  margin-top: 0.22em;
+  font-size: 0.88em;
+  color: #4b515e;
+}
+
+.rp-item-tech-label {
+  font-weight: 600;
+  color: #23272f;
+}
+
+/* ------------------------------------------------------------------ skills */
+
+.rp-skills {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3em;
+}
+
+.rp-skill-group {
+  display: grid;
+  grid-template-columns: minmax(5.5em, 24%) 1fr;
+  gap: 0.7em;
+  align-items: baseline;
+  line-height: var(--rp-leading);
+}
+
+.rp-skill-group--unlabelled {
+  grid-template-columns: 1fr;
+}
+
+.rp-skill-label {
+  font-weight: 700;
+  color: #101319;
+}
+
+.rp-skill-values {
+  color: #23272f;
+}
+
+/* ---------------------------------------------------------- certifications */
+
+.rp-certs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.28em;
+}
+
+.rp-cert {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.9em;
+  line-height: var(--rp-leading);
+}
+
+.rp-cert-name {
+  min-width: 0;
+  color: #23272f;
+}
+
+/* ------------------------------------------------------------------- print */
+
+@media print {
+  .rp-preview {
+    position: static !important;
+    overflow: visible !important;
+    width: auto !important;
+    height: auto !important;
+    margin: 0 !important;
+    max-width: none !important;
+  }
+
+  .rp-sheet {
+    position: static !important;
+    transform: none !important;
+    box-shadow: none !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    /* No forced page height: a one-page resume must not spill a blank second page. */
+    min-height: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Keep an entry — heading, dates and its bullets — on one page. */
+  .rp-section,
+  .rp-item,
+  .rp-cert,
+  .rp-skill-group,
+  .rp-bullet {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* A heading must never be the last thing on a page. */
+  .rp-section-title,
+  .rp-item-head,
+  .rp-name,
+  .rp-headline {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  .rp-header {
+    break-inside: avoid;
+    break-after: avoid;
+  }
+
+  /* Long sections may split, just not mid-entry. */
+  .rp-items,
+  .rp-sections,
+  .rp-body {
+    break-inside: auto;
+  }
+
+  .rp-sheet a {
+    color: inherit !important;
+    text-decoration: none !important;
+  }
+}

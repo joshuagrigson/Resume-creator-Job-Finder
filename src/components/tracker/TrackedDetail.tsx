@@ -39,11 +39,23 @@ export function TrackedDetail({ entry, open, onClose, matchScore }: TrackedDetai
   const [confirming, setConfirming] = useState(false);
   const savedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Re-seed the textarea whenever a different application opens.
+  const commitNotes = useDebouncedCallback((id: string, value: string) => {
+    setNotes(id, value);
+    setSaved(true);
+    if (savedTimer.current) clearTimeout(savedTimer.current);
+    savedTimer.current = setTimeout(() => setSaved(false), 2200);
+  }, 400);
+
+  // Re-seed the textarea whenever a *different* application opens (not on our own saves).
+  const seededFor = useRef(jobId);
+  const incomingNotes = entry?.notes ?? '';
   useEffect(() => {
-    setLocalNotes(entry?.notes ?? '');
+    if (seededFor.current === jobId) return;
+    seededFor.current = jobId;
+    commitNotes.cancel();
+    setLocalNotes(incomingNotes);
     setSaved(false);
-  }, [jobId, entry?.notes]);
+  }, [jobId, incomingNotes, commitNotes]);
 
   useEffect(
     () => () => {
@@ -51,13 +63,6 @@ export function TrackedDetail({ entry, open, onClose, matchScore }: TrackedDetai
     },
     [],
   );
-
-  const commitNotes = useDebouncedCallback((id: string, value: string) => {
-    setNotes(id, value);
-    setSaved(true);
-    if (savedTimer.current) clearTimeout(savedTimer.current);
-    savedTimer.current = setTimeout(() => setSaved(false), 2200);
-  }, 400);
 
   if (!entry) return null;
   const { job } = entry;
@@ -72,7 +77,7 @@ export function TrackedDetail({ entry, open, onClose, matchScore }: TrackedDetai
             <p className="tr-detail-company">{job.company || 'Unknown company'}</p>
             <p className="tr-detail-sub">
               {job.location && (
-                <span className="row row-1">
+                <span className="tr-detail-loc">
                   <MapPin size={12} aria-hidden="true" /> {job.location}
                 </span>
               )}
@@ -104,7 +109,7 @@ export function TrackedDetail({ entry, open, onClose, matchScore }: TrackedDetai
 
           <Field
             label="Notes"
-            hint={saved ? 'Saved' : 'Recruiter names, interview prep, salary talk — saved as you type.'}
+            hint={saved ? 'Notes saved' : 'Recruiter names, interview prep, salary talk — saved as you type.'}
           >
             <Textarea
               rows={6}
@@ -141,14 +146,10 @@ export function TrackedDetail({ entry, open, onClose, matchScore }: TrackedDetai
 
           <div className="tr-detail-actions">
             {job.url && (
-              <Button
-                as-child="false"
-                variant="secondary"
-                leftIcon={<ExternalLink size={15} />}
-                onClick={() => window.open(job.url, '_blank', 'noopener,noreferrer')}
-              >
+              <a className="tr-detail-link" href={job.url} target="_blank" rel="noopener noreferrer">
+                <ExternalLink size={15} aria-hidden="true" />
                 View posting
-              </Button>
+              </a>
             )}
             <Link className="tr-tailor-link" to={`/tailor/${encodeURIComponent(job.id)}`} onClick={onClose}>
               <Sparkles size={15} aria-hidden="true" />
