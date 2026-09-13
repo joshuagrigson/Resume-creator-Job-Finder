@@ -10,7 +10,7 @@ export interface SectionPanelProps {
   id: string;
   title: string;
   /** Small right-aligned hint in the header, e.g. "3 roles". */
-  summary?: string;
+  summary?: ReactNode;
   open: boolean;
   onToggleOpen: () => void;
   hidden?: boolean;

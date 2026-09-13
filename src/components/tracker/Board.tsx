@@ -14,7 +14,7 @@ import {
 import type { ApplicationStatus, TrackedJob } from '@shared/types';
 import { APPLICATION_STATUSES, APPLICATION_STATUS_LABELS } from '@shared/types';
 import { Column } from './Column';
-import { TrackedCard } from './TrackedCard';
+import { TrackedCard, TrackedCardPreview } from './TrackedCard';
 import { groupByStatus } from './utils';
 
 export interface BoardProps {
@@ -127,13 +127,7 @@ export function Board({ entries, scores, hasResume, onOpen, onStatusChange }: Bo
 
       <DragOverlay dropAnimation={null}>
         {activeEntry ? (
-          <TrackedCard
-            overlay
-            entry={activeEntry}
-            matchScore={hasResume ? scores[activeEntry.job.id] ?? 0 : null}
-            onOpen={onOpen}
-            onStatusChange={onStatusChange}
-          />
+          <TrackedCardPreview entry={activeEntry} matchScore={hasResume ? scores[activeEntry.job.id] ?? 0 : null} />
         ) : null}
       </DragOverlay>
     </DndContext>

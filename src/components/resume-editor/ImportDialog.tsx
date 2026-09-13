@@ -14,6 +14,7 @@ import { parseResumeText } from '@/lib/resume/parse-text';
 import { normalizeImportedResume } from '@/lib/resume/validate';
 import { useResumeStore } from '@/stores/resumeStore';
 import { useSettingsStore } from '@/stores/settingsStore';
+import './editor.css';
 
 export interface ImportDialogProps {
   open: boolean;

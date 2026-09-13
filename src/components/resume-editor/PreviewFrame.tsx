@@ -7,6 +7,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { PageSize, Resume } from '@shared/types';
 import { ResumePreview } from '@/components/resume-preview/ResumePreview';
+import './editor.css';
 
 /** Paper widths in CSS pixels at 96dpi. */
 export const PAGE_WIDTH_PX: Record<PageSize, number> = {

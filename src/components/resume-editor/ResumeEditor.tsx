@@ -38,6 +38,7 @@ import {
   sectionSummary,
 } from './sections';
 import { useResumeSlice } from './store-hooks';
+import './editor.css';
 
 const CONTACT_PANEL = 'contact';
 const DEFAULT_OPEN = [CONTACT_PANEL, 'summary', 'experience'];

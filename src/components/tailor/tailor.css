@@ -163,6 +163,10 @@
   align-items: center;
 }
 
+.tl-jd-body[hidden] {
+  display: none;
+}
+
 .tl-jd-body {
   margin-top: var(--space-3);
   max-height: 420px;

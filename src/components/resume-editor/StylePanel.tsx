@@ -8,6 +8,7 @@ import type { Density, FontChoice, PageSize, ResumeId, ResumeStyle, TemplateId }
 import { TEMPLATE_IDS } from '@shared/types';
 import { Field, Input, Select } from '@/components/ui';
 import { useResumeSlice, useResumeUpdate } from './store-hooks';
+import './editor.css';
 
 export const TEMPLATE_META: Record<TemplateId, { name: string; description: string }> = {
   classic: { name: 'Classic', description: 'Serif type, centered header, ruled sections.' },

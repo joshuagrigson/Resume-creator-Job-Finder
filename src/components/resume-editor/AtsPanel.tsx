@@ -4,6 +4,7 @@ import { AlertTriangle, CheckCircle2, Info, XCircle } from 'lucide-react';
 import type { AtsReport, AtsSeverity } from '@shared/types';
 import { Badge, ScoreRing } from '@/components/ui';
 import { atsScoreLabel, atsScoreTone } from '@/lib/resume/ats';
+import './editor.css';
 
 const SEVERITY_ORDER: AtsSeverity[] = ['critical', 'warning', 'tip'];
 
