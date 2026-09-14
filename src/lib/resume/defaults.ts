@@ -12,7 +12,7 @@ import { nowIso, uid } from '@/lib/id';
 
 export const DEFAULT_STYLE: ResumeStyle = {
   template: 'modern',
-  accentColor: '#1f5eff',
+  accentColor: '#3d5a85',
   font: 'sans',
   fontSize: 10.5,
   density: 'normal',

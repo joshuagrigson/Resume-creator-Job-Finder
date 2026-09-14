@@ -1,3 +1,4 @@
+import { DEFAULT_STYLE } from '../src/lib/resume/defaults';
 import { describe, expect, it } from 'vitest';
 import { RESUME_SCHEMA_VERSION } from '@shared/types';
 import type { Resume } from '@shared/types';
@@ -200,7 +201,7 @@ describe('normalizeImportedResume — ids, dates and style', () => {
       }),
     );
     expect(resume.style.template).toBe('modern');
-    expect(resume.style.accentColor).toBe('#1f5eff');
+    expect(resume.style.accentColor).toBe(DEFAULT_STYLE.accentColor);
     expect(resume.style.fontSize).toBe(12);
     expect(resume.style.sectionOrder[0]).toBe('experience');
     expect(new Set(resume.style.sectionOrder).size).toBe(resume.style.sectionOrder.length);

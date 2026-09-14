@@ -21,13 +21,13 @@ export const TEMPLATE_META: Record<TemplateId, { name: string; description: stri
 ) as Record<TemplateId, { name: string; description: string }>;
 
 export const ACCENT_SWATCHES: { hex: string; name: string }[] = [
-  { hex: '#1f5eff', name: 'Launchpad blue' },
-  { hex: '#0d8ec4', name: 'Teal' },
-  { hex: '#12a150', name: 'Green' },
-  { hex: '#7a4ddb', name: 'Violet' },
-  { hex: '#c8860d', name: 'Amber' },
-  { hex: '#d93a40', name: 'Red' },
-  { hex: '#2a3140', name: 'Graphite' },
+  { hex: '#3d5a85', name: 'Launchpad blue' },
+  { hex: '#4d7893', name: 'Teal' },
+  { hex: '#4a7c59', name: 'Green' },
+  { hex: '#6b5b8a', name: 'Violet' },
+  { hex: '#98762f', name: 'Amber' },
+  { hex: '#a64f42', name: 'Red' },
+  { hex: '#332f2a', name: 'Graphite' },
 ];
 
 const HEX_RE = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
@@ -108,7 +108,7 @@ export function StylePanel({ resumeId }: StylePanelProps) {
         <Field
           label="Custom hex"
           htmlFor={hexId}
-          error={hexInvalid ? 'Use a hex colour such as #1f5eff.' : undefined}
+          error={hexInvalid ? 'Use a hex colour such as #3d5a85.' : undefined}
           className="re-style__hex"
         >
           <Input
@@ -117,7 +117,7 @@ export function StylePanel({ resumeId }: StylePanelProps) {
             value={style.accentColor}
             spellCheck={false}
             autoComplete="off"
-            placeholder="#1f5eff"
+            placeholder="#3d5a85"
             onChange={(e) => set({ accentColor: e.target.value })}
           />
         </Field>

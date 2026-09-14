@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import { DEFAULT_ACCENT } from '@/lib/export/color';
 import { afterEach, describe, expect, it } from 'vitest';
 import { cleanup, render } from '@testing-library/react';
 import { TEMPLATE_IDS, type TemplateId } from '@shared/types';
@@ -124,7 +125,7 @@ describe('TemplateThumb', () => {
   it('falls back to the app accent for an invalid colour', () => {
     const { container } = render(<TemplateThumb templateId="modern" accentColor="not-a-color" />);
     const thumb = container.querySelector('.rp-thumb') as HTMLElement;
-    expect(thumb.style.getPropertyValue('--rp-thumb-accent')).toBe('#1f5eff');
+    expect(thumb.style.getPropertyValue('--rp-thumb-accent')).toBe(DEFAULT_ACCENT);
   });
 });
 

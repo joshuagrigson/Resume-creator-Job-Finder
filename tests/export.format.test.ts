@@ -3,7 +3,7 @@ import type { Resume, SectionKey } from '@shared/types';
 import { createCustomSection, createSampleResume } from '@/lib/resume/defaults';
 import { cleanList, displayUrl, formatMonth, formatPhone, formatRange, joinParts, linkHref } from '@/lib/resume/format';
 import { contactEntries, contactLine, resumeSections, sectionItems } from '@/lib/export/format';
-import { hexForDocx, normalizeHex, readableOnPaper, shade, tint } from '@/lib/export/color';
+import { DEFAULT_ACCENT, hexForDocx, normalizeHex, readableOnPaper, shade, tint } from '@/lib/export/color';
 import { resumeFileName } from '@/lib/export/file';
 
 describe('formatMonth', () => {
@@ -169,11 +169,11 @@ describe('resumeSections', () => {
 
 describe('colour helpers', () => {
   it('normalises hex input', () => {
-    expect(normalizeHex('#1F5EFF')).toBe('#1f5eff');
-    expect(normalizeHex('1f5eff')).toBe('#1f5eff');
+    expect(normalizeHex('#3D5A85')).toBe('#3d5a85');
+    expect(normalizeHex('3d5a85')).toBe('#3d5a85');
     expect(normalizeHex('#abc')).toBe('#aabbcc');
-    expect(normalizeHex('rebeccapurple')).toBe('#1f5eff');
-    expect(normalizeHex(undefined)).toBe('#1f5eff');
+    expect(normalizeHex('rebeccapurple')).toBe(DEFAULT_ACCENT);
+    expect(normalizeHex(undefined)).toBe(DEFAULT_ACCENT);
     expect(hexForDocx('#0d8342')).toBe('0D8342');
   });
 
@@ -185,7 +185,7 @@ describe('colour helpers', () => {
   });
 
   it('darkens a pale accent until it can be read on paper', () => {
-    expect(readableOnPaper('#1f5eff')).toBe('#1f5eff');
+    expect(readableOnPaper(DEFAULT_ACCENT)).toBe(DEFAULT_ACCENT);
     const readable = readableOnPaper('#ffe066');
     expect(readable).not.toBe('#ffe066');
     expect(readable.startsWith('#')).toBe(true);

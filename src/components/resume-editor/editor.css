@@ -740,7 +740,7 @@
   background: var(--re-swatch, var(--color-accent));
   color: #ffffff;
   cursor: pointer;
-  box-shadow: inset 0 0 0 1px rgba(16, 24, 40, 0.18);
+  box-shadow: inset 0 0 0 1px rgba(46, 38, 26, 0.18);
 }
 
 .re-swatch:focus-visible {

@@ -3,7 +3,7 @@
  * DOCX export (which wants bare 6-digit hex).
  */
 
-export const DEFAULT_ACCENT = '#1f5eff';
+export const DEFAULT_ACCENT = '#3d5a85';
 
 /** Accepts `#abc`, `abc`, `#aabbcc`, `AABBCC`; returns `#rrggbb` or the fallback. */
 export function normalizeHex(value: string | undefined | null, fallback = DEFAULT_ACCENT): string {
@@ -16,7 +16,7 @@ export function normalizeHex(value: string | undefined | null, fallback = DEFAUL
   return fallback;
 }
 
-/** `"#1f5eff"` → `"1F5EFF"` (what the `docx` package expects). */
+/** `"#3d5a85"` → `"3D5A85"` (what the `docx` package expects). */
 export function hexForDocx(value: string | undefined | null, fallback = DEFAULT_ACCENT): string {
   return normalizeHex(value, fallback).slice(1).toUpperCase();
 }
