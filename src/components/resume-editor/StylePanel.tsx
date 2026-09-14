@@ -6,17 +6,19 @@ import { useId, type CSSProperties } from 'react';
 import { Check } from 'lucide-react';
 import type { Density, FontChoice, PageSize, ResumeId, ResumeStyle, TemplateId } from '@shared/types';
 import { TEMPLATE_IDS } from '@shared/types';
+import { TEMPLATES } from '@/components/resume-preview';
 import { Field, Input, Select } from '@/components/ui';
 import { useResumeSlice, useResumeUpdate } from './store-hooks';
 import './editor.css';
 
-export const TEMPLATE_META: Record<TemplateId, { name: string; description: string }> = {
-  classic: { name: 'Classic', description: 'Serif type, centered header, ruled sections.' },
-  modern: { name: 'Modern', description: 'Bold sans with an accent bar. A safe default.' },
-  minimal: { name: 'Minimal', description: 'Thin type and generous whitespace.' },
-  executive: { name: 'Executive', description: 'Two-line header, small-caps section titles.' },
-  sidebar: { name: 'Sidebar', description: 'Accent column for contact and skills.' },
-};
+/**
+ * Re-exported from the preview module so the picker and the rendered sheet can never
+ * disagree about a template's name or description. Previously this file kept its own
+ * copy, which is two sources of truth for the same five templates.
+ */
+export const TEMPLATE_META: Record<TemplateId, { name: string; description: string }> = Object.fromEntries(
+  TEMPLATES.map((t) => [t.id, { name: t.name, description: t.description }]),
+) as Record<TemplateId, { name: string; description: string }>;
 
 export const ACCENT_SWATCHES: { hex: string; name: string }[] = [
   { hex: '#1f5eff', name: 'Launchpad blue' },

@@ -8,6 +8,7 @@ import { describe, expect, it } from 'vitest';
 
 import { sanitizeHtml, stripHtml } from '../server/jobs/sanitize';
 import { parseSalaryText } from '../server/jobs/normalize';
+import { parseQueryTerms } from '../server/jobs/filter';
 import { resumeSkillSet, withSkillsAdded } from '../src/components/tailor/helpers';
 import { normalizeImportedResume, normalizeImportedResumeBundle } from '../src/lib/resume/validate';
 import { toYearMonth } from '../src/lib/resume/parse-text';
@@ -186,5 +187,34 @@ describe('ATS strengths tell the truth about education', () => {
   it('still credits both when both are present', () => {
     const report = analyzeResume(createSampleResume());
     expect(report.strengths.some((s) => /Education plus \d+ certification/i.test(s))).toBe(true);
+  });
+});
+
+describe('second review round: findings whose verifiers never ran', () => {
+  it('query parsing survives an unbalanced quote', () => {
+    // Used to yield the term '"marketing', which matches nothing, so the search
+    // silently returned zero results.
+    expect(parseQueryTerms('senior "marketing')).toEqual(['senior', 'marketing']);
+  });
+
+  it('treats an apostrophe as part of the word, not a phrase delimiter', () => {
+    expect(parseQueryTerms("O'Brien's team")).toEqual(["o'brien's", 'team']);
+  });
+
+  it('still honours a properly quoted phrase', () => {
+    expect(parseQueryTerms('"marketing operations" remote')).toEqual(['marketing operations', 'remote']);
+  });
+
+  it('the deploy blueprint installs the build toolchain', async () => {
+    // NODE_ENV=production makes `npm ci` skip devDependencies, where vite lives.
+    const [{ readFile }, pkg] = await Promise.all([
+      import('node:fs/promises'),
+      import('../package.json', { with: { type: 'json' } }).then((m) => m.default),
+    ]);
+    const blueprint = await readFile(new URL('../render.yaml', import.meta.url), 'utf8');
+    expect(pkg.devDependencies).toHaveProperty('vite');
+    if (/NODE_ENV[\s\S]*production/.test(blueprint)) {
+      expect(blueprint).toMatch(/npm ci --include=dev/);
+    }
   });
 });

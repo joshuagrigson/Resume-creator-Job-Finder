@@ -11,7 +11,21 @@ export interface AiUnavailableProps {
 /** Shown in place of an AI panel when the server has no key (or is unreachable). */
 export function AiUnavailable({ feature }: AiUnavailableProps) {
   const ai = useSettingsStore((s) => s.ai);
+  const healthError = useSettingsStore((s) => s.healthError);
   const reason = ai?.reason?.trim();
+
+  // Until /api/health answers we know nothing. Saying "the server has no Anthropic key"
+  // here asserts something that may well be false, and it stuck permanently whenever the
+  // health check itself failed.
+  if (ai === null && !healthError) {
+    return (
+      <EmptyState
+        icon={<Sparkles size={20} />}
+        title={`Checking whether ${feature.toLowerCase()} are available…`}
+        description="Asking the API server what it supports."
+      />
+    );
+  }
 
   return (
     <EmptyState

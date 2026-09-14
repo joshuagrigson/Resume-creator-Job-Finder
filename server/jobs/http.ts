@@ -110,6 +110,45 @@ function externalAbortError(signal: AbortSignal): Error {
   return err;
 }
 
+/**
+ * Read a response body, aborting as soon as it exceeds the cap.
+ *
+ * Streaming lets an oversized board response be rejected part-way instead of after the
+ * whole thing is in memory. Falls back to a plain read when the runtime gives us no
+ * readable stream (some fetch polyfills, and the mocks in tests).
+ */
+async function readCapped(response: Response, maxBytes: number, target: string): Promise<string> {
+  const body = response.body;
+  if (!body || typeof body.getReader !== 'function') {
+    const text = await response.text();
+    if (text.length > maxBytes) {
+      throw new PayloadError(`${target} returned ${text.length} bytes (limit ${maxBytes})`);
+    }
+    return text;
+  }
+
+  const reader = body.getReader();
+  const decoder = new TextDecoder();
+  const chunks: string[] = [];
+  let total = 0;
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      total += value?.byteLength ?? 0;
+      if (total > maxBytes) {
+        await reader.cancel();
+        throw new PayloadError(`${target} returned more than ${maxBytes} bytes (limit ${maxBytes})`);
+      }
+      chunks.push(decoder.decode(value, { stream: true }));
+    }
+  } finally {
+    reader.releaseLock?.();
+  }
+  chunks.push(decoder.decode());
+  return chunks.join('');
+}
+
 /** Raw body fetch, retrying only transient conditions. */
 async function fetchTextWithRetry(url: string, options: FetchJsonOptions, target: string): Promise<string> {
   const doFetch: FetchLike = options.fetch ?? globalThis.fetch;
@@ -136,10 +175,13 @@ async function fetchTextWithRetry(url: string, options: FetchJsonOptions, target
       });
 
       if (response.ok) {
-        const body = await response.text();
-        if (body.length > maxBytes) {
-          throw new PayloadError(`${target} returned ${body.length} bytes (limit ${maxBytes})`);
+        // Refuse before reading when the board tells us how big the body is, so an
+        // oversized response is never fully buffered into memory first.
+        const declared = Number(response.headers.get('content-length') ?? '');
+        if (Number.isFinite(declared) && declared > maxBytes) {
+          throw new PayloadError(`${target} declared ${declared} bytes (limit ${maxBytes})`);
         }
+        const body = await readCapped(response, maxBytes, target);
         return body;
       }
 

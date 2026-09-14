@@ -23,15 +23,22 @@ export function parseQueryTerms(q: string | undefined): string[] {
     terms.push(term);
   };
 
-  const pattern = /"([^"]*)"|'([^']*)'|(\S+)/g;
+  // A single quote only delimits a phrase when it sits at a word boundary on both
+  // sides — otherwise it is an apostrophe, and treating "O'Brien's team" as a quoted
+  // phrase split it into nonsense terms.
+  //
+  // A stray unmatched quote is dropped rather than carried into a term: it used to end
+  // up inside the term itself, which then matched nothing, so the search returned zero
+  // results with no explanation.
+  const pattern = /"([^"]*)"|(?<=^|\s)'([^']*)'(?=\s|$)|(\S+)/g;
   let match: RegExpExecArray | null;
   while ((match = pattern.exec(q)) !== null) {
     const phrase = match[1] ?? match[2];
     if (phrase !== undefined) {
       push(phrase);
     } else {
-      // Trim punctuation that only ever appears as a separator.
-      push((match[3] ?? '').replace(/^[,;:!?()[\]{}]+|[,;:!?()[\]{}]+$/g, ''));
+      // Trim punctuation that only ever appears as a separator, plus any loose quote.
+      push((match[3] ?? '').replace(/^["“”,;:!?()[\]{}]+|["“”,;:!?()[\]{}]+$/g, ''));
     }
   }
   return terms;

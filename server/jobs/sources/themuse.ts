@@ -49,8 +49,14 @@ export const theMuseSource: JobSourceAdapter = {
   },
 
   async fetchJobs(query, ctx) {
-    const pages = await Promise.all(PAGES.map((page) => fetchPage(query, ctx, page)));
-    const items = pages.flat();
+    // allSettled, not all: a failure on page 2 must not throw away page 1's results
+    // and report the whole board as down. Only a total failure is an error.
+    const settled = await Promise.allSettled(PAGES.map((page) => fetchPage(query, ctx, page)));
+    const items = settled.flatMap((result) => (result.status === 'fulfilled' ? result.value : []));
+    if (items.length === 0) {
+      const firstRejection = settled.find((result) => result.status === 'rejected');
+      if (firstRejection && firstRejection.status === 'rejected') throw firstRejection.reason;
+    }
 
     return normalizeAll(items, (item) => {
       const company = item.company as Record<string, unknown> | undefined;

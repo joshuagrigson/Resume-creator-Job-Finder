@@ -1,6 +1,7 @@
 /**
  * Job store — search state (not persisted) + tracked jobs and saved searches (persisted).
  */
+import { useMemo } from 'react';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { createSafeStorage } from '@/stores/storage';
@@ -161,8 +162,17 @@ export const useJobStore = create<JobStoreState>()(
   ),
 );
 
-/** Tracked jobs sorted by most recently updated. */
+/**
+ * Tracked jobs sorted by most recently updated.
+ *
+ * Memoized on the `tracked` record: without this the hook returned a brand-new array on
+ * every render, so consumers keying a `useMemo` on it (the tracker re-scores every
+ * tracked job against the resume) recomputed on every unrelated keystroke.
+ */
 export function useTrackedJobs(): TrackedJob[] {
   const tracked = useJobStore((s) => s.tracked);
-  return Object.values(tracked).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+  return useMemo(
+    () => Object.values(tracked).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)),
+    [tracked],
+  );
 }

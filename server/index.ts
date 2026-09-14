@@ -27,7 +27,13 @@ const VERSION = process.env.npm_package_version ?? '0.1.0';
 export function createApp() {
   const app = express();
   app.disable('x-powered-by');
-  app.set('trust proxy', 1);
+  // Only trust a forwarding header when something in front of us actually sets one.
+  // Trusting it unconditionally lets a direct client put any address in
+  // X-Forwarded-For, which becomes req.ip and defeats the AI rate limit.
+  // Render (and most PaaS) set a platform variable we can key off; TRUST_PROXY=1
+  // covers everything else.
+  const behindProxy = process.env.TRUST_PROXY === '1' || Boolean(process.env.RENDER);
+  if (behindProxy) app.set('trust proxy', 1);
   app.use(compression());
   app.use(express.json({ limit: '2mb' }));
 
