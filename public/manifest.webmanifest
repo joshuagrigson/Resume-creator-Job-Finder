@@ -1,0 +1,14 @@
+{
+  "name": "Launchpad",
+  "short_name": "Launchpad",
+  "description": "Build your résumé and find jobs near you that you qualify for.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5efe1",
+  "theme_color": "#f5efe1",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ]
+}

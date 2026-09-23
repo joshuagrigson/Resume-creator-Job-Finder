@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { NavLink } from 'react-router-dom';
 import { ThemeToggle } from './ThemeToggle';
 import './layout.css';
+import { BrandMark } from './BrandMark';
 
 const TopBarSlotContext = createContext<HTMLElement | null>(null);
 
@@ -35,7 +36,7 @@ export function TopBar({ title, slotRef }: TopBarProps) {
     <header className="app-topbar no-print">
       <NavLink to="/" className="app-brand app-topbar__brand" aria-label="Launchpad — dashboard">
         <span className="app-brand__mark" aria-hidden="true">
-          L
+          <BrandMark />
         </span>
         <span className="app-brand__name">Launchpad</span>
       </NavLink>

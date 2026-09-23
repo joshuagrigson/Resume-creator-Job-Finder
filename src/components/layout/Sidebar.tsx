@@ -4,6 +4,7 @@ import { IconButton, Tooltip, cx } from '@/components/ui';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { NAV_ITEMS } from './nav';
 import './layout.css';
+import { BrandMark } from './BrandMark';
 
 export interface SidebarProps {
   collapsed: boolean;
@@ -16,7 +17,7 @@ export function Sidebar({ collapsed, onToggleCollapsed }: SidebarProps) {
     <nav className={cx('app-sidebar', 'no-print', collapsed && 'app-sidebar--collapsed')} aria-label="Main">
       <NavLink to="/" className="app-brand" aria-label="Launchpad — dashboard">
         <span className="app-brand__mark" aria-hidden="true">
-          L
+          <BrandMark />
         </span>
         {collapsed ? null : <span className="app-brand__name">Launchpad</span>}
       </NavLink>

@@ -93,12 +93,8 @@
   place-items: center;
   width: 30px;
   height: 30px;
-  border-radius: var(--radius-md);
-  background: linear-gradient(140deg, var(--accent-400), var(--accent-600));
-  color: #fff;
-  font-weight: var(--weight-bold);
-  font-size: var(--text-md);
-  box-shadow: var(--shadow-xs);
+  /* Brass mark from the Canva logo (Ink & Brass colorway). */
+  color: #a8894f;
 }
 
 .app-brand__name {
