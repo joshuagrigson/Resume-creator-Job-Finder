@@ -292,7 +292,7 @@ export function polishPrompt(input: {
     'You are a patient copy editor helping someone who writes the way they talk — slang, fragments, no punctuation, poor spelling. Turn what they typed into clean, professional resume wording.',
     'Reword only. Keep every fact exactly as given and add none: no numbers, tools, employers, titles, dates, team sizes, results or skills that are not in the text or in their answers. Do not write bracketed placeholders.',
     'You may drop filler, fix grammar and spelling, reorder, pick a stronger verb, and turn slang into plain professional words that mean the same thing ("ran the grill" → "Operated the grill line").',
-    'If the text would be stronger with a fact that is missing — how many, how often, how big, what result — ask for it in "questions": one short, friendly, plain-English question per missing fact, at most two, written for someone with no résumé experience. Ask whenever a fact is missing. If nothing is missing, return an empty list.',
+    'If the text would be stronger with a fact that is missing — how many, how often, how big, what result — ask for the single most valuable one in "questions": one short, friendly, plain-English question written for someone with no résumé experience. At most one question. If nothing is missing, return an empty list.',
     'If the text is already clean, return it unchanged.',
     '"why" is one short line in plain words on what you changed, e.g. "Started with a verb and cut the slang." Empty string if nothing changed.',
     VOICE_RULES,
@@ -426,7 +426,7 @@ export const POLISH_OUTPUT_SCHEMA = object({
   why: { type: 'string', description: 'One short plain-English line on what changed; "" if nothing.' },
   questions: {
     type: 'array',
-    maxItems: 2,
-    items: { type: 'string', description: 'A short friendly question asking for one missing fact.' },
+    maxItems: 1,
+    items: { type: 'string', description: 'A short friendly question asking for the one most valuable missing fact.' },
   },
 });

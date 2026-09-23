@@ -2,10 +2,11 @@
  * Polish — the smart prompt under a prose field.
  *
  * Decisions (docs/DESIGN-SMART-PROMPT.md):
- *   - appears when he LEAVES the box, never while he types (the field is never rebuilt);
+ *   - appears when he pauses typing AND when he leaves the box — the card is a sibling, so the
+ *     field itself is never rebuilt and a phone keyboard never resets;
  *   - rewords only, never adds a fact — the server throws away any rewrite with a new number;
- *   - asks a follow-up question every time a fact is missing, and his answer is the only new
- *     fact a re-polish may use;
+ *   - asks at most one follow-up question per job (a QuestionGate shared by that job's bullets),
+ *     and his answer is the only new fact a re-polish may use;
  *   - spelling is fixed in the browser as he types (spellFix); Claude only handles sentences;
  *   - his original words are kept on this device so "Undo" can always put them back.
  *
@@ -23,6 +24,23 @@ import { useSettingsStore } from '@/stores/settingsStore';
 
 /** Shorter than this and there is nothing to polish. */
 export const MIN_POLISH_CHARS = 8;
+/** How long he has to stop typing before Polish looks at the box. */
+export const POLISH_PAUSE_MS = 1200;
+
+/** One follow-up question per job: the first field to ask keeps the question; the rest don't ask. */
+export interface QuestionGate {
+  claim: (owner: string) => boolean;
+}
+
+export function createQuestionGate(): QuestionGate {
+  let owner: string | null = null;
+  return {
+    claim: (who) => {
+      if (owner === null) owner = who;
+      return owner === who;
+    },
+  };
+}
 
 export interface UsePolishOptions {
   value: string;
@@ -31,18 +49,24 @@ export interface UsePolishOptions {
   /** Shown in the toast, e.g. "Summary" or "Bullet 2". */
   label: string;
   role?: string;
+  /** Shared by a job's bullets so the job asks one question at most. Without one, a field asks at most one itself. */
+  questionGate?: QuestionGate;
+  /** Stable id for the gate, e.g. the bullet index. */
+  gateId?: string;
 }
 
 type Status = 'idle' | 'loading' | 'ready' | 'error';
 
 export interface PolishState {
+  /** Attach to the field's onFocus. */
+  onFocus: () => void;
   /** Attach to the field's onBlur. */
   onBlur: () => void;
   /** Render right after the field. */
   card: ReactNode;
 }
 
-export function usePolish({ value, kind, onApply, label, role }: UsePolishOptions): PolishState {
+export function usePolish({ value, kind, onApply, label, role, questionGate, gateId }: UsePolishOptions): PolishState {
   const aiEnabled = useSettingsStore((s) => s.ai?.enabled ?? false);
   const toast = useToast();
   const [status, setStatus] = useState<Status>('idle');
@@ -57,6 +81,7 @@ export function usePolish({ value, kind, onApply, label, role }: UsePolishOption
   const sentRef = useRef<string | null>(null);
   const seqRef = useRef(0);
   const cardRef = useRef<HTMLDivElement | null>(null);
+  const focusedRef = useRef(false);
   const [announce, setAnnounce] = useState(false);
 
   const run = async (text: string, withAnswers: AiPolishAnswer[]) => {
@@ -72,12 +97,14 @@ export function usePolish({ value, kind, onApply, label, role }: UsePolishOption
         setStatus('idle');
         return;
       }
-      if (!res.changed && res.questions.length === 0) {
+      const allowed = res.questions.length > 0 && (!questionGate || questionGate.claim(gateId ?? label));
+      const questions = allowed ? res.questions.slice(0, 1) : [];
+      if (!res.changed && questions.length === 0) {
         setStatus('idle');
         setResult(null);
         return;
       }
-      setResult(res);
+      setResult({ ...res, questions });
       setDrafts({});
       setStatus('ready');
       setAnnounce(true);
@@ -104,14 +131,32 @@ export function usePolish({ value, kind, onApply, label, role }: UsePolishOption
     });
   }, [announce, label, toast]);
 
-  const onBlur = () => {
+  const polishNow = (raw: string) => {
     if (!aiEnabled) return;
-    const text = value.trim();
+    const text = raw.trim();
     if (text.length < MIN_POLISH_CHARS) return;
     if (text === sentRef.current) return;
     if (result && text === result.polished) return;
     setAnswers([]);
     void run(text, []);
+  };
+
+  // A pause while he's in the box counts too. Only while focused: Use, Undo and dictation change
+  // the value from outside and must not set off another request.
+  useEffect(() => {
+    if (!focusedRef.current || !aiEnabled) return;
+    const timer = window.setTimeout(() => polishNow(valueRef.current), POLISH_PAUSE_MS);
+    return () => window.clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [value, aiEnabled]);
+
+  const onFocus = () => {
+    focusedRef.current = true;
+  };
+
+  const onBlur = () => {
+    focusedRef.current = false;
+    polishNow(value);
   };
 
   const dismiss = () => {
@@ -152,9 +197,10 @@ export function usePolish({ value, kind, onApply, label, role }: UsePolishOption
   };
 
   const original = originalFor(value);
+  const stale = sentRef.current !== null && value.trim() !== sentRef.current;
   let card: ReactNode = null;
 
-  if (status === 'loading') {
+  if (status === 'loading' && !stale) {
     card = (
       <div className="re-polish re-polish--loading" role="status" ref={cardRef}>
         <Wand2 size={14} aria-hidden="true" /> <span className="small">Polishing…</span>
@@ -171,7 +217,7 @@ export function usePolish({ value, kind, onApply, label, role }: UsePolishOption
         </div>
       </div>
     );
-  } else if (status === 'ready' && result) {
+  } else if (status === 'ready' && result && !stale) {
     card = (
       <div className="re-polish" role="region" aria-label={`Polish for ${label}`} ref={cardRef}>
         <p className="re-polish__eyebrow">
@@ -246,7 +292,7 @@ export function usePolish({ value, kind, onApply, label, role }: UsePolishOption
     );
   }
 
-  return { onBlur, card };
+  return { onFocus, onBlur, card };
 }
 
 export interface DictateButtonProps {

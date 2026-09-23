@@ -152,6 +152,7 @@ function ProjectDescription({ value, name, onChange }: { value: string; name: st
           value={value}
           placeholder="Internal web app that transcribes calls and grades reps against a benchmark."
           onChange={(e) => onChange(e.target.value)}
+          onFocus={polish.onFocus}
           onBlur={polish.onBlur}
         />
       </Field>

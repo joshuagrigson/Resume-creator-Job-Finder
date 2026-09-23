@@ -449,7 +449,7 @@ export interface AiPolishResponse {
   changed: boolean;
   /** One short line on what changed, e.g. "Started with a verb; cut the slang." */
   why: string;
-  /** 0–2 questions asking for a missing fact (a number, a scope, an outcome). */
+  /** 0–1 question asking for the most valuable missing fact (a number, a scope, an outcome). */
   questions: string[];
 }
 

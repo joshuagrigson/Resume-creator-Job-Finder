@@ -13,7 +13,7 @@ import { polishPrompt } from '../server/ai/prompts';
 import { PolishRequestSchema, validateRequest, REQUEST_CAPS } from '../server/ai/schemas';
 import { AiError } from '../server/ai/errors';
 import { ToastProvider } from '@/components/ui';
-import { usePolish } from '@/components/resume-editor/Polish';
+import { createQuestionGate, POLISH_PAUSE_MS, usePolish, type QuestionGate } from '@/components/resume-editor/Polish';
 import { api } from '@/lib/api';
 import { forgetOriginal, keepOriginal, originalFor, resetOriginalsCache } from '@/lib/text/originals';
 import { appendDictation } from '@/lib/text/speech';
@@ -107,7 +107,7 @@ describe('prompt and request', () => {
     const { system } = polishPrompt({ text: 'x', kind: 'bullet' });
     expect(system).toMatch(/Reword only/);
     expect(system).toMatch(/Do not write bracketed placeholders/);
-    expect(system).toMatch(/Ask whenever a fact is missing/);
+    expect(system).toMatch(/At most one question/);
   });
 
   it('rejects an empty text and an oversized one', () => {
@@ -142,12 +142,25 @@ describe('talk instead of type', () => {
   });
 });
 
-function Harness({ initial }: { initial: string }) {
+function Harness({ initial, gate, id = '0' }: { initial: string; gate?: QuestionGate; id?: string }) {
   const [value, setValue] = useState(initial);
-  const polishState = usePolish({ value, kind: 'bullet', label: 'Bullet 1', onApply: setValue });
+  const polishState = usePolish({
+    value,
+    kind: 'bullet',
+    label: `Bullet ${id}`,
+    onApply: setValue,
+    questionGate: gate,
+    gateId: id,
+  });
   return (
     <div>
-      <textarea aria-label="bullet" value={value} onChange={(e) => setValue(e.target.value)} onBlur={polishState.onBlur} />
+      <textarea
+        aria-label={`bullet ${id}`}
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        onFocus={polishState.onFocus}
+        onBlur={polishState.onBlur}
+      />
       {polishState.card}
     </div>
   );
@@ -158,6 +171,50 @@ describe('the Polish card', () => {
     window.localStorage.clear();
     resetOriginalsCache();
     useSettingsStore.setState({ ai: { enabled: true, model: 'test' } });
+  });
+
+  it('shows up when he pauses in the box', async () => {
+    const spy = vi.spyOn(api.ai, 'polish').mockResolvedValue({
+      polished: 'Operated the grill line',
+      changed: true,
+      why: '',
+      questions: [],
+    });
+    render(
+      <ToastProvider>
+        <Harness initial="" />
+      </ToastProvider>,
+    );
+    const box = screen.getByLabelText('bullet 0');
+    fireEvent.focus(box);
+    fireEvent.change(box, { target: { value: 'i ran the grill' } });
+    expect(spy).not.toHaveBeenCalled();
+    await screen.findByText('Operated the grill line', undefined, { timeout: POLISH_PAUSE_MS + 1500 });
+    expect(spy).toHaveBeenCalledTimes(1);
+    // Typing again hides the now-stale card; the field itself is untouched.
+    fireEvent.change(box, { target: { value: 'i ran the grill and fryer' } });
+    expect(screen.queryByText('Operated the grill line')).toBeNull();
+    expect((box as HTMLTextAreaElement).value).toBe('i ran the grill and fryer');
+  });
+
+  it('asks one question per job across its bullets', async () => {
+    vi.spyOn(api.ai, 'polish').mockResolvedValue({
+      polished: 'Operated the grill line',
+      changed: true,
+      why: '',
+      questions: ['About how many people a night?'],
+    });
+    const gate = createQuestionGate();
+    render(
+      <ToastProvider>
+        <Harness initial="i ran the grill" gate={gate} id="0" />
+        <Harness initial="i ran the grill" gate={gate} id="1" />
+      </ToastProvider>,
+    );
+    fireEvent.blur(screen.getByLabelText('bullet 0'));
+    fireEvent.blur(screen.getByLabelText('bullet 1'));
+    await waitFor(() => expect(screen.getAllByText('Operated the grill line')).toHaveLength(2));
+    expect(screen.getAllByText('About how many people a night?')).toHaveLength(1);
   });
 
   it('shows up when he leaves the box, not while he types', async () => {
@@ -172,7 +229,7 @@ describe('the Polish card', () => {
         <Harness initial="" />
       </ToastProvider>,
     );
-    const box = screen.getByLabelText('bullet');
+    const box = screen.getByLabelText('bullet 0');
     fireEvent.change(box, { target: { value: 'i ran the grill' } });
     expect(spy).not.toHaveBeenCalled();
     fireEvent.blur(box);
@@ -195,7 +252,7 @@ describe('the Polish card', () => {
         <Harness initial="i ran the grill" />
       </ToastProvider>,
     );
-    const box = screen.getByLabelText('bullet') as HTMLTextAreaElement;
+    const box = screen.getByLabelText('bullet 0') as HTMLTextAreaElement;
     fireEvent.blur(box);
     fireEvent.click(await screen.findByRole('button', { name: 'Use' }));
     expect(box.value).toBe('Operated the grill line');
@@ -219,7 +276,7 @@ describe('the Polish card', () => {
         <Harness initial="i ran the grill" />
       </ToastProvider>,
     );
-    fireEvent.blur(screen.getByLabelText('bullet'));
+    fireEvent.blur(screen.getByLabelText('bullet 0'));
     const answer = await screen.findByLabelText('About how many people a night?');
     fireEvent.change(answer, { target: { value: 'bout 200' } });
     await act(async () => {
@@ -242,7 +299,7 @@ describe('the Polish card', () => {
         <Harness initial="i ran the grill" />
       </ToastProvider>,
     );
-    const box = screen.getByLabelText('bullet');
+    const box = screen.getByLabelText('bullet 0');
     fireEvent.blur(box);
     fireEvent.change(box, { target: { value: 'i ran the grill and fryer' } });
     await act(async () => {
@@ -259,7 +316,7 @@ describe('the Polish card', () => {
         <Harness initial="i ran the grill" />
       </ToastProvider>,
     );
-    fireEvent.blur(screen.getByLabelText('bullet'));
+    fireEvent.blur(screen.getByLabelText('bullet 0'));
     expect(spy).not.toHaveBeenCalled();
   });
 });

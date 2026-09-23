@@ -42,6 +42,7 @@ export function SummaryForm({ resumeId }: SummaryFormProps) {
           value={summary}
           placeholder="Marketing operations leader with 8+ years building pipelines that turn leads into booked appointments…"
           onChange={(e) => setSummary(e.target.value)}
+          onFocus={polish.onFocus}
           onBlur={polish.onBlur}
         />
       </Field>

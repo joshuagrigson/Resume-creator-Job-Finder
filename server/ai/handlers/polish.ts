@@ -68,7 +68,7 @@ export async function polish(input: PolishInput, client?: AiClient): Promise<AiP
   const questions = result.questions
     .map((q) => q.trim())
     .filter((q, i, all) => q !== '' && all.indexOf(q) === i)
-    .slice(0, 2);
+    .slice(0, 1);
 
   const facts = [original, ...(input.answers ?? []).map((a) => a.answer)].join('\n');
   const polished = input.kind === 'summary' ? result.polished.trim() : cleanLine(result.polished);

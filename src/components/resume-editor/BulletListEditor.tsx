@@ -9,7 +9,7 @@ import { ArrowDown, ArrowUp, Plus, Sparkles, Trash2 } from 'lucide-react';
 import { Button, IconButton, Popover, SkeletonText, Textarea, useToast } from '@/components/ui';
 import { api, ApiClientError } from '@/lib/api';
 import { useSettingsStore } from '@/stores/settingsStore';
-import { DictateButton, usePolish } from './Polish';
+import { createQuestionGate, DictateButton, usePolish, type QuestionGate } from './Polish';
 import { moveItem } from './sections';
 
 export interface BulletListEditorProps {
@@ -32,6 +32,8 @@ export function BulletListEditor({
   placeholder = 'Describe an achievement — start with a verb and include a number.',
 }: BulletListEditorProps) {
   const refs = useRef<(HTMLTextAreaElement | null)[]>([]);
+  // One follow-up question per job, shared by all of this job's bullets.
+  const [questionGate] = useState(createQuestionGate);
   const [focusIndex, setFocusIndex] = useState<number | null>(null);
 
   useEffect(() => {
@@ -102,6 +104,7 @@ export function BulletListEditor({
             legend={legend}
             placeholder={placeholder}
             aiRole={aiRole}
+            questionGate={questionGate}
             fieldRef={(el) => {
               refs.current[index] = el;
             }}
@@ -127,6 +130,7 @@ interface BulletRowProps {
   legend: string;
   placeholder: string;
   aiRole?: string;
+  questionGate: QuestionGate;
   fieldRef: (el: HTMLTextAreaElement | null) => void;
   onText: (text: string) => void;
   onKeyDown: (e: KeyboardEvent<HTMLTextAreaElement>) => void;
@@ -142,13 +146,22 @@ function BulletRow({
   legend,
   placeholder,
   aiRole,
+  questionGate,
   fieldRef,
   onText,
   onKeyDown,
   onMove,
   onRemove,
 }: BulletRowProps) {
-  const polish = usePolish({ value: bullet, kind: 'bullet', role: aiRole, label: `Bullet ${index + 1}`, onApply: onText });
+  const polish = usePolish({
+    value: bullet,
+    kind: 'bullet',
+    role: aiRole,
+    label: `Bullet ${index + 1}`,
+    onApply: onText,
+    questionGate,
+    gateId: String(index),
+  });
 
   return (
     <li className="re-bullets__row">
@@ -164,6 +177,7 @@ function BulletRow({
         placeholder={placeholder}
         onChange={(e) => onText(e.target.value)}
         onKeyDown={onKeyDown}
+        onFocus={polish.onFocus}
         onBlur={polish.onBlur}
       />
       <div className="re-bullets__tools">

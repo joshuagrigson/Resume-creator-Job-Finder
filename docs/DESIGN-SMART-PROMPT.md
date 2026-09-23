@@ -4,14 +4,14 @@ Who it's for: someone who writes the way they talk. Slang, fragments, no punctua
 spelling. He types "i ran the grill and trained the new guys" and the résumé should end up with
 clean, professional lines. The builder then improves the *clean* version, not his first draft.
 
-## Decisions (Joshua, 2026-09-23)
+## Decisions (Joshua, 2026-09-23 — second round supersedes the first)
 
 | Question | Pick | What shipped |
 | --- | --- | --- |
-| When the prompt appears | **On leaving the box** | `onBlur` on the field. Nothing moves while he types, so a phone keyboard never resets. |
+| When the prompt appears | **Both** (pause and leaving the box) — was "On leaving the box" | After a 1.2 s pause while he is in the box, and on `onBlur`. The card is a sibling of the field, so the field is never rebuilt and a phone keyboard never resets. Typing again hides a card whose suggestion is for older words. |
 | Fields he ignored when he hits Next | **Auto-clean + review screen** | *Not built yet.* The editor has no "Next". This arrives with the guided four-step intake (see below). |
 | Rule for rewrites | **Reword only, never add facts** | Prompt forbids new facts and placeholders. The server also checks: a rewrite with a number (or `[X]`) that isn't in his text or answers is thrown away and his words come back unchanged. |
-| Follow-up questions | **Ask every time** | Every Polish that's missing a fact (how many, how often, how big, what result) shows up to two plain-English questions. His answer is the only new fact a re-polish may use. |
+| Follow-up questions | **Ask, max one per job** — was "Ask every time" | The model asks for the single most valuable missing fact (how many, how often, how big, what result). A job's bullets share a `QuestionGate`: the first bullet to ask keeps that job's one question. The summary and project description get at most one each. His answer is the only new fact a re-polish may use. |
 | What runs where | **Browser for spelling, Claude for sentences** | `spellFix` fixes misspellings as he types, with no network. `POST /api/ai/polish` handles the wording. |
 | What it calls itself | **Polish** | The card is labelled "Polish". The buttons are "Use" and "Keep mine". |
 | Talk instead of type | **Add a mic button** | Uses the browser's own speech recognition (Chrome, Edge, Safari). It's hidden where the browser can't listen (Firefox). Dictated words are added to the end of the field. |
@@ -28,7 +28,7 @@ Short fields like titles, names and dates get spelling fixes only.
 ## Flow
 
 1. He types. The browser fixes spelling on each word boundary.
-2. He leaves the box. If the text is at least 8 characters, AI is on, and the text is new, Polish is requested.
+2. He stops typing for 1.2 s, or leaves the box. If the text is at least 8 characters, AI is on, and the text is new, Polish is requested.
 3. A "Polishing…" line shows under the field. Then the card appears with the rewrite, a one-line reason, and any questions.
 4. **Use** swaps in the rewrite, saves his words on the device, and shows a toast with Undo.
    **Keep mine** dismisses the card.
@@ -38,9 +38,10 @@ Short fields like titles, names and dates get spelling fixes only.
 
 ## Known tensions
 
-- **"Ask every time" can nag.** Someone with rough wording will be missing a number in almost every bullet, so he'll see a question under almost every line. The cap is two questions per field, and the card never blocks typing. If it feels like nagging in real use, the fallback is at most one question per job.
+- **Pause-triggering costs calls.** Every 1.2 s pause on new text is a Claude call, roughly 2–3× the on-blur-only count. The request is small (`effort: 'low'`), and a stale answer is dropped, not shown. If the bill matters, raise `POLISH_PAUSE_MS` before dropping the pause.
+- **A card can appear mid-sentence.** A 1.2 s pause while he thinks can polish half a thought. Typing again hides the card, so the cost is some flicker, not a wrong edit.
 - **The no-new-facts check covers numbers only.** Tools, employers and titles rely on the prompt. A made-up tool name would get through the code check. The prompt is explicit, and he sees every rewrite before it lands, because nothing is applied without **Use**.
-- **Latency.** Polish uses `effort: 'low'` and a 45-second client timeout. The card appears after he has moved on, which is the point of on-blur.
+- **Latency.** Polish uses `effort: 'low'` and a 45-second client timeout.
 
 ## Next: the review screen at "Next"
 
