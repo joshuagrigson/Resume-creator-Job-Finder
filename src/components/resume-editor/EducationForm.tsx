@@ -94,10 +94,10 @@ export function EducationForm({ resumeId }: EducationFormProps) {
               />
             </Field>
             <Field label="Degree">
-              <Input value={item.degree} placeholder="B.B.A." onChange={(e) => patch(item.id, { degree: e.target.value })} />
+              <Input spellFix value={item.degree} placeholder="B.B.A." onChange={(e) => patch(item.id, { degree: e.target.value })} />
             </Field>
             <Field label="Field of study">
-              <Input value={item.field} placeholder="Marketing" onChange={(e) => patch(item.id, { field: e.target.value })} />
+              <Input spellFix value={item.field} placeholder="Marketing" onChange={(e) => patch(item.id, { field: e.target.value })} />
             </Field>
             <Field label="Location">
               <Input

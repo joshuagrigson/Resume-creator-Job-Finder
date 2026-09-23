@@ -126,7 +126,7 @@ export function CustomSectionForm({ resumeId, sectionId }: CustomSectionFormProp
   return (
     <div className="stack-4">
       <Field label="Section title" hint="Prints as the heading on your resume.">
-        <Input value={section.title} placeholder="Volunteering" onChange={(e) => rename(sectionId, e.target.value)} />
+        <Input spellFix value={section.title} placeholder="Volunteering" onChange={(e) => rename(sectionId, e.target.value)} />
       </Field>
 
       {section.items.length === 0 ? (
@@ -163,14 +163,14 @@ export function CustomSectionForm({ resumeId, sectionId }: CustomSectionFormProp
 
           <div className="re-grid">
             <Field label="Heading">
-              <Input
+              <Input spellFix
                 value={item.heading}
                 placeholder="Habitat for Humanity"
                 onChange={(e) => patch(item.id, { heading: e.target.value })}
               />
             </Field>
             <Field label="Subheading" hint="Optional — a role, publisher or location.">
-              <Input
+              <Input spellFix
                 value={item.subheading}
                 placeholder="Site volunteer"
                 onChange={(e) => patch(item.id, { subheading: e.target.value })}

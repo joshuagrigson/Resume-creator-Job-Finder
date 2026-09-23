@@ -82,7 +82,7 @@ export function CertificationsForm({ resumeId }: CertificationsFormProps) {
 
           <div className="re-grid">
             <Field label="Certification">
-              <Input
+              <Input spellFix
                 value={item.name}
                 placeholder="HubSpot Marketing Software"
                 onChange={(e) => patch(item.id, { name: e.target.value })}

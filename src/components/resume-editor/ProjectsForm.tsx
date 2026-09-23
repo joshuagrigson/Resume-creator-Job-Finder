@@ -107,7 +107,7 @@ export function ProjectsForm({ resumeId }: ProjectsFormProps) {
               />
             </Field>
             <Field label="One-line description" className="re-grid__wide">
-              <Textarea
+              <Textarea spellFix
                 rows={2}
                 autoResize
                 value={item.description}

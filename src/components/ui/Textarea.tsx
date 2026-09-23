@@ -2,6 +2,7 @@ import { forwardRef, useCallback, useLayoutEffect, useRef, type TextareaHTMLAttr
 import { cx } from './utils';
 import { useFieldControl } from './Field';
 import type { ControlSize } from './Input';
+import { applySpellFix } from './spellFix';
 import './controls.css';
 
 export interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
@@ -11,10 +12,12 @@ export interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElemen
   autoResize?: boolean;
   /** Upper bound for auto-resize, in pixels. */
   maxHeight?: number;
+  /** Fix common misspellings as each word is finished ("recieve " → "receive "). */
+  spellFix?: boolean;
 }
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function Textarea(
-  { uiSize = 'md', invalid, autoResize = false, maxHeight = 420, className, onChange, ...rest },
+  { uiSize = 'md', invalid, autoResize = false, maxHeight = 420, className, onChange, spellFix = false, ...rest },
   ref,
 ) {
   const field = useFieldControl({ id: rest.id, invalid, 'aria-describedby': rest['aria-describedby'], required: rest.required });
@@ -40,6 +43,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
 
   return (
     <textarea
+      {...(spellFix ? { spellCheck: true, autoCorrect: 'on', autoCapitalize: 'sentences' } : null)}
       {...rest}
       ref={setRefs}
       id={field.id}
@@ -47,6 +51,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
       aria-describedby={field.describedBy}
       aria-invalid={field.invalid || undefined}
       onChange={(e) => {
+        if (spellFix) applySpellFix(e);
         onChange?.(e);
         resize();
       }}

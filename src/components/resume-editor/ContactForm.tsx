@@ -37,7 +37,7 @@ export function ContactForm({ resumeId }: ContactFormProps) {
         hint="The role you are targeting — this prints under your name."
         className="re-grid__wide"
       >
-        <Input
+        <Input spellFix
           value={contact.headline}
           placeholder="Marketing Operations Manager"
           onChange={(e) => set('headline', e.target.value)}

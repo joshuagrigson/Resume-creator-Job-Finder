@@ -89,7 +89,7 @@ export function ExperienceForm({ resumeId }: ExperienceFormProps) {
 
           <div className="re-grid">
             <Field label="Job title">
-              <Input
+              <Input spellFix
                 value={item.title}
                 placeholder="Marketing Operations Manager"
                 onChange={(e) => patch(item.id, { title: e.target.value })}

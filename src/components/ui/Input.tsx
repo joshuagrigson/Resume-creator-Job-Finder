@@ -1,6 +1,7 @@
 import { forwardRef, type InputHTMLAttributes, type ReactNode } from 'react';
 import { cx } from './utils';
 import { useFieldControl } from './Field';
+import { applySpellFix } from './spellFix';
 import './controls.css';
 
 export type ControlSize = 'sm' | 'md' | 'lg';
@@ -12,19 +13,26 @@ export interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 
   /** Decoration inside the field, e.g. a search icon. */
   leftIcon?: ReactNode;
   rightSlot?: ReactNode;
+  /** Fix common misspellings as each word is finished ("recieve " → "receive "). */
+  spellFix?: boolean;
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
-  { uiSize = 'md', invalid, leftIcon, rightSlot, className, type = 'text', ...rest },
+  { uiSize = 'md', invalid, leftIcon, rightSlot, className, type = 'text', spellFix = false, onChange, ...rest },
   ref,
 ) {
   const field = useFieldControl({ id: rest.id, invalid, 'aria-describedby': rest['aria-describedby'], required: rest.required });
 
   const input = (
     <input
+      {...(spellFix ? { spellCheck: true, autoCorrect: 'on', autoCapitalize: 'sentences' } : null)}
       {...rest}
       ref={ref}
       type={type}
+      onChange={(e) => {
+        if (spellFix) applySpellFix(e);
+        onChange?.(e);
+      }}
       id={field.id}
       required={field.required}
       aria-describedby={field.describedBy}

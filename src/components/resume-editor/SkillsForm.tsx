@@ -104,7 +104,7 @@ export function SkillsForm({ resumeId }: SkillsFormProps) {
           </header>
 
           <Field label="Group name" hint="Leave blank to print the skills without a label.">
-            <Input
+            <Input spellFix
               value={group.name}
               placeholder="Marketing & Sales Ops"
               onChange={(e) => patch(group.id, { name: e.target.value })}

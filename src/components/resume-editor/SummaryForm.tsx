@@ -33,7 +33,7 @@ export function SummaryForm({ resumeId }: SummaryFormProps) {
   return (
     <div className="stack-4">
       <Field label="Summary" hint={hint}>
-        <Textarea
+        <Textarea spellFix
           rows={5}
           autoResize
           value={summary}

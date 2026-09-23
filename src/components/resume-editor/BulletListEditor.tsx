@@ -95,7 +95,7 @@ export function BulletListEditor({
         {bullets.map((bullet, index) => (
           <li className="re-bullets__row" key={index}>
             <span className="re-bullets__dot" aria-hidden="true" />
-            <Textarea
+            <Textarea spellFix
               ref={(el) => {
                 refs.current[index] = el;
               }}
