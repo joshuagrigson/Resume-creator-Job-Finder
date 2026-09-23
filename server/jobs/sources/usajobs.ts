@@ -49,13 +49,14 @@ function periodFromRateCode(code: string): string {
 export const usaJobsSource: JobSourceAdapter = {
   source: 'usajobs',
   needsKey: true,
+  searchesByRadius: true,
 
   disabledReason(env) {
     return credentials(env) ? null : 'USAJOBS_API_KEY and USAJOBS_USER_AGENT are not set';
   },
 
   cacheKey(query: JobSearchQuery) {
-    return `keyword=${(query.q ?? '').trim().toLowerCase()}&location=${(query.location ?? '').trim().toLowerCase()}`;
+    return `keyword=${(query.q ?? '').trim().toLowerCase()}&location=${(query.location ?? '').trim().toLowerCase()}&radius=${query.radiusMiles ?? ''}`;
   },
 
   async fetchJobs(query, ctx) {
@@ -67,7 +68,10 @@ export const usaJobsSource: JobSourceAdapter = {
     const keyword = (query.q ?? '').trim();
     if (keyword) url.searchParams.set('Keyword', keyword);
     const location = (query.location ?? '').trim();
-    if (location && !/^remote$/i.test(location)) url.searchParams.set('LocationName', location);
+    if (location && !/^remote$/i.test(location)) {
+      url.searchParams.set('LocationName', location);
+      if (query.radiusMiles) url.searchParams.set('Radius', String(Math.round(query.radiusMiles)));
+    }
 
     const payload = await fetchJson<Record<string, unknown>>(url.toString(), {
       fetch: ctx.fetch,
@@ -119,6 +123,10 @@ export const usaJobsSource: JobSourceAdapter = {
         url: descriptor.PositionURI,
         postedAt: descriptor.PublicationStartDate,
         fetchedAt: ctx.fetchedAt,
+        geo: (Array.isArray(descriptor.PositionLocation) ? descriptor.PositionLocation : []).map((loc) => {
+          const place = (loc ?? {}) as Record<string, unknown>;
+          return { lat: place.Latitude, lon: place.Longitude };
+        }),
       });
     });
   },

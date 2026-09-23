@@ -3,7 +3,7 @@ import { Bookmark, BookmarkCheck, Building2, CheckCircle2, Clock, MapPin } from 
 import type { Job, MatchResult } from '@shared/types';
 import { Badge, Button, Chip } from '@/components/ui';
 import { MatchBadge } from './MatchBadge';
-import { absoluteDate, companyInitial, formatSalary, locationLabel, relativeTime, sourceLabel } from './format';
+import { absoluteDate, companyInitial, formatDistance, formatSalary, locationLabel, relativeTime, sourceLabel } from './format';
 import './jobs.css';
 
 const MAX_TAGS = 4;
@@ -26,6 +26,7 @@ export const JobCard = forwardRef<HTMLButtonElement, JobCardProps>(function JobC
   titleRef,
 ) {
   const salary = formatSalary(job.salary);
+  const distance = formatDistance(job.distanceMiles);
   const posted = relativeTime(job.postedAt);
   const tags = (job.tags ?? []).filter(Boolean);
   const extraTags = Math.max(0, tags.length - MAX_TAGS);
@@ -57,6 +58,11 @@ export const JobCard = forwardRef<HTMLButtonElement, JobCardProps>(function JobC
         <span className="jf-fact">
           <MapPin className="jf-fact__icon" size={13} aria-hidden="true" />
           <span className="truncate">{locationLabel(job)}</span>
+          {distance ? (
+            <span className="jf-card__distance" title="Straight-line distance from your ZIP">
+              · {distance}
+            </span>
+          ) : null}
         </span>
         {job.remote ? (
           <Badge tone="info" variant="soft">

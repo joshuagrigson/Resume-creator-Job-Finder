@@ -25,6 +25,7 @@ import {
   absoluteDate,
   companyInitial,
   EMPLOYMENT_TYPE_LABELS,
+  formatDistance,
   formatSalary,
   jobPermalink,
   locationLabel,
@@ -141,6 +142,11 @@ export function JobDetail({ job, match, onBack, bare = false }: JobDetailProps) 
         <span className="jf-fact">
           <MapPin className="jf-fact__icon" size={13} aria-hidden="true" />
           {locationLabel(job)}
+          {formatDistance(job.distanceMiles) ? (
+            <span className="jf-card__distance" title="Straight-line distance from your ZIP">
+              · {formatDistance(job.distanceMiles)}
+            </span>
+          ) : null}
         </span>
         {job.remote ? (
           <Badge tone="info" variant="soft">

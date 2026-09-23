@@ -4,7 +4,7 @@
  */
 import { Router, type NextFunction, type Request, type RequestHandler, type Response } from 'express';
 import { z } from 'zod';
-import { getJob, searchJobs } from '../jobs/index';
+import { getJob, searchJobs, UnknownZipError } from '../jobs/index';
 import type { ApiError, JobSearchQuery } from '../../shared/types';
 
 /** Swappable service layer so the route can be exercised without touching the network. */
@@ -41,6 +41,8 @@ const SearchQuerySchema = z.object({
   q: z.string().max(200, 'q must be 200 characters or fewer').optional().default(''),
   location: z.string().max(120, 'location must be 120 characters or fewer').optional(),
   remoteOnly: BooleanParam.optional().default(false),
+  radiusMiles: z.coerce.number().int().min(1).max(200).optional(),
+  includeRemote: BooleanParam.optional(),
   sources: z
     .string()
     .optional()
@@ -66,7 +68,7 @@ const SearchQuerySchema = z.object({
   employmentType: z.enum(EMPLOYMENT_TYPE_VALUES).optional(),
   page: z.coerce.number().int().min(1).max(1000).optional().default(1),
   pageSize: z.coerce.number().int().min(1).max(100).optional().default(25),
-  sort: z.enum(['relevance', 'date']).optional().default('relevance'),
+  sort: z.enum(['relevance', 'date', 'distance']).optional().default('relevance'),
 });
 
 function badRequest(res: Response, message: string, details?: unknown): void {
@@ -108,8 +110,19 @@ export function createJobsRouter(deps: JobsRouterDeps = { searchJobs, getJob }):
       if (data.sources && data.sources.length > 0) query.sources = data.sources;
       if (data.postedWithinDays !== undefined) query.postedWithinDays = data.postedWithinDays;
       if (data.employmentType !== undefined) query.employmentType = data.employmentType;
+      if (data.radiusMiles !== undefined) query.radiusMiles = data.radiusMiles;
+      if (data.includeRemote !== undefined) query.includeRemote = data.includeRemote;
 
-      const response = await deps.searchJobs(query);
+      let response;
+      try {
+        response = await deps.searchJobs(query);
+      } catch (err) {
+        if (err instanceof UnknownZipError) {
+          badRequest(res, err.message, [{ field: 'location', message: err.message }]);
+          return;
+        }
+        throw err;
+      }
       // Results change often but a double-render shouldn't re-query; 30s is plenty.
       res.setHeader('Cache-Control', 'private, max-age=30');
       res.json(response);

@@ -23,6 +23,7 @@ import { rememberJobs, recallJob, sourceCache } from './cache';
 import { dedupeJobs } from './dedupe';
 import { filterJobs, parseQueryTerms } from './filter';
 import { HttpError, TimeoutError } from './http';
+import { applyRadius, nearSummary, resolveNear, sortByDistance } from './near';
 import { paginate, rankJobs } from './rank';
 import { ALL_SOURCES } from './sources/index';
 import type { FetchLike, JobSourceAdapter, SourceEnv } from './types';
@@ -164,6 +165,16 @@ async function runSource(
  */
 export async function searchJobs(query: JobSearchQuery, options: SearchOptions = {}): Promise<JobSearchResponse> {
   const now = options.now ?? new Date();
+  // Throws UnknownZipError before any board is called when the ZIP can't be placed.
+  const near = resolveNear(query);
+  // Radius-aware boards get the ZIP's own town plus the radius; boards that only filter by
+  // city get the biggest city in range. The ZIP itself is only used here, to measure.
+  const upstreamFor = (adapter: JobSourceAdapter): JobSearchQuery => {
+    if (!near) return query;
+    return adapter.searchesByRadius
+      ? { ...query, location: near.label, radiusMiles: near.radiusMiles }
+      : { ...query, location: near.metro, radiusMiles: undefined };
+  };
   const runOptions = {
     fetch: options.fetch ?? globalThis.fetch,
     env: options.env ?? process.env,
@@ -183,7 +194,7 @@ export async function searchJobs(query: JobSearchQuery, options: SearchOptions =
   let outcomes: SourceOutcome[];
   try {
     const settled = await Promise.allSettled(
-      selected.map((adapter) => runSource(adapter, query, runOptions, budget.signal)),
+      selected.map((adapter) => runSource(adapter, upstreamFor(adapter), runOptions, budget.signal)),
     );
     outcomes = settled.map((result, index) => {
       if (result.status === 'fulfilled') return result.value;
@@ -220,8 +231,13 @@ export async function searchJobs(query: JobSearchQuery, options: SearchOptions =
 
   const terms = parseQueryTerms(query.q);
   const deduped = dedupeJobs(collected);
-  const filtered = filterJobs(deduped, query, { now, terms });
-  const ranked = rankJobs(filtered, terms, query.sort ?? 'relevance');
+  // In radius mode distance replaces the text match on location.
+  const textFiltered = filterJobs(deduped, near ? { ...query, location: undefined } : query, { now, terms });
+  const radius = near ? applyRadius(textFiltered, near) : null;
+  const filtered = radius ? radius.jobs : textFiltered;
+  const sort = query.sort ?? 'relevance';
+  const relevanceOrDate = rankJobs(filtered, terms, sort === 'distance' ? 'relevance' : sort);
+  const ranked = near && sort === 'distance' ? sortByDistance(relevanceOrDate) : relevanceOrDate;
   const page = paginate(ranked, query.page ?? 1, query.pageSize ?? 25);
 
   const contributing = outcomes.filter((outcome) => outcome.report.status === 'ok');
@@ -240,6 +256,7 @@ export async function searchJobs(query: JobSearchQuery, options: SearchOptions =
     sources: reports,
     cached,
     fetchedAt: fetchedAt ?? now.toISOString(),
+    ...(near && radius ? { near: nearSummary(near, radius.unplaced) } : {}),
   };
 }
 
@@ -262,4 +279,5 @@ export function listSourceConfig(
 
 export { ALL_SOURCES, getSourceAdapter } from './sources/index';
 export { clearJobCaches } from './cache';
+export { UnknownZipError } from './near';
 export type { JobSourceAdapter, SourceContext, SourceEnv, FetchLike } from './types';

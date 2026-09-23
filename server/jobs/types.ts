@@ -28,6 +28,11 @@ export interface JobSourceAdapter {
   readonly source: JobSource;
   /** True when the board requires credentials we may not have. */
   readonly needsKey: boolean;
+  /**
+   * True when the board takes a place plus a radius (Adzuna, USAJOBS). Boards without it
+   * that still filter by place get the biggest nearby city instead of the ZIP's own town.
+   */
+  readonly searchesByRadius?: boolean;
   /** Human-readable reason the source cannot run, or `null` when it is usable. */
   disabledReason(env: SourceEnv): string | null;
   /**

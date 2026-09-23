@@ -627,3 +627,18 @@
   justify-content: center;
   gap: var(--space-2);
 }
+
+/* ------------------------------------------------------------------ radius search */
+
+.jf-card__distance {
+  flex: none;
+  white-space: nowrap;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.jf-near__detail {
+  display: block;
+  margin-top: 2px;
+  color: var(--color-text-subtle);
+}

@@ -138,6 +138,14 @@ export function companyInitial(company: string | undefined): string {
 }
 
 /** Location line for a card: falls back to "Remote" when a remote job has no place. */
+/** 0.4 → "Under 1 mi", 6.24 → "6.2 mi", 18.7 → "19 mi". */
+export function formatDistance(miles: number | undefined): string | null {
+  if (miles === undefined || !Number.isFinite(miles) || miles < 0) return null;
+  if (miles < 1) return 'Under 1 mi';
+  if (miles < 10) return `${miles.toFixed(1)} mi`;
+  return `${Math.round(miles)} mi`;
+}
+
 export function locationLabel(job: Pick<Job, 'location' | 'remote'>): string {
   const location = (job.location ?? '').trim();
   if (location) return location;

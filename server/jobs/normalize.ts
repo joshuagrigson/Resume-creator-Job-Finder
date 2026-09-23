@@ -353,6 +353,8 @@ export interface RawJobInput {
   url: unknown;
   postedAt?: unknown;
   fetchedAt: string;
+  /** Coordinates per work location, when the board gives them. Invalid pairs are dropped. */
+  geo?: { lat: unknown; lon: unknown }[];
 }
 
 const HTTP_URL_RE = /^https?:\/\//i;
@@ -423,6 +425,20 @@ export function buildJob(input: RawJobInput): Job | null {
     const salary = normalizeSalary(input.salary);
     if (salary) job.salary = salary;
   }
+
+  const geo = (input.geo ?? [])
+    .map((point) => ({ lat: Number(point.lat), lon: Number(point.lon) }))
+    .filter(
+      (point) =>
+        Number.isFinite(point.lat) &&
+        Number.isFinite(point.lon) &&
+        Math.abs(point.lat) <= 90 &&
+        Math.abs(point.lon) <= 180 &&
+        // 0,0 is a board's "unknown", not a job in the Gulf of Guinea.
+        !(point.lat === 0 && point.lon === 0),
+    )
+    .slice(0, 50);
+  if (geo.length > 0) job.geo = geo;
 
   return job;
 }

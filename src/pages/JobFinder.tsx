@@ -4,7 +4,7 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Compass, FileText, SearchX, X } from 'lucide-react';
+import { Compass, FileText, MapPin, SearchX, X } from 'lucide-react';
 import type { Job, JobSearchQuery, JobSource } from '@shared/types';
 import { api } from '@/lib/api';
 import { useJobStore, type SavedSearch } from '@/stores/jobStore';
@@ -20,6 +20,7 @@ import {
   SavedSearches,
   SearchBar,
   SourceStatusStrip,
+  isZipLocation,
   rangeLabel,
   useJobMatches,
   type SortMode,
@@ -61,7 +62,9 @@ export default function JobFinderPage() {
   const health = useSettingsStore((s) => s.health);
 
   const [draft, setDraft] = useState({ q: query.q, location: query.location ?? '' });
-  const [sort, setSort] = useState<SortMode>(query.sort === 'date' ? 'date' : 'relevance');
+  const [sort, setSort] = useState<SortMode>(
+    query.sort === 'date' ? 'date' : query.sort === 'distance' && isZipLocation(query.location) ? 'distance' : 'relevance',
+  );
   const [headlineSearch, setHeadlineSearch] = useState<string | null>(null);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [deepJob, setDeepJob] = useState<Job | null>(null);
@@ -162,6 +165,8 @@ export default function JobFinderPage() {
     () => (health?.sources ?? []).filter((s) => !s.enabled).map((s) => s.source),
     [health],
   );
+  // Adzuna is where most on-site US listings come from; the keyless boards are mostly remote.
+  const localSourceMissing = unavailableSources.includes('adzuna');
 
   // --- actions -------------------------------------------------------------------------
   const scrollToResults = useCallback(() => {
@@ -184,8 +189,15 @@ export default function JobFinderPage() {
 
   const submitSearch = useCallback(() => {
     setHeadlineSearch(null);
-    runSearch({ q: draft.q.trim(), location: draft.location.trim() });
-  }, [draft, runSearch]);
+    const location = draft.location.trim();
+    // "Nearest" means nothing without a ZIP; fall back rather than leave a dead sort selected.
+    if (sort === 'distance' && !isZipLocation(location)) {
+      setSort('relevance');
+      runSearch({ q: draft.q.trim(), location, sort: 'relevance' });
+      return;
+    }
+    runSearch({ q: draft.q.trim(), location });
+  }, [draft, runSearch, sort]);
 
   const clearHeadlineSearch = useCallback(() => {
     setHeadlineSearch(null);
@@ -197,7 +209,7 @@ export default function JobFinderPage() {
   const handleSort = useCallback(
     (next: SortMode) => {
       setSort(next);
-      const wanted: JobSearchQuery['sort'] = next === 'date' ? 'date' : 'relevance';
+      const wanted: JobSearchQuery['sort'] = next === 'date' ? 'date' : next === 'distance' ? 'distance' : 'relevance';
       if (query.sort !== wanted) runSearch({ sort: wanted });
     },
     [query.sort, runSearch],
@@ -235,7 +247,13 @@ export default function JobFinderPage() {
   const runSavedSearch = useCallback(
     (saved: SavedSearch) => {
       setHeadlineSearch(null);
-      setSort(saved.query.sort === 'date' ? 'date' : 'relevance');
+      setSort(
+        saved.query.sort === 'date'
+          ? 'date'
+          : saved.query.sort === 'distance' && isZipLocation(saved.query.location)
+            ? 'distance'
+            : 'relevance',
+      );
       void search({ ...saved.query, page: 1 });
       scrollToResults();
     },
@@ -280,7 +298,11 @@ export default function JobFinderPage() {
       <EmptyState
         icon={<SearchX size={20} />}
         title="No jobs matched those filters"
-        description="Try fewer keywords, widen the posted-within window, or turn off Remote only."
+        description={
+          isZipLocation(query.location)
+            ? 'Try a wider radius, fewer keywords, or turn Include remote back on.'
+            : 'Try fewer keywords, widen the posted-within window, or turn off Remote only.'
+        }
       />
     );
 
@@ -359,6 +381,29 @@ export default function JobFinderPage() {
         </div>
       ) : null}
 
+      {results?.near ? (
+        <div className="jf-banner jf-banner--muted" data-testid="near-banner">
+          <MapPin size={15} aria-hidden="true" />
+          <span className="jf-banner__text">
+            Within <strong>{results.near.radiusMiles} miles</strong> of {results.near.zip} ({results.near.label})
+            {results.near.includeRemote ? ', plus remote roles' : ''}.
+            {results.near.unplaced > 0 ? (
+              <span className="jf-near__detail small">
+                {results.near.unplaced} on-site {results.near.unplaced === 1 ? 'posting' : 'postings'} didn't say
+                where the job is precisely enough to measure, so {results.near.unplaced === 1 ? "it's" : "they're"} left
+                out.
+              </span>
+            ) : null}
+            {localSourceMissing ? (
+              <span className="jf-near__detail small">
+                Most local, on-site listings come from Adzuna, which isn't connected on this server yet. Until it is,
+                expect mostly remote roles.
+              </span>
+            ) : null}
+          </span>
+        </div>
+      ) : null}
+
       {!resume && results ? (
         <div className="jf-banner">
           <span className="jf-banner__text">Create a resume to see how well you match each of these jobs.</span>
@@ -381,6 +426,7 @@ export default function JobFinderPage() {
             </Badge>
           ) : null}
           {sort === 'match' ? <span className="small subtle">Sorted by resume match</span> : null}
+          {sort === 'distance' && results.near ? <span className="small subtle">Nearest first</span> : null}
         </div>
       ) : null}
 

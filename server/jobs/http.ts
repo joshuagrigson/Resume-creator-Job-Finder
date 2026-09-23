@@ -49,9 +49,14 @@ class PayloadError extends Error {
   }
 }
 
-/** Identifies us to the boards; several of them ask for a real UA. */
+/**
+ * Identifies us to the boards; several of them ask for a real UA.
+ *
+ * Keep it plain. The Muse's firewall 403s a UA carrying a "(+https://…)" link, which made
+ * it fail every search silently.
+ */
 export function userAgent(env: Readonly<Record<string, string | undefined>> = process.env): string {
-  return env.JOBS_USER_AGENT?.trim() || 'LaunchpadJobSearch/0.1 (+https://github.com/launchpad-resume-job-finder)';
+  return env.JOBS_USER_AGENT?.trim() || 'LaunchpadJobSearch/0.1';
 }
 
 /** `https://api.example.com/v1/search` — query string (and therefore any key) removed. */

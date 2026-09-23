@@ -40,14 +40,14 @@ export function SearchBar({ keywords, location, loading, onKeywordsChange, onLoc
 
       <div className="jf-searchbar__field">
         <label className="visually-hidden" htmlFor="jf-location">
-          City, state or country
+          City, state or ZIP code
         </label>
         <Input
           id="jf-location"
           name="location"
           type="search"
           value={location}
-          placeholder="City, state or country"
+          placeholder="City, state or ZIP"
           leftIcon={<MapPin size={15} />}
           autoComplete="off"
           onChange={(e) => onLocationChange(e.target.value)}

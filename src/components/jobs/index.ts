@@ -5,7 +5,14 @@
  */
 
 export { SearchBar, type SearchBarProps } from './SearchBar';
-export { FiltersBar, type FiltersBarProps, type SortMode } from './FiltersBar';
+export {
+  DEFAULT_RADIUS,
+  FiltersBar,
+  RADIUS_OPTIONS,
+  isZipLocation,
+  type FiltersBarProps,
+  type SortMode,
+} from './FiltersBar';
 export { JobCard, type JobCardProps } from './JobCard';
 export { JobList, type JobListProps } from './JobList';
 export { JobDetail, type JobDetailProps } from './JobDetail';
@@ -22,6 +29,7 @@ export {
   absoluteDate,
   companyInitial,
   describeQuery,
+  formatDistance,
   formatDuration,
   formatSalary,
   jobPermalink,

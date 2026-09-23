@@ -75,6 +75,7 @@ function credentials(env: SourceEnv): { appId: string; appKey: string } | null {
 export const adzunaSource: JobSourceAdapter = {
   source: 'adzuna',
   needsKey: true,
+  searchesByRadius: true,
 
   disabledReason(env) {
     return credentials(env) ? null : 'ADZUNA_APP_ID and ADZUNA_APP_KEY are not set';
@@ -83,7 +84,7 @@ export const adzunaSource: JobSourceAdapter = {
   cacheKey(query: JobSearchQuery) {
     const what = (query.q ?? '').trim().toLowerCase();
     const where = (query.location ?? '').trim().toLowerCase();
-    return `what=${what}&where=${where}&days=${query.postedWithinDays ?? ''}&remote=${query.remoteOnly ? 1 : 0}`;
+    return `what=${what}&where=${where}&radius=${query.radiusMiles ?? ''}&days=${query.postedWithinDays ?? ''}&remote=${query.remoteOnly ? 1 : 0}`;
   },
 
   async fetchJobs(query, ctx) {
@@ -99,7 +100,11 @@ export const adzunaSource: JobSourceAdapter = {
     const what = (query.q ?? '').trim();
     if (what) url.searchParams.set('what', what);
     const where = (query.location ?? '').trim();
-    if (where && !/^remote$/i.test(where)) url.searchParams.set('where', where);
+    if (where && !/^remote$/i.test(where)) {
+      url.searchParams.set('where', where);
+      // Adzuna measures from the centre of `where` in kilometres and defaults to 5 km.
+      if (query.radiusMiles) url.searchParams.set('distance', String(Math.round(query.radiusMiles * 1.609344)));
+    }
     if (query.remoteOnly) url.searchParams.set('what_or', 'remote');
     if (query.postedWithinDays && query.postedWithinDays > 0) {
       url.searchParams.set('max_days_old', String(Math.min(365, Math.round(query.postedWithinDays))));
@@ -132,6 +137,7 @@ export const adzunaSource: JobSourceAdapter = {
         url: item.redirect_url,
         postedAt: item.created,
         fetchedAt: ctx.fetchedAt,
+        geo: item.latitude !== undefined && item.longitude !== undefined ? [{ lat: item.latitude, lon: item.longitude }] : [],
       });
     });
   },

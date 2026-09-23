@@ -20,7 +20,7 @@ true white.
 | Guided intake replaces the blank editor | Sample / Blank / Import, then a ten-tab form | Four questions, live sheet beside them, import next to question one | Ready |
 | Sheet-first résumé page | Split editor/preview, ATS in a side panel | Sheet is the page; quiet rail with score, checks, suggestions | Ready |
 | Résumé-derived profile, not a keyword box | Search starts empty | Chips for level/titles/skills/ZIP drive the first search | Ready |
-| ZIP + radius + remote toggle | `matchesLocation` substring test | Home ZIP, radius slider, distance per card | Geocoding table |
+| ZIP + radius + remote toggle | `matchesLocation` substring test | Home ZIP, radius slider, distance per card | **Shipped** (`server/geo`, `server/jobs/near.ts`) |
 | Qualified and Reach lanes | One ranked list | Two lanes; Reach explains the gap | Ready |
 | Multi-select → queue | One job at a time; tailor/letter are separate pages | Checkboxes, one button, unattended queue | Ready |
 | Honest application states | Manual status columns | Submitted / Running / Needs you / Opens for you | Per-board |
@@ -32,10 +32,13 @@ true white.
 
 ## What the two new capabilities actually need
 
-**ZIP radius.** Ship a ZIP-centroid table (~42k rows, public domain) with the app. Resolve job
-`location` strings (city/state) against a city-centroid table; unresolved locations fall back to the
-current substring match. Distance is a haversine computed in the browser (`shared/geo.ts`), so nothing
-about the user's home leaves the device. Reach/Qualified is a rule over `MatchResult.score` plus a
+**ZIP radius — shipped.** Census 2023 Gazetteer tables (33,791 ZIPs, 32,114 places) live in
+`server/geo/data/`. Job `location` strings resolve against the place table ("City, ST" only — a bare
+"Springfield" is never guessed); Adzuna and USAJOBS coordinates are used directly when present.
+Distance is computed **on our server**, not in the browser as first proposed: server-side paging
+needs the filter before the page is cut, and it spares phones a ~1.6 MB table download. The ZIP goes
+to our own server only; boards receive a town name, never the ZIP. Postings that name only a state or
+"USA" are counted and reported ("3 on-site postings didn't say where…"), not silently dropped. Reach/Qualified is a rule over `MatchResult.score` plus a
 seniority read of the job title against the résumé's derived level.
 
 **Auto-apply.** No keyless board in `server/jobs/sources` lets a third party submit an application.

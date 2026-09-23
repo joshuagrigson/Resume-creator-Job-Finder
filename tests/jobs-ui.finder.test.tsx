@@ -382,7 +382,7 @@ describe('JobFinder search and saved searches', () => {
     await screen.findByText('Search thousands of openings at once');
 
     fireEvent.change(screen.getByLabelText('Job title, skill or company'), { target: { value: 'marketing ops' } });
-    fireEvent.change(screen.getByLabelText('City, state or country'), { target: { value: 'Austin, TX' } });
+    fireEvent.change(screen.getByLabelText('City, state or ZIP code'), { target: { value: 'Austin, TX' } });
     fireEvent.click(screen.getByRole('button', { name: 'Search' }));
 
     await screen.findByRole('button', { name: 'Senior React Engineer' });
@@ -494,5 +494,65 @@ describe('JobFinder match explanation', () => {
     renderPage();
     await screen.findByRole('button', { name: 'Senior React Engineer' });
     expect(screen.getAllByText(/Create a resume to see how well you match/).length).toBeGreaterThan(0);
+  });
+});
+
+describe('JobFinder ZIP radius', () => {
+  const NEAR_RESPONSE: JobSearchResponse = {
+    ...RESPONSE,
+    jobs: [{ ...MARKETING_JOB, distanceMiles: 6.24 }, REACT_JOB],
+    total: 2,
+    near: { zip: '78746', label: 'West Lake Hills, TX', radiusMiles: 25, includeRemote: true, unplaced: 2 },
+  };
+
+  async function searchZip() {
+    stubFetch(NEAR_RESPONSE);
+    renderPage({ q: '' });
+    await screen.findByText('Search thousands of openings at once');
+    fireEvent.change(screen.getByLabelText('City, state or ZIP code'), { target: { value: '78746' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Search' }));
+    await screen.findByRole('button', { name: 'Marketing Operations Manager' });
+  }
+
+  it('says what radius it searched and how many postings it could not place', async () => {
+    await searchZip();
+    const banner = screen.getByTestId('near-banner');
+    expect(banner.textContent).toMatch(/Within 25 miles of 78746 \(West Lake Hills, TX\), plus remote roles/);
+    expect(banner.textContent).toMatch(/2 on-site postings didn't say where the job is/);
+  });
+
+  it('shows the distance on a card that has one, and nothing on one that does not', async () => {
+    await searchZip();
+    const [local, remote] = screen.getAllByTestId('job-card');
+    expect(local!.textContent).toContain('6.2 mi');
+    expect(remote!.textContent).not.toMatch(/\bmi\b/);
+  });
+
+  it('offers a radius and include-remote only once a ZIP is searched', async () => {
+    renderPage({ q: 'react' });
+    await screen.findByRole('button', { name: 'Senior React Engineer' });
+    expect(screen.queryByLabelText('Within')).toBeNull();
+    cleanup();
+    useJobStore.setState({ results: null });
+
+    await searchZip();
+    fireEvent.change(screen.getByLabelText('Within'), { target: { value: '50' } });
+    await waitFor(() => expect(String(fetchMock.mock.calls.at(-1)?.[0])).toContain('radiusMiles=50'));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Include remote' }));
+    await waitFor(() => expect(String(fetchMock.mock.calls.at(-1)?.[0])).toContain('includeRemote=false'));
+  });
+
+  it('sorts nearest first on the server when Nearest is chosen', async () => {
+    await searchZip();
+    fireEvent.change(screen.getByLabelText('Sort'), { target: { value: 'distance' } });
+    await waitFor(() => expect(String(fetchMock.mock.calls.at(-1)?.[0])).toContain('sort=distance'));
+  });
+
+  it('disables Nearest until there is a ZIP', async () => {
+    renderPage({ q: 'react' });
+    await screen.findByRole('button', { name: 'Senior React Engineer' });
+    const option = screen.getByRole('option', { name: /Nearest/ }) as HTMLOptionElement;
+    expect(option.disabled).toBe(true);
   });
 });

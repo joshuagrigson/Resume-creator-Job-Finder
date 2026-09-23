@@ -7,8 +7,16 @@ import { useIsMobile } from '@/hooks';
 import { EMPLOYMENT_TYPE_LABELS, sourceLabel } from './format';
 import './jobs.css';
 
-/** Sort mode: `match` is applied client-side against the active resume. */
-export type SortMode = 'relevance' | 'date' | 'match';
+/** Sort mode: `match` is applied client-side against the active resume; `distance` needs a ZIP. */
+export type SortMode = 'relevance' | 'date' | 'match' | 'distance';
+
+/** A 5-digit US ZIP in the location box switches the search to radius mode. */
+export function isZipLocation(location: string | undefined): boolean {
+  return /^\d{5}$/.test((location ?? '').trim());
+}
+
+export const RADIUS_OPTIONS = [5, 10, 25, 50, 100] as const;
+export const DEFAULT_RADIUS = 25;
 
 export interface FiltersBarProps {
   query: JobSearchQuery;
@@ -53,6 +61,7 @@ export function FiltersBar({
   const panelId = useId();
 
   const selected = query.sources ?? [];
+  const radiusMode = isZipLocation(query.location);
   const unavailable = new Set(unavailableSources);
   const sourceSummary = selected.length === 0 ? 'All boards' : `${selected.length} board${selected.length === 1 ? '' : 's'}`;
   const open = !isMobile || expanded;
@@ -145,6 +154,30 @@ export function FiltersBar({
             )}
           </Popover>
 
+          {radiusMode ? (
+            <>
+              <div className="jf-filters__control">
+                <label className="jf-filters__label" htmlFor="jf-radius">
+                  Within
+                </label>
+                <Select
+                  id="jf-radius"
+                  uiSize="sm"
+                  value={String(query.radiusMiles ?? DEFAULT_RADIUS)}
+                  options={RADIUS_OPTIONS.map((miles) => ({ value: String(miles), label: `${miles} miles` }))}
+                  onChange={(e) => onChange({ radiusMiles: Number(e.target.value) })}
+                />
+              </div>
+              <Chip
+                selected={query.includeRemote !== false}
+                onToggle={(on) => onChange({ includeRemote: on })}
+                title="Keep remote roles in the results whatever the distance"
+              >
+                Include remote
+              </Chip>
+            </>
+          ) : null}
+
           <Chip selected={Boolean(query.remoteOnly)} onToggle={(on) => onChange({ remoteOnly: on })}>
             Remote only
           </Chip>
@@ -165,6 +198,9 @@ export function FiltersBar({
               <option value="date">Newest</option>
               <option value="match" disabled={!matchAvailable}>
                 Best match{matchAvailable ? '' : ' (needs a resume)'}
+              </option>
+              <option value="distance" disabled={!radiusMode}>
+                Nearest{radiusMode ? '' : ' (enter a ZIP)'}
               </option>
             </Select>
           </div>

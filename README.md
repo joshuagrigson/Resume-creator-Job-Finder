@@ -20,6 +20,7 @@ Launchpad is one app for the two halves of a job search that normally live in di
 - Results are normalised, **de-duplicated** across boards, filtered and ranked, with an honest per-source status strip showing which boards responded and which failed.
 - **A match score on every job**, computed in your browser from your active resume: required-skill coverage, title similarity, nice-to-have coverage and general keyword overlap, with the matched and missing skills listed.
 - **Filters** for keywords, location, remote-only, posted-within, employment type, source and sort order — plus **saved searches** you can re-run in one tap.
+- **ZIP radius search.** Type a 5-digit ZIP in the location box and pick 5–100 miles: every posting that can be placed on a map shows its distance ("6.2 mi"), a **Nearest** sort appears, and **Include remote** keeps remote roles open to US applicants. Coordinates come from the Census Bureau's public-domain Gazetteer tables shipped in `server/geo/data/` (rebuild with `scripts/build-geo.ts`) — no geocoding API, no key. Most on-site US listings come from Adzuna, so connect it (below) for real local results; without it the keyless boards are mostly remote.
 - Sanitised job descriptions (DOMPurify on the client, a first-pass strip on the server) and a direct apply link to the original posting.
 
 ### Tailor

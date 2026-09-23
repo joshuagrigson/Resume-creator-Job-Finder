@@ -231,12 +231,21 @@ export interface Job {
   postedAt: string;
   /** ISO timestamp when our server fetched it. */
   fetchedAt: string;
+  /** One point per work location, when the board supplies coordinates (Adzuna, USAJOBS). Otherwise resolved from `location`. */
+  geo?: { lat: number; lon: number }[];
+  /** Miles from the searched ZIP. Present only on ZIP-radius searches, and only when the location could be placed. */
+  distanceMiles?: number;
 }
 
 export interface JobSearchQuery {
   /** Keywords; may be empty to browse. */
   q: string;
+  /** Free text ("Austin, TX") or a 5-digit US ZIP. A ZIP switches the search to radius mode. */
   location?: string;
+  /** Radius mode only: miles from the ZIP. Default 25. */
+  radiusMiles?: number;
+  /** Radius mode only: keep remote roles regardless of distance. Default true. */
+  includeRemote?: boolean;
   remoteOnly?: boolean;
   sources?: JobSource[];
   /** Only jobs posted within the last N days. */
@@ -244,7 +253,19 @@ export interface JobSearchQuery {
   employmentType?: EmploymentType;
   page?: number;
   pageSize?: number;
-  sort?: 'relevance' | 'date';
+  /** `distance` only has an effect in radius mode. */
+  sort?: 'relevance' | 'date' | 'distance';
+}
+
+/** What a ZIP-radius search actually searched, so the UI can say it plainly. */
+export interface NearSummary {
+  zip: string;
+  /** Nearest named place to the ZIP centroid, e.g. "West Lake Hills, TX". */
+  label: string;
+  radiusMiles: number;
+  includeRemote: boolean;
+  /** On-site/hybrid postings left out because their location could not be placed on a map. */
+  unplaced: number;
 }
 
 export type SourceStatus = 'ok' | 'error' | 'timeout' | 'disabled' | 'skipped';
@@ -267,6 +288,8 @@ export interface JobSearchResponse {
   cached: boolean;
   /** ISO timestamp the underlying source data was fetched. */
   fetchedAt: string;
+  /** Present on ZIP-radius searches. */
+  near?: NearSummary;
 }
 
 // ---------------------------------------------------------------------------
