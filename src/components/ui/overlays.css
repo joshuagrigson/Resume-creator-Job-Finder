@@ -250,18 +250,14 @@
   width: max-content;
   padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-sm);
-  background: var(--neutral-900);
-  color: var(--neutral-0);
+  /* Inverted from the page: ink on ivory in light mode, light on slate in dark mode. */
+  background: var(--color-text);
+  color: var(--color-bg);
   font-size: var(--text-xs);
   line-height: var(--leading-snug);
   box-shadow: var(--shadow-md);
   pointer-events: none;
   animation: ui-fade-in var(--dur-fast) var(--ease) both;
-}
-
-:root[data-theme='dark'] .ui-tooltip {
-  background: var(--neutral-100);
-  color: var(--neutral-900);
 }
 
 .ui-tooltip--top {
