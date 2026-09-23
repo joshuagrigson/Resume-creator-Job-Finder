@@ -9,7 +9,7 @@ Full detail: [DESIGN-SMART-PROMPT.md](DESIGN-SMART-PROMPT.md).
 
 | Question | Pick | Status |
 | --- | --- | --- |
-| When the prompt appears | Both (pause + leaving the box) | Shipped |
+| When the prompt appears | Both (pause + leaving the box) | Shipped. The pause is 1.2 s after a finished sentence, 2.5 s mid-thought, and skipped for edits under 12 characters. |
 | Fields he ignored at Next | Auto-clean + review screen | Next (guided intake) |
 | Rule for rewrites | Reword only, never add facts | Shipped: prompt, plus a server check on numbers |
 | Follow-up questions | Ask, max one per job | Shipped |
@@ -54,18 +54,16 @@ Full detail: [DESIGN-SMART-PROMPT.md](DESIGN-SMART-PROMPT.md).
 | "We send it" by email | Connect his email | Next. Needs Google and Microsoft OAuth apps. See the note below. |
 | What counts as Reach | One requirement missing | Next (matching change) |
 | Jobs that aren't a fit | Hidden, counted | Next |
-| Pay question | Pre-fill from the jobs | Next |
+| Pay question | Pre-fill from the jobs | Shipped as `payAnswerFor()`: the **top** of a posted range, never the floor, shown with its reason in the job detail. The apply review screen will reuse it. |
 | Follow-up | Remind at 7 days | Shipped. Marking a job Applied sets a follow-up 7 days out if none is set. The tracker and dashboard already surface due and overdue follow-ups. |
 
 ### Note on "Connect his email"
 
-Sending from his own Gmail means a Google OAuth app with the `gmail.send` scope. Google treats
-that as a sensitive scope, so the app must pass Google's verification before strangers can
-connect: a privacy policy, a demo video and a domain he owns. Until then it works only for up to
-100 test users he adds by hand. Outlook needs an Azure app registration with `Mail.Send`, and its
-review is lighter. Neither costs money. Both take calendar time, so start them before the apply
-engine is built. *Unverified: Google's current classification of `gmail.send`. Check it on
-Google's OAuth scope page when registering.*
+Checked 2026-09-23: `gmail.send` is a **Sensitive** scope (Google's Gmail scopes page). That means
+OAuth verification but no paid security assessment. In Testing mode it works for up to 100 listed
+test users with no verification, which is enough to build and test the apply engine. The privacy
+policy and terms Google requires are live at `/privacy` and `/terms` and linked from every page.
+Step-by-step registration for Google and Microsoft: [EMAIL-CONNECT.md](EMAIL-CONNECT.md).
 
 ## Build order this implies
 

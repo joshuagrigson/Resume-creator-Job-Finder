@@ -26,14 +26,33 @@ export interface Place extends GeoPoint {
   incorporated: boolean;
 }
 
-const DATA_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), 'data');
+export type GeoFile = 'zips.tsv' | 'places.tsv';
+
+/** Node reads the tables from disk next to this file. */
+function readFromDisk(file: GeoFile): string {
+  const dataDir = path.join(path.dirname(fileURLToPath(import.meta.url)), 'data');
+  return readFileSync(path.join(dataDir, file), 'utf8');
+}
+
+let loadGeoFile: (file: GeoFile) => string = readFromDisk;
+
+/**
+ * Where the two tables come from. Cloudflare Workers has no disk to read, so the Worker entry
+ * bundles both files as text and hands them over here before the first request.
+ */
+export function setGeoSource(load: (file: GeoFile) => string): void {
+  loadGeoFile = load;
+  zips = null;
+  places = null;
+  placeList = null;
+}
 
 let zips: Map<string, GeoPoint> | null = null;
 let places: Map<string, Place> | null = null;
 let placeList: Place[] | null = null;
 
-function readTsv(file: string): string[][] {
-  return readFileSync(path.join(DATA_DIR, file), 'utf8')
+function readTsv(file: GeoFile): string[][] {
+  return loadGeoFile(file)
     .split('\n')
     .filter(Boolean)
     .map((line) => line.split('\t'));
@@ -297,4 +316,13 @@ export function resolveLocation(location: string): GeoPoint[] {
   if (resolved.size >= RESOLVE_CACHE_LIMIT) resolved.clear();
   resolved.set(key, points);
   return points;
+}
+
+/**
+ * Parse both tables now (about 90 ms). The Cloudflare Worker calls this at startup, where the
+ * budget is generous, so no request pays for it against the per-request CPU limit.
+ */
+export function warmGeo(): void {
+  zipTable();
+  placeTable();
 }

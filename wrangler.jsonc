@@ -1,0 +1,22 @@
+{
+  // Launchpad on Cloudflare Workers: static SPA from dist/ + the Express API for /api/*.
+  // Build: `npm run build` (Vite → dist/). Deploy: Workers Builds runs `npx wrangler deploy`.
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "launchpad",
+  "main": "server/worker.ts",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"]
+  },
+  "rules": [{ "type": "Text", "globs": ["**/*.tsv"], "fallthrough": true }],
+  "vars": {
+    "LAUNCHPAD_RUNTIME": "cloudflare",
+    "NODE_ENV": "production",
+    "ADZUNA_COUNTRY": "us",
+    "JSEARCH_PROVIDER": "openwebninja"
+  },
+  "observability": { "enabled": true }
+}

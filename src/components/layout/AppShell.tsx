@@ -59,6 +59,12 @@ export function AppShell({ children }: AppShellProps) {
             <TopBar title={navTitleFor(location.pathname)} slotRef={setSlotEl} />
             <main id="main" className="app-main" tabIndex={-1}>
               <div className="app-content">{children}</div>
+              {/* Google's OAuth review needs the privacy policy linked from the homepage. */}
+              <footer className="app-legal small subtle">
+                <a href="/privacy">Privacy</a>
+                <span aria-hidden="true">·</span>
+                <a href="/terms">Terms</a>
+              </footer>
             </main>
           </div>
 

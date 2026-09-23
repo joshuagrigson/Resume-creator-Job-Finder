@@ -40,7 +40,13 @@ import { polish } from '../ai/handlers/polish';
 export const aiRouter = Router();
 
 function clientKey(req: Request): string {
-  const ip = typeof req.ip === 'string' && req.ip !== '' ? req.ip : req.socket.remoteAddress;
+  // On Cloudflare every request reaches the Worker from Cloudflare itself, so the socket address
+  // is useless; the edge puts the visitor's address in CF-Connecting-IP, which a client can't forge.
+  if (process.env.LAUNCHPAD_RUNTIME === 'cloudflare') {
+    const edge = req.get('cf-connecting-ip');
+    if (edge) return edge;
+  }
+  const ip = typeof req.ip === 'string' && req.ip !== '' ? req.ip : req.socket?.remoteAddress;
   return ip ?? 'unknown';
 }
 

@@ -41,7 +41,12 @@ interface Response<T> {
   body: T;
 }
 
-function request<T = unknown>(method: string, path: string, body?: unknown): Promise<Response<T>> {
+function request<T = unknown>(
+  method: string,
+  path: string,
+  body?: unknown,
+  extraHeaders: Record<string, string> = {},
+): Promise<Response<T>> {
   return new Promise((resolve, reject) => {
     const payload = body === undefined ? undefined : Buffer.from(JSON.stringify(body), 'utf8');
     const req = http.request(
@@ -50,9 +55,10 @@ function request<T = unknown>(method: string, path: string, body?: unknown): Pro
         port,
         path,
         method,
-        headers: payload
-          ? { 'content-type': 'application/json', 'content-length': String(payload.byteLength) }
-          : undefined,
+        headers: {
+          ...(payload ? { 'content-type': 'application/json', 'content-length': String(payload.byteLength) } : {}),
+          ...extraHeaders,
+        },
       },
       (res) => {
         const chunks: Buffer[] = [];
@@ -196,6 +202,32 @@ describe('validation', () => {
     });
     expect(res.status).toBe(400);
     expect(res.body.details?.[0]?.path).toEqual(['text']);
+  });
+});
+
+describe('rate limit key on Cloudflare', () => {
+  afterEach(() => {
+    delete process.env.LAUNCHPAD_RUNTIME;
+  });
+
+  it('keys each visitor by CF-Connecting-IP, not the shared edge connection', async () => {
+    process.env.LAUNCHPAD_RUNTIME = 'cloudflare';
+    setAiClientFactory(() => replyWith('{"suggestions":["Rebuilt routing"]}'));
+    const body = { bullet: 'Rebuilt lead routing in HubSpot' };
+    const a1 = await request('POST', '/api/ai/improve-bullet', body, { 'cf-connecting-ip': '203.0.113.1' });
+    const a2 = await request('POST', '/api/ai/improve-bullet', body, { 'cf-connecting-ip': '203.0.113.1' });
+    const b1 = await request('POST', '/api/ai/improve-bullet', body, { 'cf-connecting-ip': '203.0.113.2' });
+    expect(a1.headers['x-ratelimit-remaining']).toBe('29');
+    expect(a2.headers['x-ratelimit-remaining']).toBe('28');
+    expect(b1.headers['x-ratelimit-remaining']).toBe('29');
+  });
+
+  it('ignores the header off Cloudflare, where anyone could send it', async () => {
+    setAiClientFactory(() => replyWith('{"suggestions":["Rebuilt routing"]}'));
+    const body = { bullet: 'Rebuilt lead routing in HubSpot' };
+    await request('POST', '/api/ai/improve-bullet', body, { 'cf-connecting-ip': '203.0.113.1' });
+    const second = await request('POST', '/api/ai/improve-bullet', body, { 'cf-connecting-ip': '203.0.113.9' });
+    expect(second.headers['x-ratelimit-remaining']).toBe('28');
   });
 });
 

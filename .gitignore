@@ -9,3 +9,7 @@ coverage/
 
 # TypeScript incremental build cache
 *.tsbuildinfo
+
+# Cloudflare
+.wrangler/
+.dev.vars
