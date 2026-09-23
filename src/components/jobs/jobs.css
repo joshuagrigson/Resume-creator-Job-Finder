@@ -677,3 +677,11 @@
 .jf-broad__group > p {
   margin: 0 0 var(--space-2);
 }
+
+/* "If they ask your pay expectation" — the answer the apply flow will pre-fill. */
+.jf-detail__pay {
+  margin: var(--space-2) 0 0;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-2);
+}

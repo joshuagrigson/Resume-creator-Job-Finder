@@ -24,8 +24,32 @@ import { useSettingsStore } from '@/stores/settingsStore';
 
 /** Shorter than this and there is nothing to polish. */
 export const MIN_POLISH_CHARS = 8;
-/** How long he has to stop typing before Polish looks at the box. */
+/** A pause after a finished sentence (". ! ?" or a new line) — the thought is complete. */
 export const POLISH_PAUSE_MS = 1200;
+/** A pause mid-sentence is often just thinking, so it has to be longer before Polish looks. */
+export const POLISH_PAUSE_MIDTHOUGHT_MS = 2500;
+/** A pause only re-polishes when this many characters changed since the last request; leaving the box always does. */
+export const POLISH_MIN_CHANGE = 12;
+
+/** How long to wait after the last keystroke, given what he has typed so far. */
+export function pauseFor(text: string): number {
+  return /[.!?]["')\]]*\s*$|\n\s*$/.test(text) ? POLISH_PAUSE_MS : POLISH_PAUSE_MIDTHOUGHT_MS;
+}
+
+/** Rough count of characters that differ, ignoring the shared start and end. */
+export function changedChars(before: string, after: string): number {
+  let start = 0;
+  while (start < before.length && start < after.length && before[start] === after[start]) start += 1;
+  let end = 0;
+  while (
+    end < before.length - start &&
+    end < after.length - start &&
+    before[before.length - 1 - end] === after[after.length - 1 - end]
+  ) {
+    end += 1;
+  }
+  return Math.max(before.length - start - end, after.length - start - end);
+}
 
 /** One follow-up question per job: the first field to ask keeps the question; the rest don't ask. */
 export interface QuestionGate {
@@ -131,21 +155,24 @@ export function usePolish({ value, kind, onApply, label, role, questionGate, gat
     });
   }, [announce, label, toast]);
 
-  const polishNow = (raw: string) => {
+  const polishNow = (raw: string, trigger: 'pause' | 'leave') => {
     if (!aiEnabled) return;
     const text = raw.trim();
     if (text.length < MIN_POLISH_CHARS) return;
     if (text === sentRef.current) return;
+    // A pause after a small edit isn't worth a call; leaving the box is.
+    if (trigger === 'pause' && sentRef.current !== null && changedChars(sentRef.current, text) < POLISH_MIN_CHANGE) return;
     if (result && text === result.polished) return;
     setAnswers([]);
     void run(text, []);
   };
 
-  // A pause while he's in the box counts too. Only while focused: Use, Undo and dictation change
-  // the value from outside and must not set off another request.
+  // A pause while he's in the box counts too — short after a finished sentence, longer mid-thought.
+  // Only while focused: Use, Undo and dictation change the value from outside and must not set off
+  // another request.
   useEffect(() => {
     if (!focusedRef.current || !aiEnabled) return;
-    const timer = window.setTimeout(() => polishNow(valueRef.current), POLISH_PAUSE_MS);
+    const timer = window.setTimeout(() => polishNow(valueRef.current, 'pause'), pauseFor(value));
     return () => window.clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value, aiEnabled]);
@@ -156,7 +183,7 @@ export function usePolish({ value, kind, onApply, label, role, questionGate, gat
 
   const onBlur = () => {
     focusedRef.current = false;
-    polishNow(value);
+    polishNow(value, 'leave');
   };
 
   const dismiss = () => {

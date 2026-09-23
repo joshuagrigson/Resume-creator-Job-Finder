@@ -13,7 +13,16 @@ import { polishPrompt } from '../server/ai/prompts';
 import { PolishRequestSchema, validateRequest, REQUEST_CAPS } from '../server/ai/schemas';
 import { AiError } from '../server/ai/errors';
 import { ToastProvider } from '@/components/ui';
-import { createQuestionGate, POLISH_PAUSE_MS, usePolish, type QuestionGate } from '@/components/resume-editor/Polish';
+import {
+  changedChars,
+  createQuestionGate,
+  pauseFor,
+  POLISH_PAUSE_MIDTHOUGHT_MS,
+  POLISH_PAUSE_MS,
+  usePolish,
+  type QuestionGate,
+} from '@/components/resume-editor/Polish';
+import { payAnswerFor } from '@shared/pay';
 import { api } from '@/lib/api';
 import { forgetOriginal, keepOriginal, originalFor, resetOriginalsCache } from '@/lib/text/originals';
 import { appendDictation } from '@/lib/text/speech';
@@ -166,6 +175,58 @@ function Harness({ initial, gate, id = '0' }: { initial: string; gate?: Question
   );
 }
 
+describe('pause timing', () => {
+  it('waits longer mid-sentence than after a finished one', () => {
+    expect(pauseFor('i ran the grill.')).toBe(POLISH_PAUSE_MS);
+    expect(pauseFor('i ran the grill!" ')).toBe(POLISH_PAUSE_MS);
+    expect(pauseFor('i ran the grill\n')).toBe(POLISH_PAUSE_MS);
+    expect(pauseFor('i ran the grill and')).toBe(POLISH_PAUSE_MIDTHOUGHT_MS);
+  });
+
+  it('counts only the characters that changed', () => {
+    expect(changedChars('i ran the grill', 'i ran the grill.')).toBe(1);
+    expect(changedChars('i ran the grill', 'i ran the big grill')).toBe(4);
+    expect(changedChars('abc', 'xyz')).toBe(3);
+  });
+
+  it('skips a pause after a tiny edit but not leaving the box', async () => {
+    useSettingsStore.setState({ ai: { enabled: true, model: 'test' } });
+    const spy = vi.spyOn(api.ai, 'polish').mockResolvedValue({ polished: 'x', changed: false, why: '', questions: [] });
+    render(
+      <ToastProvider>
+        <Harness initial="i ran the grill." />
+      </ToastProvider>,
+    );
+    const box = screen.getByLabelText('bullet 0');
+    fireEvent.blur(box);
+    await waitFor(() => expect(spy).toHaveBeenCalledTimes(1));
+    fireEvent.focus(box);
+    fireEvent.change(box, { target: { value: 'i ran the grills.' } });
+    await new Promise((r) => setTimeout(r, POLISH_PAUSE_MS + 300));
+    expect(spy).toHaveBeenCalledTimes(1);
+    fireEvent.blur(box);
+    await waitFor(() => expect(spy).toHaveBeenCalledTimes(2));
+  });
+});
+
+describe('pay answer', () => {
+  it('answers the top of a posted range and says why', () => {
+    const a = payAnswerFor({ min: 52000, max: 65000, currency: 'USD', period: 'year' })!;
+    expect(a.amount).toBe(65000);
+    expect(a.basis).toBe('top-of-range');
+    expect(a.text).toBe('$65,000 per year');
+    expect(a.why).toContain('$52,000–$65,000');
+  });
+
+  it('handles hourly pay, a single figure, a floor, and nothing', () => {
+    expect(payAnswerFor({ min: 18.5, max: 22.75, period: 'hour' })!.text).toBe('$22.75 per hour');
+    expect(payAnswerFor({ max: 70000, period: 'year' })!.basis).toBe('posted');
+    expect(payAnswerFor({ min: 40000, period: 'year' })!.basis).toBe('starting-figure');
+    expect(payAnswerFor({ display: 'Competitive' })).toBeNull();
+    expect(payAnswerFor(undefined)).toBeNull();
+  });
+});
+
 describe('the Polish card', () => {
   beforeEach(() => {
     window.localStorage.clear();
@@ -187,7 +248,7 @@ describe('the Polish card', () => {
     );
     const box = screen.getByLabelText('bullet 0');
     fireEvent.focus(box);
-    fireEvent.change(box, { target: { value: 'i ran the grill' } });
+    fireEvent.change(box, { target: { value: 'i ran the grill.' } });
     expect(spy).not.toHaveBeenCalled();
     await screen.findByText('Operated the grill line', undefined, { timeout: POLISH_PAUSE_MS + 1500 });
     expect(spy).toHaveBeenCalledTimes(1);

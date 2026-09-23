@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import type { ApplicationStatus, Job, MatchResult } from '@shared/types';
 import { APPLICATION_STATUSES, APPLICATION_STATUS_LABELS } from '@shared/types';
+import { payAnswerFor } from '@shared/pay';
 import { Badge, Button, Chip, IconButton, Select, useToast } from '@/components/ui';
 import { useJobStore } from '@/stores/jobStore';
 import { useActiveResume, useResumeStore } from '@/stores/resumeStore';
@@ -62,6 +63,7 @@ export function JobDetail({ job, match, onBack, bare = false }: JobDetailProps) 
   const html = useMemo(() => sanitizeJobHtml(job.descriptionHtml), [job.descriptionHtml]);
   const paragraphs = useMemo(() => (html ? [] : textParagraphs(job.descriptionText)), [html, job.descriptionText]);
   const salary = formatSalary(job.salary);
+  const payAnswer = payAnswerFor(job.salary);
   const posted = relativeTime(job.postedAt);
   const status = tracked?.status ?? NOT_TRACKED;
   const saved = Boolean(tracked);
@@ -165,6 +167,12 @@ export function JobDetail({ job, match, onBack, bare = false }: JobDetailProps) 
           {sourceLabel(job.source)}
         </Badge>
       </div>
+
+      {payAnswer ? (
+        <p className="jf-detail__pay small" data-testid="pay-answer">
+          <strong>If they ask your pay expectation:</strong> {payAnswer.text}. <span className="subtle">{payAnswer.why}</span>
+        </p>
+      ) : null}
 
       <div className="jf-detail__actions">
         {job.url ? (
