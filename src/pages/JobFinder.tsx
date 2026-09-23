@@ -165,8 +165,8 @@ export default function JobFinderPage() {
     () => (health?.sources ?? []).filter((s) => !s.enabled).map((s) => s.source),
     [health],
   );
-  // Adzuna is where most on-site US listings come from; the keyless boards are mostly remote.
-  const localSourceMissing = unavailableSources.includes('adzuna');
+  // Adzuna and Google Jobs are where on-site US listings come from; the keyless boards are mostly remote.
+  const localSourceMissing = unavailableSources.includes('adzuna') && unavailableSources.includes('jsearch');
 
   // --- actions -------------------------------------------------------------------------
   const scrollToResults = useCallback(() => {
@@ -396,8 +396,8 @@ export default function JobFinderPage() {
             ) : null}
             {localSourceMissing ? (
               <span className="jf-near__detail small">
-                Most local, on-site listings come from Adzuna, which isn't connected on this server yet. Until it is,
-                expect mostly remote roles.
+                Most local, on-site listings come from Adzuna and Google Jobs (which includes Indeed), and neither is
+                connected on this server yet. Until one is, expect mostly remote roles.
               </span>
             ) : null}
           </span>

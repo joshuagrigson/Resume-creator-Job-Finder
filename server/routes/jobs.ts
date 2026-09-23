@@ -29,6 +29,7 @@ const JOB_SOURCE_VALUES = [
   'himalayas',
   'adzuna',
   'usajobs',
+  'jsearch',
 ] as const;
 
 const EMPLOYMENT_TYPE_VALUES = ['full_time', 'part_time', 'contract', 'internship', 'temporary', 'other'] as const;

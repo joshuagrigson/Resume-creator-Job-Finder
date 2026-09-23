@@ -7,6 +7,7 @@ import { adzunaSource } from './adzuna';
 import { arbeitnowSource } from './arbeitnow';
 import { himalayasSource } from './himalayas';
 import { jobicySource } from './jobicy';
+import { jsearchSource } from './jsearch';
 import { remoteOkSource } from './remoteok';
 import { remotiveSource } from './remotive';
 import { theMuseSource } from './themuse';
@@ -21,6 +22,7 @@ export const ALL_SOURCES: readonly JobSourceAdapter[] = [
   himalayasSource,
   adzunaSource,
   usaJobsSource,
+  jsearchSource,
 ] as const;
 
 const BY_NAME = new Map<JobSource, JobSourceAdapter>(ALL_SOURCES.map((adapter) => [adapter.source, adapter]));
@@ -34,6 +36,7 @@ export {
   arbeitnowSource,
   himalayasSource,
   jobicySource,
+  jsearchSource,
   remoteOkSource,
   remotiveSource,
   theMuseSource,

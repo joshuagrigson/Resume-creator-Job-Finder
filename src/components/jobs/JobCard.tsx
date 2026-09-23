@@ -78,6 +78,7 @@ export const JobCard = forwardRef<HTMLButtonElement, JobCardProps>(function JobC
         {salary ? <span className="jf-fact jf-card__salary">{salary}</span> : null}
         <Badge tone="neutral" variant="outline">
           {sourceLabel(job.source)}
+          {job.via ? ` · via ${job.via}` : ''}
         </Badge>
       </div>
 

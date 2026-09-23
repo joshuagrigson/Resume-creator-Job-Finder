@@ -351,8 +351,9 @@ describe('listSourceConfig', () => {
       'himalayas',
       'adzuna',
       'usajobs',
+      'jsearch',
     ]);
-    expect(config.filter((entry) => entry.needsKey).map((entry) => entry.source)).toEqual(['adzuna', 'usajobs']);
+    expect(config.filter((entry) => entry.needsKey).map((entry) => entry.source)).toEqual(['adzuna', 'usajobs', 'jsearch']);
     expect(config.filter((entry) => entry.enabled)).toHaveLength(6);
   });
 
@@ -362,7 +363,8 @@ describe('listSourceConfig', () => {
       ADZUNA_APP_KEY: 'key',
       USAJOBS_API_KEY: 'k',
       USAJOBS_USER_AGENT: 'me@example.com',
+      JSEARCH_API_KEY: 'k',
     });
-    expect(config.filter((entry) => entry.enabled)).toHaveLength(8);
+    expect(config.filter((entry) => entry.enabled)).toHaveLength(9);
   });
 });

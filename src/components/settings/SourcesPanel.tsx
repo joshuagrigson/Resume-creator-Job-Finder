@@ -27,6 +27,10 @@ const SOURCE_NOTES: Record<JobSource, SourceNote> = {
     about: 'Broad national coverage (US, UK, CA, AU, DE and more).',
     enable: 'Set ADZUNA_APP_ID and ADZUNA_APP_KEY on the server — free keys at developer.adzuna.com.',
   },
+  jsearch: {
+    about: 'Google for Jobs: listings from Indeed, LinkedIn, Glassdoor, ZipRecruiter and company career sites.',
+    enable: 'Set JSEARCH_API_KEY on the server. Free tier (200 searches a month) at openwebninja.com/api/jsearch.',
+  },
   usajobs: {
     about: 'US federal government vacancies.',
     enable: 'Set USAJOBS_API_KEY and USAJOBS_USER_AGENT on the server — free key at developer.usajobs.gov.',

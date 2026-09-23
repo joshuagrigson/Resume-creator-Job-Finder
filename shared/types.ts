@@ -167,7 +167,8 @@ export type JobSource =
   | 'jobicy'
   | 'himalayas'
   | 'adzuna'
-  | 'usajobs';
+  | 'usajobs'
+  | 'jsearch';
 
 export const JOB_SOURCES: readonly JobSource[] = [
   'remotive',
@@ -178,6 +179,7 @@ export const JOB_SOURCES: readonly JobSource[] = [
   'himalayas',
   'adzuna',
   'usajobs',
+  'jsearch',
 ] as const;
 
 export const JOB_SOURCE_LABELS: Record<JobSource, string> = {
@@ -189,6 +191,7 @@ export const JOB_SOURCE_LABELS: Record<JobSource, string> = {
   himalayas: 'Himalayas',
   adzuna: 'Adzuna',
   usajobs: 'USAJOBS',
+  jsearch: 'Google Jobs',
 };
 
 export type EmploymentType = 'full_time' | 'part_time' | 'contract' | 'internship' | 'temporary' | 'other';
@@ -233,6 +236,8 @@ export interface Job {
   fetchedAt: string;
   /** One point per work location, when the board supplies coordinates (Adzuna, USAJOBS). Otherwise resolved from `location`. */
   geo?: { lat: number; lon: number }[];
+  /** Where the apply link leads when a board aggregates others ("Indeed", "Employer site"). */
+  via?: string;
   /** Miles from the searched ZIP. Present only on ZIP-radius searches, and only when the location could be placed. */
   distanceMiles?: number;
 }

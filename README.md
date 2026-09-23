@@ -16,7 +16,7 @@ Launchpad is one app for the two halves of a job search that normally live in di
 - **Multiple resumes** — duplicate, rename and switch between tailored versions.
 
 ### Job finder
-- **Eight boards aggregated** in one search: Remotive, Remote OK, Arbeitnow, The Muse, Jobicy, Himalayas, plus Adzuna and USAJOBS when their (free) API keys are configured.
+- **Nine boards aggregated** in one search: Remotive, Remote OK, Arbeitnow, The Muse, Jobicy, Himalayas, plus Adzuna, USAJOBS and Google Jobs when their API keys are configured. Google Jobs (via JSearch) is how Indeed, LinkedIn and Glassdoor listings come in: through Google's index, not by scraping those sites.
 - Results are normalised, **de-duplicated** across boards, filtered and ranked, with an honest per-source status strip showing which boards responded and which failed.
 - **A match score on every job**, computed in your browser from your active resume: required-skill coverage, title similarity, nice-to-have coverage and general keyword overlap, with the matched and missing skills listed.
 - **Filters** for keywords, location, remote-only, posted-within, employment type, source and sort order — plus **saved searches** you can re-run in one tap.
@@ -94,6 +94,8 @@ Copy `.env.example` to `.env` and fill in only what you want. **Every variable i
 | `ADZUNA_COUNTRY` | no | Default Adzuna country code (`us`, `gb`, `ca`, `au`, `de`, `fr`, …). Default `us`. |
 | `USAJOBS_API_KEY` | no | Adds US federal vacancies. Free key at [developer.usajobs.gov](https://developer.usajobs.gov/). |
 | `USAJOBS_USER_AGENT` | no | The contact email USAJOBS requires alongside the key. |
+| `JSEARCH_API_KEY` | no | Adds Google Jobs (listings from Indeed, LinkedIn, Glassdoor, ZipRecruiter and company sites). Free tier of 200 searches/month at [openwebninja.com/api/jsearch](https://www.openwebninja.com/api/jsearch); paid plans from $25/month. |
+| `JSEARCH_PROVIDER` | no | `openwebninja` (default) or `rapidapi`, depending on where the key came from. |
 | `CORS_ORIGINS` | no | Comma-separated allowed origins. Only needed when the API is hosted apart from the UI. |
 
 Keys are read **on the server only**. Launchpad never asks for a key in the browser and never stores one there.
@@ -110,7 +112,7 @@ Keys are read **on the server only**. Launchpad never asks for a key in the brow
 - Build: `npm ci && npm run build`
 - Start: `npm start`
 - Health check: `/api/health`
-- Env vars declared with `sync: false` (`ANTHROPIC_API_KEY`, `ADZUNA_APP_ID`, `ADZUNA_APP_KEY`, `USAJOBS_API_KEY`, `USAJOBS_USER_AGENT`) — set them in the Render dashboard, or leave them blank to run without AI and without the two key-gated boards.
+- Env vars declared with `sync: false` (`ANTHROPIC_API_KEY`, `ADZUNA_APP_ID`, `ADZUNA_APP_KEY`, `USAJOBS_API_KEY`, `USAJOBS_USER_AGENT`, `JSEARCH_API_KEY`) — set them in the Render dashboard, or leave them blank to run without AI and without the three key-gated boards.
 
 Render assigns `PORT`; the server reads it. Nothing else needs configuring.
 
@@ -191,6 +193,7 @@ Launchpad queries public, free APIs. Please respect each provider's terms when y
 | [Himalayas](https://himalayas.app/) | no | Remote-first companies. |
 | [Adzuna](https://developer.adzuna.com/) | yes (free) | Broad national coverage. |
 | [USAJOBS](https://developer.usajobs.gov/) | yes (free) | US federal vacancies; requires a contact user-agent header. |
+| [JSearch](https://www.openwebninja.com/api/jsearch) (Google Jobs) | yes (free tier) | Indeed, LinkedIn, Glassdoor and company-site listings via Google for Jobs. The app prefers the employer's own apply link and labels where each link leads ("via Indeed", "via Employer site"). Indeed and LinkedIn themselves are never scraped: both forbid automated access in their terms. |
 
 Every job card and detail panel links to the original posting with `rel="noopener noreferrer"`, and the source is labelled on each result — that is how the link-back and credit requirements above are met. If you fork this and change the UI, keep those links.
 

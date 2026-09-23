@@ -23,3 +23,5 @@ services:
         sync: false
       - key: USAJOBS_USER_AGENT
         sync: false
+      - key: JSEARCH_API_KEY
+        sync: false
