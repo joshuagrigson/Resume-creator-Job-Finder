@@ -5,6 +5,7 @@
 import type { Job, JobSearchQuery, NearSummary } from '../../shared/types';
 import {
   anchorCity,
+  broadArea,
   haversineMiles,
   isZip,
   mentionsUS,
@@ -38,6 +39,10 @@ export interface NearContext {
   metro: string;
   radiusMiles: number;
   includeRemote: boolean;
+  /** Two-letter state of the ZIP ("TX"); null if the ZIP has no named place nearby. */
+  state: string | null;
+  /** "Remote only" is on: remote roles always count and nothing on-site is measured. */
+  remoteOnly: boolean;
 }
 
 /** Radius mode when `location` is a ZIP; `null` for every other search. */
@@ -58,7 +63,10 @@ export function resolveNear(query: JobSearchQuery): NearContext | null {
     label,
     metro: anchor ? `${titleCase(anchor.name)}, ${anchor.state}` : label,
     radiusMiles,
-    includeRemote: query.includeRemote !== false,
+    // With "Remote only" the radius controls are hidden, so a stale "Include remote: off" must not empty the list.
+    includeRemote: query.remoteOnly ? true : query.includeRemote !== false,
+    state: place?.state ?? null,
+    remoteOnly: Boolean(query.remoteOnly),
   };
 }
 
@@ -78,12 +86,15 @@ export function distanceTo(job: Job, center: GeoPoint): number | null {
  * a US-based searcher can actually take. Jobs are copied, never mutated — the originals
  * live in the shared source cache.
  *
- * `unplaced` counts only on-site US postings too vague to measure ("Texas", "USA"): a job in
- * Berlin wasn't unplaceable, it was simply somewhere else.
+ * On-site postings too vague to measure go to `broad` when they name his state or only the US
+ * ("Texas", "USA"). A vague posting for another state, or a job in Berlin, is simply elsewhere.
  */
-export function applyRadius(jobs: readonly Job[], near: NearContext): { jobs: Job[]; unplaced: number } {
+export function applyRadius(
+  jobs: readonly Job[],
+  near: NearContext,
+): { jobs: Job[]; broad: (Job & { area: 'state' | 'country' })[] } {
   const kept: Job[] = [];
-  let unplaced = 0;
+  const broad: (Job & { area: 'state' | 'country' })[] = [];
   for (const job of jobs) {
     const miles = distanceTo(job, near.center);
     if (miles !== null && miles <= near.radiusMiles) {
@@ -91,10 +102,11 @@ export function applyRadius(jobs: readonly Job[], near: NearContext): { jobs: Jo
     } else if (job.remote) {
       if (near.includeRemote && remoteOpenToUS(job.location)) kept.push(job);
     } else if (miles === null && mentionsUS(job.location)) {
-      unplaced += 1;
+      const area = broadArea(job.location, near.state);
+      if (area) broad.push({ ...job, area });
     }
   }
-  return { jobs: kept, unplaced };
+  return { jobs: kept, broad };
 }
 
 /** Nearest first; remote roles with no distance go after every placed job, order otherwise kept. */
@@ -109,12 +121,22 @@ export function sortByDistance(jobs: readonly Job[]): Job[] {
     .map((entry) => entry.job);
 }
 
-export function nearSummary(near: NearContext, unplaced: number): NearSummary {
+/** How many vague postings ride along in the response; the rest are only counted. */
+export const MAX_BROAD = 20;
+
+export function nearSummary(near: NearContext, broad: (Job & { area: 'state' | 'country' })[] = []): NearSummary {
   return {
     zip: near.zip,
     label: near.label,
     radiusMiles: near.radiusMiles,
     includeRemote: near.includeRemote,
-    unplaced,
+    ...(near.state ? { state: near.state } : {}),
+    unplaced: broad.length,
+    // His state first, then the ones that only say "USA"; each group keeps the ranked order.
+    broad: [...broad.filter((job) => job.area === 'state'), ...broad.filter((job) => job.area === 'country')].slice(
+      0,
+      MAX_BROAD,
+    ),
+    ...(near.remoteOnly ? { remoteOnly: true } : {}),
   };
 }

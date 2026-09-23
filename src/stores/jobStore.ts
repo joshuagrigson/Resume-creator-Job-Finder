@@ -80,6 +80,7 @@ export const useJobStore = create<JobStoreState>()(
           const results = await api.searchJobs(query);
           const jobsById: Record<string, Job> = { ...get().jobsById };
           for (const job of results.jobs) jobsById[job.id] = job;
+          for (const job of results.near?.broad ?? []) jobsById[job.id] = job;
           set({ results, jobsById, loading: false });
         } catch (e) {
           const msg = e instanceof ApiClientError ? e.message : 'Search failed';

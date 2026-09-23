@@ -199,6 +199,26 @@ const US_MARKERS = /\b(u\.?s\.?a?|united states(?: of america)?|americas|north a
 const ANYWHERE = /\b(anywhere|worldwide|global|international)\b/i;
 
 /** True when a location names a US state or the US itself ("Remote — USA", "Ohio"). */
+/** The US state codes a location names ("Texas; Oklahoma" → TX, OK). */
+export function statesIn(location: string): string[] {
+  const codes = location
+    .split(/[,;|/()–—-]+/)
+    .map((part) => stateCode(part))
+    .filter((code): code is string => code !== null);
+  return [...new Set(codes)];
+}
+
+/**
+ * How wide an unmeasurable US posting is, relative to a searcher's state: "state" when it names
+ * only a state (his among them), "country" when it only says USA / United States, null when it
+ * names other states only or isn't in the US at all.
+ */
+export function broadArea(location: string, homeState: string | null): 'state' | 'country' | null {
+  const states = statesIn(location);
+  if (states.length > 0) return homeState && states.includes(homeState) ? 'state' : null;
+  return US_MARKERS.test(location) ? 'country' : null;
+}
+
 export function mentionsUS(location: string): boolean {
   if (US_MARKERS.test(location)) return true;
   return location.split(/[,;|/()–—-]+/).some((part) => stateCode(part) !== null);

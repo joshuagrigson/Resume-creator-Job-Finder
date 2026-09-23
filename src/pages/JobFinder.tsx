@@ -2,10 +2,10 @@
  * Job finder — search aggregated boards, see how each posting matches the active resume,
  * and open the full posting in a side panel (desktop) or bottom sheet (mobile).
  */
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Compass, FileText, MapPin, SearchX, X } from 'lucide-react';
-import type { Job, JobSearchQuery, JobSource } from '@shared/types';
+import type { Job, JobSearchQuery, JobSearchResponse, JobSource } from '@shared/types';
 import { api } from '@/lib/api';
 import { useJobStore, type SavedSearch } from '@/stores/jobStore';
 import { useActiveResume } from '@/stores/resumeStore';
@@ -60,8 +60,11 @@ export default function JobFinderPage() {
 
   const resume = useActiveResume();
   const health = useSettingsStore((s) => s.health);
+  const homeZip = useSettingsStore((s) => s.homeZip);
+  const setHomeZip = useSettingsStore((s) => s.setHomeZip);
 
-  const [draft, setDraft] = useState({ q: query.q, location: query.location ?? '' });
+  // An empty location box starts from home.
+  const [draft, setDraft] = useState({ q: query.q, location: query.location || homeZip || '' });
   const [sort, setSort] = useState<SortMode>(
     query.sort === 'date' ? 'date' : query.sort === 'distance' && isZipLocation(query.location) ? 'distance' : 'relevance',
   );
@@ -88,16 +91,17 @@ export default function JobFinderPage() {
     autoRan.current = true;
     if (results || loading) return;
     const keywords = query.q.trim();
+    const home = !query.location && homeZip ? { location: homeZip } : {};
     if (keywords) {
-      void search({ page: 1 });
+      void search({ page: 1, ...home });
       return;
     }
     const headline = resume?.contact?.headline?.trim();
     if (headline) {
       setHeadlineSearch(headline);
-      void search({ q: headline, page: 1 });
+      void search({ q: headline, page: 1, ...home });
     }
-  }, [loading, query.q, results, resume, search]);
+  }, [homeZip, loading, query.location, query.q, results, resume, search]);
 
   // --- deep link /jobs/:jobId ---------------------------------------------------------
   useEffect(() => {
@@ -130,6 +134,7 @@ export default function JobFinderPage() {
 
   // --- derived data -------------------------------------------------------------------
   const jobs = useMemo(() => results?.jobs ?? [], [results]);
+  const broadJobs = useMemo(() => results?.near?.broad ?? [], [results]);
 
   const sortedJobs = useMemo(() => {
     if (sort === 'date') {
@@ -144,9 +149,10 @@ export default function JobFinderPage() {
   }, [selectedJobId, jobsById, tracked, deepJob]);
 
   const matchTargets = useMemo(() => {
-    if (selectedJob && !sortedJobs.some((j) => j.id === selectedJob.id)) return [...sortedJobs, selectedJob];
-    return sortedJobs;
-  }, [sortedJobs, selectedJob]);
+    const all = broadJobs.length > 0 ? [...sortedJobs, ...broadJobs] : sortedJobs;
+    if (selectedJob && !all.some((j) => j.id === selectedJob.id)) return [...all, selectedJob];
+    return all;
+  }, [sortedJobs, broadJobs, selectedJob]);
 
   const matches = useJobMatches(matchTargets, resume);
 
@@ -182,9 +188,26 @@ export default function JobFinderPage() {
 
   const runSearch = useCallback(
     (patch: Partial<JobSearchQuery>) => {
-      void search({ ...patch, page: patch.page ?? 1 });
+      const next = { ...patch, page: patch.page ?? 1 };
+      // The first ZIP he searches becomes home; after that, home changes only when he says so.
+      const location = (next.location ?? '').trim();
+      if (isZipLocation(location) && !useSettingsStore.getState().homeZip) setHomeZip(location);
+      void search(next);
     },
-    [search],
+    [search, setHomeZip],
+  );
+
+  const changeFilters = useCallback(
+    (patch: Partial<JobSearchQuery>) => {
+      // "Nearest" has no meaning once the radius controls go away.
+      if (patch.remoteOnly && sort === 'distance') {
+        setSort('relevance');
+        runSearch({ ...patch, sort: 'relevance' });
+        return;
+      }
+      runSearch(patch);
+    },
+    [runSearch, sort],
   );
 
   const submitSearch = useCallback(() => {
@@ -358,7 +381,8 @@ export default function JobFinderPage() {
         sort={sort}
         matchAvailable={Boolean(resume)}
         unavailableSources={unavailableSources}
-        onChange={(patch) => runSearch(patch)}
+        homeZip={homeZip}
+        onChange={changeFilters}
         onSortChange={handleSort}
       />
 
@@ -385,15 +409,32 @@ export default function JobFinderPage() {
         <div className="jf-banner jf-banner--muted" data-testid="near-banner">
           <MapPin size={15} aria-hidden="true" />
           <span className="jf-banner__text">
-            Within <strong>{results.near.radiusMiles} miles</strong> of {results.near.zip} ({results.near.label})
-            {results.near.includeRemote ? ', plus remote roles' : ''}.
-            {results.near.unplaced > 0 ? (
+            {results.near.remoteOnly ? (
+              <>
+                Remote roles open to someone in <strong>{results.near.label}</strong> ({results.near.zip}).
+              </>
+            ) : (
+              <>
+                Within <strong>{results.near.radiusMiles} miles</strong> of {results.near.zip} ({results.near.label})
+                {results.near.includeRemote ? ', plus remote roles' : ''}.
+              </>
+            )}
+            {!results.near.remoteOnly && results.near.unplaced > 0 ? (
               <span className="jf-near__detail small">
-                {results.near.unplaced} on-site {results.near.unplaced === 1 ? 'posting' : 'postings'} didn't say
-                where the job is precisely enough to measure, so {results.near.unplaced === 1 ? "it's" : "they're"} left
-                out.
+                {results.near.unplaced} on-site {results.near.unplaced === 1 ? 'posting only says' : 'postings only say'}{' '}
+                {results.near.state ? `"${stateName(results.near.state)}" or "USA"` : '"USA"'}, so{' '}
+                {results.near.unplaced === 1 ? "it's" : "they're"} listed in their own group below the results.
               </span>
             ) : null}
+            {homeZip === results.near.zip ? (
+              <span className="jf-near__detail small">This is your home ZIP.</span>
+            ) : (
+              <span className="jf-near__detail small">
+                <button type="button" className="jf-linkbtn" onClick={() => setHomeZip(results.near!.zip)}>
+                  Make {results.near.zip} my home ZIP
+                </button>
+              </span>
+            )}
             {localSourceMissing ? (
               <span className="jf-near__detail small">
                 Most local, on-site listings come from Adzuna and Google Jobs (which includes Indeed), and neither is
@@ -448,6 +489,31 @@ export default function JobFinderPage() {
             onRetry={() => runSearch({ page: results?.page ?? 1 })}
           />
 
+          {broadJobs.length > 0 ? (
+            <BroadGroups
+              jobs={broadJobs}
+              total={results?.near?.unplaced ?? broadJobs.length}
+              state={results?.near?.state}
+              render={(group) => (
+                <JobList
+                  jobs={group}
+                  matches={matches}
+                  loading={false}
+                  error={null}
+                  selectedJobId={selectedJobId}
+                  savedIds={savedIds}
+                  appliedIds={appliedIds}
+                  emptyState={null}
+                  onOpen={openJob}
+                  onSelect={(job) => selectJob(job.id)}
+                  onToggleSave={toggleSave}
+                  onMarkApplied={markApplied}
+                  onRetry={() => undefined}
+                />
+              )}
+            />
+          ) : null}
+
           {results ? (
             <Pagination
               page={results.page}
@@ -495,5 +561,58 @@ export default function JobFinderPage() {
         {loading ? 'Searching job boards…' : results ? `${total} jobs found` : ''}
       </p>
     </div>
+  );
+}
+
+const STATE_NAMES: Record<string, string> = {
+  AL: 'Alabama', AK: 'Alaska', AZ: 'Arizona', AR: 'Arkansas', CA: 'California', CO: 'Colorado', CT: 'Connecticut',
+  DE: 'Delaware', DC: 'District of Columbia', FL: 'Florida', GA: 'Georgia', HI: 'Hawaii', ID: 'Idaho', IL: 'Illinois',
+  IN: 'Indiana', IA: 'Iowa', KS: 'Kansas', KY: 'Kentucky', LA: 'Louisiana', ME: 'Maine', MD: 'Maryland',
+  MA: 'Massachusetts', MI: 'Michigan', MN: 'Minnesota', MS: 'Mississippi', MO: 'Missouri', MT: 'Montana',
+  NE: 'Nebraska', NV: 'Nevada', NH: 'New Hampshire', NJ: 'New Jersey', NM: 'New Mexico', NY: 'New York',
+  NC: 'North Carolina', ND: 'North Dakota', OH: 'Ohio', OK: 'Oklahoma', OR: 'Oregon', PA: 'Pennsylvania',
+  RI: 'Rhode Island', SC: 'South Carolina', SD: 'South Dakota', TN: 'Tennessee', TX: 'Texas', UT: 'Utah',
+  VT: 'Vermont', VA: 'Virginia', WA: 'Washington', WV: 'West Virginia', WI: 'Wisconsin', WY: 'Wyoming', PR: 'Puerto Rico',
+};
+
+function stateName(code: string): string {
+  return STATE_NAMES[code] ?? code;
+}
+
+type BroadJob = NonNullable<JobSearchResponse['near']>['broad'][number];
+
+/** Postings that only name his state or the country: real jobs, just not measurable, so never mixed into the radius list. */
+function BroadGroups({
+  jobs,
+  total,
+  state,
+  render,
+}: {
+  jobs: BroadJob[];
+  total: number;
+  state?: string;
+  render: (group: Job[]) => ReactNode;
+}) {
+  const inState = jobs.filter((job) => job.area === 'state');
+  const national = jobs.filter((job) => job.area === 'country');
+  const more = total - jobs.length;
+  return (
+    <section className="jf-broad" aria-label="Postings without a city" data-testid="broad-groups">
+      {inState.length > 0 ? (
+        <div className="jf-broad__group">
+          <h2 className="jf-broad__title">Somewhere in {state ? stateName(state) : 'your state'}</h2>
+          <p className="small subtle">These only say the state, so we can't tell how far they are. Check the posting.</p>
+          {render(inState)}
+        </div>
+      ) : null}
+      {national.length > 0 ? (
+        <div className="jf-broad__group">
+          <h2 className="jf-broad__title">Only says "USA"</h2>
+          <p className="small subtle">No city or state given. Often a travelling or multi-site role.</p>
+          {render(national)}
+        </div>
+      ) : null}
+      {more > 0 ? <p className="small subtle">{more} more like these weren't shown.</p> : null}
+    </section>
   );
 }

@@ -171,6 +171,8 @@ export async function searchJobs(query: JobSearchQuery, options: SearchOptions =
   // city get the biggest city in range. The ZIP itself is only used here, to measure.
   const upstreamFor = (adapter: JobSourceAdapter): JobSearchQuery => {
     if (!near) return query;
+    // Remote only: a town would narrow the boards to on-site jobs there. Ask for remote roles anywhere.
+    if (near.remoteOnly) return { ...query, location: undefined, radiusMiles: undefined };
     return adapter.searchesByRadius
       ? { ...query, location: near.label, radiusMiles: near.radiusMiles }
       : { ...query, location: near.metro, radiusMiles: undefined };
@@ -237,6 +239,7 @@ export async function searchJobs(query: JobSearchQuery, options: SearchOptions =
   const filtered = radius ? radius.jobs : textFiltered;
   const sort = query.sort ?? 'relevance';
   const relevanceOrDate = rankJobs(filtered, terms, sort === 'distance' ? 'relevance' : sort);
+  const broad = radius ? (rankJobs(radius.broad, terms, 'relevance') as typeof radius.broad) : [];
   const ranked = near && sort === 'distance' ? sortByDistance(relevanceOrDate) : relevanceOrDate;
   const page = paginate(ranked, query.page ?? 1, query.pageSize ?? 25);
 
@@ -256,7 +259,7 @@ export async function searchJobs(query: JobSearchQuery, options: SearchOptions =
     sources: reports,
     cached,
     fetchedAt: fetchedAt ?? now.toISOString(),
-    ...(near && radius ? { near: nearSummary(near, radius.unplaced) } : {}),
+    ...(near && radius ? { near: nearSummary(near, broad) } : {}),
   };
 }
 

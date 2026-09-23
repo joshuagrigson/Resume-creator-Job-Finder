@@ -1,5 +1,5 @@
 import { useId, useState } from 'react';
-import { ChevronDown, SlidersHorizontal } from 'lucide-react';
+import { ChevronDown, Home, SlidersHorizontal } from 'lucide-react';
 import type { EmploymentType, JobSearchQuery, JobSource } from '@shared/types';
 import { JOB_SOURCES } from '@shared/types';
 import { Button, Checkbox, Chip, Popover, Select } from '@/components/ui';
@@ -27,6 +27,8 @@ export interface FiltersBarProps {
   matchAvailable: boolean;
   onChange: (patch: Partial<JobSearchQuery>) => void;
   onSortChange: (sort: SortMode) => void;
+  /** His saved home ZIP; shows a one-tap "Near home" chip when the search is somewhere else. */
+  homeZip?: string | null;
 }
 
 const POSTED_OPTIONS = [
@@ -55,13 +57,16 @@ export function FiltersBar({
   matchAvailable,
   onChange,
   onSortChange,
+  homeZip,
 }: FiltersBarProps) {
   const isMobile = useIsMobile();
   const [expanded, setExpanded] = useState(false);
   const panelId = useId();
 
   const selected = query.sources ?? [];
-  const radiusMode = isZipLocation(query.location);
+  // With "Remote only" on, distance means nothing: the ZIP only decides which remote roles are open to him.
+  const radiusMode = isZipLocation(query.location) && !query.remoteOnly;
+  const awayFromHome = Boolean(homeZip) && (query.location ?? '').trim() !== homeZip;
   const unavailable = new Set(unavailableSources);
   const sourceSummary = selected.length === 0 ? 'All boards' : `${selected.length} board${selected.length === 1 ? '' : 's'}`;
   const open = !isMobile || expanded;
@@ -153,6 +158,12 @@ export function FiltersBar({
               </div>
             )}
           </Popover>
+
+          {awayFromHome ? (
+            <Chip selected={false} onToggle={() => onChange({ location: homeZip ?? undefined })} title={`Search near ${homeZip}`}>
+              <Home size={13} aria-hidden="true" /> Near home · {homeZip}
+            </Chip>
+          ) : null}
 
           {radiusMode ? (
             <>

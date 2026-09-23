@@ -7,6 +7,7 @@ import { scoreJobMatch } from '@shared/match';
 import { ToastProvider } from '@/components/ui';
 import { DEFAULT_QUERY, useJobStore } from '@/stores/jobStore';
 import { useResumeStore } from '@/stores/resumeStore';
+import { useSettingsStore } from '@/stores/settingsStore';
 import { createSampleResume } from '@/lib/resume/defaults';
 import { resumeProfile } from '@/lib/resume/profile';
 import { sanitizeJobHtml } from '@/components/jobs';
@@ -169,6 +170,7 @@ beforeEach(() => {
     savedSearches: [],
   });
   useResumeStore.setState({ resumes: {}, activeResumeId: null });
+  useSettingsStore.setState({ homeZip: null });
 });
 
 afterEach(() => {
@@ -502,7 +504,18 @@ describe('JobFinder ZIP radius', () => {
     ...RESPONSE,
     jobs: [{ ...MARKETING_JOB, distanceMiles: 6.24 }, REACT_JOB],
     total: 2,
-    near: { zip: '78746', label: 'West Lake Hills, TX', radiusMiles: 25, includeRemote: true, unplaced: 2 },
+    near: {
+      zip: '78746',
+      label: 'West Lake Hills, TX',
+      state: 'TX',
+      radiusMiles: 25,
+      includeRemote: true,
+      unplaced: 2,
+      broad: [
+        { ...MARKETING_JOB, id: 'broad-tx', title: 'Statewide Field Marketer', location: 'Texas', area: 'state' },
+        { ...REACT_JOB, id: 'broad-us', title: 'Traveling Support Tech', location: 'USA', remote: false, area: 'country' },
+      ],
+    },
   };
 
   async function searchZip() {
@@ -518,7 +531,43 @@ describe('JobFinder ZIP radius', () => {
     await searchZip();
     const banner = screen.getByTestId('near-banner');
     expect(banner.textContent).toMatch(/Within 25 miles of 78746 \(West Lake Hills, TX\), plus remote roles/);
-    expect(banner.textContent).toMatch(/2 on-site postings didn't say where the job is/);
+    expect(banner.textContent).toMatch(/2 on-site postings only say "Texas" or "USA"/);
+  });
+
+  it('lists "Texas" and "USA" postings in their own groups under the results', async () => {
+    await searchZip();
+    const groups = screen.getByTestId('broad-groups');
+    expect(within(groups).getByRole('heading', { name: 'Somewhere in Texas' })).toBeTruthy();
+    expect(within(groups).getByRole('heading', { name: 'Only says "USA"' })).toBeTruthy();
+    expect(within(groups).getByRole('button', { name: 'Statewide Field Marketer' })).toBeTruthy();
+    expect(within(groups).getByRole('button', { name: 'Traveling Support Tech' })).toBeTruthy();
+  });
+
+  it('remembers the first ZIP as home and offers it back when searching elsewhere', async () => {
+    await searchZip();
+    expect(useSettingsStore.getState().homeZip).toBe('78746');
+    expect(screen.getByTestId('near-banner').textContent).toContain('This is your home ZIP.');
+    fireEvent.change(screen.getByLabelText('City, state or ZIP code'), { target: { value: 'Dallas, TX' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Search' }));
+    await waitFor(() => expect(String(fetchMock.mock.calls.at(-1)?.[0])).toContain('location=Dallas'));
+    fireEvent.click(await screen.findByRole('button', { name: /Near home · 78746/ }));
+    await waitFor(() => expect(String(fetchMock.mock.calls.at(-1)?.[0])).toContain('location=78746'));
+  });
+
+  it('starts from the home ZIP when the location box is empty', async () => {
+    useSettingsStore.setState({ homeZip: '75501' });
+    renderPage({ q: 'react' });
+    expect((screen.getByLabelText('City, state or ZIP code') as HTMLInputElement).value).toBe('75501');
+    await waitFor(() => expect(String(fetchMock.mock.calls.at(-1)?.[0])).toContain('location=75501'));
+  });
+
+  it('hides the radius controls when Remote only is on', async () => {
+    await searchZip();
+    expect(screen.getByLabelText('Within')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Remote only' }));
+    await waitFor(() => expect(String(fetchMock.mock.calls.at(-1)?.[0])).toContain('remoteOnly=true'));
+    expect(screen.queryByLabelText('Within')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Include remote' })).toBeNull();
   });
 
   it('shows the distance on a card that has one, and nothing on one that does not', async () => {

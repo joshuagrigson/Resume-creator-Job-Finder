@@ -269,8 +269,17 @@ export interface NearSummary {
   label: string;
   radiusMiles: number;
   includeRemote: boolean;
-  /** On-site/hybrid postings left out because their location could not be placed on a map. */
+  /** Two-letter state of the ZIP, e.g. "TX". */
+  state?: string;
+  /**
+   * On-site US postings that only name his state or the country ("Texas", "USA"), so they can't be
+   * measured. Shown in their own group under the results, never mixed into the radius list.
+   */
   unplaced: number;
+  /** Up to 20 of those postings, best first. `area` says whether they named his state or only the US. */
+  broad: (Job & { area: 'state' | 'country' })[];
+  /** True when "Remote only" is on: the ZIP only decides which remote roles are open to him. */
+  remoteOnly?: boolean;
 }
 
 export type SourceStatus = 'ok' | 'error' | 'timeout' | 'disabled' | 'skipped';

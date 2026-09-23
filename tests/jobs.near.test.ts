@@ -8,7 +8,7 @@ import type { Server } from 'node:http';
 import type { Job, JobSearchQuery, JobSource } from '../shared/types';
 import { anchorCity, findPlace, haversineMiles, nearestPlace, resolveLocation, zipPoint } from '../server/geo/index';
 import { normalizePlaceName } from '../server/geo/names';
-import { applyRadius, resolveNear, sortByDistance, UnknownZipError } from '../server/jobs/near';
+import { applyRadius, nearSummary, resolveNear, sortByDistance, UnknownZipError } from '../server/jobs/near';
 import { clearJobCaches, searchJobs } from '../server/jobs/index';
 import { adzunaSource } from '../server/jobs/sources/index';
 import { usaJobsSource as usajobsSource } from '../server/jobs/sources/usajobs';
@@ -124,12 +124,29 @@ describe('applyRadius', () => {
     expect(applyRadius([remote], strict).jobs).toHaveLength(0);
   });
 
-  it('counts on-site US postings it could not place instead of hiding them silently', () => {
+  it('puts postings that only name his state or the US in their own group', () => {
     const abroad = makeJob({ sourceId: 'abroad', location: 'Berlin, Germany', remote: false });
-    const { jobs, unplaced } = applyRadius([vague, far, remote, abroad], near);
+    const national = makeJob({ sourceId: 'national', location: 'United States', remote: false });
+    const otherState = makeJob({ sourceId: 'cali', location: 'California', remote: false });
+    const { jobs, broad } = applyRadius([vague, far, remote, abroad, national, otherState], near);
     expect(jobs.map((j) => j.sourceId)).toEqual(['remote']);
-    // "Texas" is US but unmeasurable; Berlin is simply elsewhere, not unplaced.
-    expect(unplaced).toBe(1);
+    // "Texas" is his state; "United States" is anywhere; California and Berlin are simply elsewhere.
+    expect(broad.map((j) => [j.sourceId, j.area])).toEqual([
+      ['vague', 'state'],
+      ['national', 'country'],
+    ]);
+    const summary = nearSummary(near, [broad[1]!, broad[0]!]);
+    expect(summary.state).toBe('TX');
+    expect(summary.unplaced).toBe(2);
+    expect(summary.broad.map((j) => j.area)).toEqual(['state', 'country']);
+  });
+
+  it('with Remote only, keeps remote roles even if Include remote was switched off', () => {
+    const remoteOnly = resolveNear({ q: '', location: WESTLAKE, includeRemote: false, remoteOnly: true })!;
+    expect(remoteOnly.includeRemote).toBe(true);
+    expect(remoteOnly.remoteOnly).toBe(true);
+    expect(applyRadius([remote], remoteOnly).jobs).toHaveLength(1);
+    expect(nearSummary(remoteOnly).remoteOnly).toBe(true);
   });
 
   it.each([
@@ -215,13 +232,32 @@ describe('searchJobs in radius mode', () => {
       { adapters: [adapter('themuse', jobs, seen)], useCache: false },
     );
     expect(response.jobs.map((j) => j.sourceId)).toEqual(['local', 'suburb', 'remote']);
-    expect(response.near).toEqual({
+    expect(response.near).toMatchObject({
       zip: WESTLAKE,
       label: 'West Lake Hills, TX',
+      state: 'TX',
       radiusMiles: 25,
       includeRemote: true,
       unplaced: 1,
     });
+    expect(response.near?.broad.map((j) => [j.sourceId, j.area])).toEqual([['vague', 'state']]);
+    expect(response.near?.remoteOnly).toBeUndefined();
+  });
+
+  it('with Remote only, asks every board for remote roles anywhere instead of a town', async () => {
+    const seen: JobSearchQuery[] = [];
+    const jobs = [
+      makeJob({ source: 'themuse', sourceId: 'local', location: 'Austin, TX', remote: false }),
+      makeJob({ source: 'themuse', sourceId: 'remote', location: 'Remote', remote: true }),
+      makeJob({ source: 'themuse', sourceId: 'brazil', location: 'Remote — Brazil', remote: true }),
+    ].map((job, i) => ({ ...job, title: `Analyst ${i}`, url: `https://example.com/${i}` }));
+    const response = await searchJobs(
+      { q: '', location: WESTLAKE, remoteOnly: true, includeRemote: false },
+      { adapters: [adapter('themuse', jobs, seen)], useCache: false },
+    );
+    expect(seen[0]?.location).toBeUndefined();
+    expect(response.jobs.map((j) => j.sourceId)).toEqual(['remote']);
+    expect(response.near).toMatchObject({ remoteOnly: true, unplaced: 0 });
   });
 
   it('sends radius boards the ZIP\'s own town + radius and city-only boards the big city', async () => {

@@ -17,9 +17,12 @@ export interface SettingsState {
   health: HealthResponse | null;
   ai: AiStatus | null;
   healthError: string | null;
+  /** The ZIP he calls home: used when the location box is empty, one tap away when it isn't. */
+  homeZip: string | null;
 
   setTheme: (theme: ThemeMode) => void;
   setOnboarded: (v: boolean) => void;
+  setHomeZip: (zip: string | null) => void;
   /** Fetch /api/health once; safe to call repeatedly. */
   refreshHealth: () => Promise<void>;
 }
@@ -32,8 +35,10 @@ export const useSettingsStore = create<SettingsState>()(
       health: null,
       ai: null,
       healthError: null,
+      homeZip: null,
 
       setTheme: (theme) => set({ theme }),
+      setHomeZip: (zip) => set({ homeZip: zip && /^\d{5}$/.test(zip.trim()) ? zip.trim() : null }),
       setOnboarded: (v) => set({ onboarded: v }),
 
       refreshHealth: async () => {
@@ -49,7 +54,7 @@ export const useSettingsStore = create<SettingsState>()(
       name: 'launchpad.settings.v1',
       storage: createSafeStorage(),
       version: 1,
-      partialize: (s) => ({ theme: s.theme, onboarded: s.onboarded }),
+      partialize: (s) => ({ theme: s.theme, onboarded: s.onboarded, homeZip: s.homeZip }),
     },
   ),
 );
