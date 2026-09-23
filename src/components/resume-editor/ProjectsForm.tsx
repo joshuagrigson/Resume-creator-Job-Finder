@@ -5,6 +5,7 @@ import { Button, EmptyState, Field, Input, Textarea, useToast } from '@/componen
 import { createProjectItem } from '@/lib/resume/defaults';
 import { uid } from '@/lib/id';
 import { BulletListEditor } from './BulletListEditor';
+import { DictateButton, usePolish } from './Polish';
 import { ItemToolbar } from './ItemToolbar';
 import { TagInput } from './TagInput';
 import { moveItem } from './sections';
@@ -106,15 +107,11 @@ export function ProjectsForm({ resumeId }: ProjectsFormProps) {
                 onChange={(e) => patch(item.id, { url: e.target.value })}
               />
             </Field>
-            <Field label="One-line description" className="re-grid__wide">
-              <Textarea spellFix
-                rows={2}
-                autoResize
-                value={item.description}
-                placeholder="Internal web app that transcribes calls and grades reps against a benchmark."
-                onChange={(e) => patch(item.id, { description: e.target.value })}
-              />
-            </Field>
+            <ProjectDescription
+              value={item.description}
+              name={item.name}
+              onChange={(description) => patch(item.id, { description })}
+            />
           </div>
 
           <TagInput
@@ -139,6 +136,29 @@ export function ProjectsForm({ resumeId }: ProjectsFormProps) {
           Add a project
         </Button>
       ) : null}
+    </div>
+  );
+}
+
+function ProjectDescription({ value, name, onChange }: { value: string; name: string; onChange: (text: string) => void }) {
+  const polish = usePolish({ value, kind: 'description', role: name || undefined, label: 'Project description', onApply: onChange });
+  return (
+    <div className="re-grid__wide stack-2">
+      <Field label="One-line description">
+        <Textarea
+          spellFix
+          rows={2}
+          autoResize
+          value={value}
+          placeholder="Internal web app that transcribes calls and grades reps against a benchmark."
+          onChange={(e) => onChange(e.target.value)}
+          onBlur={polish.onBlur}
+        />
+      </Field>
+      {polish.card}
+      <div className="re-summary__tools">
+        <DictateButton value={value} onChange={onChange} label="Talk instead of type — project description" />
+      </div>
     </div>
   );
 }

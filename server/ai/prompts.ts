@@ -271,6 +271,52 @@ export function parseResumePrompt(input: { text: string }): Prompt {
   return { system, user };
 }
 
+const POLISH_SHAPE: Record<string, string> = {
+  summary: 'This is the professional summary: 2–3 sentences, third-person resume voice, no "I".',
+  bullet: 'This is one achievement bullet: a single line, 30 words or fewer, starting with an action verb.',
+  description: 'This is a short project description: one or two plain sentences.',
+};
+
+/**
+ * Polish — the smart prompt that sits under a field. Unlike improve-bullet it is a copy editor,
+ * not a writer: it rewords what he typed and nothing else. Missing facts become questions, never
+ * placeholders or guesses, because the words land in his résumé the moment he taps Use.
+ */
+export function polishPrompt(input: {
+  text: string;
+  kind: string;
+  role?: string;
+  answers?: { question: string; answer: string }[];
+}): Prompt {
+  const system = [
+    'You are a patient copy editor helping someone who writes the way they talk — slang, fragments, no punctuation, poor spelling. Turn what they typed into clean, professional resume wording.',
+    'Reword only. Keep every fact exactly as given and add none: no numbers, tools, employers, titles, dates, team sizes, results or skills that are not in the text or in their answers. Do not write bracketed placeholders.',
+    'You may drop filler, fix grammar and spelling, reorder, pick a stronger verb, and turn slang into plain professional words that mean the same thing ("ran the grill" → "Operated the grill line").',
+    'If the text would be stronger with a fact that is missing — how many, how often, how big, what result — ask for it in "questions": one short, friendly, plain-English question per missing fact, at most two, written for someone with no résumé experience. Ask whenever a fact is missing. If nothing is missing, return an empty list.',
+    'If the text is already clean, return it unchanged.',
+    '"why" is one short line in plain words on what you changed, e.g. "Started with a verb and cut the slang." Empty string if nothing changed.',
+    VOICE_RULES,
+    JSON_RULES,
+  ].join('\n\n');
+
+  const answers = (input.answers ?? [])
+    .filter((entry) => entry.answer.trim() !== '')
+    .map((entry) => `Q: ${entry.question.trim()}\nA: ${entry.answer.trim()}`)
+    .join('\n');
+
+  const user = [
+    POLISH_SHAPE[input.kind] ?? POLISH_SHAPE.description,
+    input.role?.trim() ? `ROLE CONTEXT: ${input.role.trim()}` : '',
+    answers ? `THEIR ANSWERS (facts you may now use):\n${answers}` : '',
+    `WHAT THEY TYPED:\n${input.text.trim()}`,
+    'Polish it.',
+  ]
+    .filter(Boolean)
+    .join('\n\n');
+
+  return { system, user };
+}
+
 // ---------------------------------------------------------------------------
 // JSON schemas for output_config.format
 // ---------------------------------------------------------------------------
@@ -373,4 +419,14 @@ export const PARSE_RESUME_OUTPUT_SCHEMA = object({
   projects: { type: 'array', items: PARSED_PROJECT },
   certifications: { type: 'array', items: PARSED_CERTIFICATION },
   customSections: { type: 'array', items: PARSED_CUSTOM_SECTION },
+});
+
+export const POLISH_OUTPUT_SCHEMA = object({
+  polished: { type: 'string', description: 'The reworded text. Same facts, nothing added.' },
+  why: { type: 'string', description: 'One short plain-English line on what changed; "" if nothing.' },
+  questions: {
+    type: 'array',
+    maxItems: 2,
+    items: { type: 'string', description: 'A short friendly question asking for one missing fact.' },
+  },
 });

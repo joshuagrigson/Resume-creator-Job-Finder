@@ -9,6 +9,7 @@ import { ArrowDown, ArrowUp, Plus, Sparkles, Trash2 } from 'lucide-react';
 import { Button, IconButton, Popover, SkeletonText, Textarea, useToast } from '@/components/ui';
 import { api, ApiClientError } from '@/lib/api';
 import { useSettingsStore } from '@/stores/settingsStore';
+import { DictateButton, usePolish } from './Polish';
 import { moveItem } from './sections';
 
 export interface BulletListEditorProps {
@@ -93,46 +94,22 @@ export function BulletListEditor({
 
       <ul className="re-bullets__list">
         {bullets.map((bullet, index) => (
-          <li className="re-bullets__row" key={index}>
-            <span className="re-bullets__dot" aria-hidden="true" />
-            <Textarea spellFix
-              ref={(el) => {
-                refs.current[index] = el;
-              }}
-              className="re-bullets__field"
-              rows={2}
-              autoResize
-              value={bullet}
-              aria-label={`${legend} — bullet ${index + 1}`}
-              placeholder={placeholder}
-              onChange={(e) => setBullet(index, e.target.value)}
-              onKeyDown={(e) => onKeyDown(e, index)}
-            />
-            <div className="re-bullets__tools">
-              <BulletAiButton bullet={bullet} role={aiRole} onApply={(text) => setBullet(index, text)} />
-              <IconButton
-                size="sm"
-                label={`Move bullet ${index + 1} up`}
-                icon={<ArrowUp size={14} />}
-                disabled={index === 0}
-                onClick={() => move(index, 'up')}
-              />
-              <IconButton
-                size="sm"
-                label={`Move bullet ${index + 1} down`}
-                icon={<ArrowDown size={14} />}
-                disabled={index === bullets.length - 1}
-                onClick={() => move(index, 'down')}
-              />
-              <IconButton
-                size="sm"
-                variant="danger"
-                label={`Delete bullet ${index + 1}`}
-                icon={<Trash2 size={14} />}
-                onClick={() => removeAt(index)}
-              />
-            </div>
-          </li>
+          <BulletRow
+            key={index}
+            index={index}
+            count={bullets.length}
+            bullet={bullet}
+            legend={legend}
+            placeholder={placeholder}
+            aiRole={aiRole}
+            fieldRef={(el) => {
+              refs.current[index] = el;
+            }}
+            onText={(text) => setBullet(index, text)}
+            onKeyDown={(e) => onKeyDown(e, index)}
+            onMove={(direction) => move(index, direction)}
+            onRemove={() => removeAt(index)}
+          />
         ))}
       </ul>
 
@@ -140,6 +117,82 @@ export function BulletListEditor({
         {addLabel}
       </Button>
     </div>
+  );
+}
+
+interface BulletRowProps {
+  index: number;
+  count: number;
+  bullet: string;
+  legend: string;
+  placeholder: string;
+  aiRole?: string;
+  fieldRef: (el: HTMLTextAreaElement | null) => void;
+  onText: (text: string) => void;
+  onKeyDown: (e: KeyboardEvent<HTMLTextAreaElement>) => void;
+  onMove: (direction: 'up' | 'down') => void;
+  onRemove: () => void;
+}
+
+/** One bullet: the field, its tools, and the Polish card that appears when he leaves it. */
+function BulletRow({
+  index,
+  count,
+  bullet,
+  legend,
+  placeholder,
+  aiRole,
+  fieldRef,
+  onText,
+  onKeyDown,
+  onMove,
+  onRemove,
+}: BulletRowProps) {
+  const polish = usePolish({ value: bullet, kind: 'bullet', role: aiRole, label: `Bullet ${index + 1}`, onApply: onText });
+
+  return (
+    <li className="re-bullets__row">
+      <span className="re-bullets__dot" aria-hidden="true" />
+      <Textarea
+        spellFix
+        ref={fieldRef}
+        className="re-bullets__field"
+        rows={2}
+        autoResize
+        value={bullet}
+        aria-label={`${legend} — bullet ${index + 1}`}
+        placeholder={placeholder}
+        onChange={(e) => onText(e.target.value)}
+        onKeyDown={onKeyDown}
+        onBlur={polish.onBlur}
+      />
+      <div className="re-bullets__tools">
+        <DictateButton value={bullet} onChange={onText} label={`Talk instead of type — bullet ${index + 1}`} />
+        <BulletAiButton bullet={bullet} role={aiRole} onApply={onText} />
+        <IconButton
+          size="sm"
+          label={`Move bullet ${index + 1} up`}
+          icon={<ArrowUp size={14} />}
+          disabled={index === 0}
+          onClick={() => onMove('up')}
+        />
+        <IconButton
+          size="sm"
+          label={`Move bullet ${index + 1} down`}
+          icon={<ArrowDown size={14} />}
+          disabled={index === count - 1}
+          onClick={() => onMove('down')}
+        />
+        <IconButton
+          size="sm"
+          variant="danger"
+          label={`Delete bullet ${index + 1}`}
+          icon={<Trash2 size={14} />}
+          onClick={onRemove}
+        />
+      </div>
+      {polish.card ? <div className="re-bullets__polish">{polish.card}</div> : null}
+    </li>
   );
 }
 

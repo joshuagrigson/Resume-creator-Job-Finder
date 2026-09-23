@@ -17,6 +17,8 @@ export const SIZE_CAPS = {
   resume: 200 * 1024,
   /** Pasted resume text for parsing. */
   text: 40 * 1024,
+  /** One field sent to Polish (a summary is the longest). */
+  polish: 4 * 1024,
 } as const;
 
 const optionalText = z.string().default('');
@@ -156,11 +158,22 @@ export const ParseResumeRequestSchema = z.object({
   text: z.string().trim().min(40, 'Paste more resume text (at least 40 characters).').max(SIZE_CAPS.text * 4),
 });
 
+export const PolishRequestSchema = z.object({
+  text: z.string().trim().min(3, 'Type a few words first.').max(SIZE_CAPS.polish * 4),
+  kind: z.enum(['summary', 'bullet', 'description']),
+  role: z.string().max(200).optional(),
+  answers: z
+    .array(z.object({ question: z.string().max(300), answer: z.string().trim().max(300) }))
+    .max(4)
+    .optional(),
+});
+
 export type ImproveBulletInput = z.infer<typeof ImproveBulletRequestSchema>;
 export type SummaryInput = z.infer<typeof SummaryRequestSchema>;
 export type TailorInput = z.infer<typeof TailorRequestSchema>;
 export type CoverLetterInput = z.infer<typeof CoverLetterRequestSchema>;
 export type ParseResumeInput = z.infer<typeof ParseResumeRequestSchema>;
+export type PolishInput = z.infer<typeof PolishRequestSchema>;
 
 export interface SizeCap {
   field: string;
@@ -186,6 +199,10 @@ export const REQUEST_CAPS = {
     { field: 'jobText', maxBytes: SIZE_CAPS.jobText, label: 'job description' },
   ],
   parseResume: [{ field: 'text', maxBytes: SIZE_CAPS.text, label: 'resume text' }],
+  polish: [
+    { field: 'text', maxBytes: SIZE_CAPS.polish, label: 'text' },
+    { field: 'answers', maxBytes: 2 * 1024, label: 'answers' },
+  ],
 } satisfies Record<string, SizeCap[]>;
 
 function byteSize(value: unknown): number {

@@ -141,7 +141,7 @@ describe('GET /api/ai/status', () => {
 describe('disabled mode', () => {
   it('answers 503 ai_disabled on every POST', async () => {
     delete process.env.ANTHROPIC_API_KEY;
-    for (const path of ['/improve-bullet', '/summary', '/tailor', '/cover-letter', '/parse-resume']) {
+    for (const path of ['/improve-bullet', '/summary', '/tailor', '/cover-letter', '/parse-resume', '/polish']) {
       const res = await request<{ code?: string }>('POST', `/api/ai${path}`, {});
       expect(res.status).toBe(503);
       expect(res.body.code).toBe('ai_disabled');

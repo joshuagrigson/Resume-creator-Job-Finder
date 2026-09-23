@@ -9,6 +9,8 @@ import type {
   AiImproveBulletResponse,
   AiParseResumeRequest,
   AiParseResumeResponse,
+  AiPolishRequest,
+  AiPolishResponse,
   AiStatus,
   AiSummaryRequest,
   AiSummaryResponse,
@@ -91,6 +93,8 @@ export const api = {
       request<AiTailorResponse>('/api/ai/tailor', { method: 'POST', body: JSON.stringify(body), timeoutMs: 180_000 }),
     coverLetter: (body: AiCoverLetterRequest) =>
       request<AiCoverLetterResponse>('/api/ai/cover-letter', { method: 'POST', body: JSON.stringify(body), timeoutMs: 180_000 }),
+    polish: (body: AiPolishRequest) =>
+      request<AiPolishResponse>('/api/ai/polish', { method: 'POST', body: JSON.stringify(body), timeoutMs: 45_000 }),
     parseResume: (body: AiParseResumeRequest) =>
       request<AiParseResumeResponse>('/api/ai/parse-resume', { method: 'POST', body: JSON.stringify(body), timeoutMs: 180_000 }),
   },

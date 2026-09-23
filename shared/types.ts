@@ -425,6 +425,34 @@ export interface AiImproveBulletResponse {
   suggestions: string[];
 }
 
+/** Which kind of résumé field is being polished — steers length and voice. */
+export type AiPolishKind = 'summary' | 'bullet' | 'description';
+
+export interface AiPolishAnswer {
+  question: string;
+  answer: string;
+}
+
+export interface AiPolishRequest {
+  /** Exactly what he typed (after browser spelling fixes). */
+  text: string;
+  kind: AiPolishKind;
+  /** Job title / company for context, e.g. "Line cook at Waffle House". */
+  role?: string;
+  /** His answers to earlier follow-up questions — the only new facts Polish may use. */
+  answers?: AiPolishAnswer[];
+}
+export interface AiPolishResponse {
+  /** The reworded text. Same facts as the input; never a new number, tool, employer or title. */
+  polished: string;
+  /** False when the input was already clean (or a rewrite broke the no-new-facts rule). */
+  changed: boolean;
+  /** One short line on what changed, e.g. "Started with a verb; cut the slang." */
+  why: string;
+  /** 0–2 questions asking for a missing fact (a number, a scope, an outcome). */
+  questions: string[];
+}
+
 export interface AiSummaryRequest {
   resume: Resume;
   jobText?: string;

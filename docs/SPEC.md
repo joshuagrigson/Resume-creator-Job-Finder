@@ -217,6 +217,7 @@ export function listSourceConfig(): { source: JobSource; enabled: boolean; needs
   - `/api/ai/tailor` → `AiTailorResponse` (never invent experience; only rephrase/reorder/emphasize; keywordsToAdd only if plausibly true given the resume)
   - `/api/ai/cover-letter` → `AiCoverLetterResponse`
   - `/api/ai/parse-resume` → `AiParseResumeResponse` (strict JSON matching the Resume subset; generate ids server-side with crypto.randomUUID)
+  - `/api/ai/polish` → `AiPolishResponse` (the smart prompt under a field: rewords only, never adds a fact — a rewrite with a number he never gave is discarded server-side; 0–2 follow-up questions for missing facts; see docs/DESIGN-SMART-PROMPT.md)
 - A simple in-memory rate limit (e.g., 30 req / 10 min per IP) and 20 KB input caps. Log nothing sensitive.
 - Tests: mock the Anthropic client (inject via a factory `createAiClient()` that tests override) — validate prompt assembly, JSON parsing/repair, error mapping, disabled mode.
 

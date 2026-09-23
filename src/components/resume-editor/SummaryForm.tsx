@@ -6,6 +6,7 @@ import { Button, Field, Popover, SkeletonText, Textarea, useToast } from '@/comp
 import { api, ApiClientError } from '@/lib/api';
 import { useResumeStore } from '@/stores/resumeStore';
 import { useSettingsStore } from '@/stores/settingsStore';
+import { DictateButton, usePolish } from './Polish';
 import { useResumeSlice, useResumeUpdate } from './store-hooks';
 
 const IDEAL = { min: 30, max: 90 };
@@ -17,6 +18,8 @@ export interface SummaryFormProps {
 export function SummaryForm({ resumeId }: SummaryFormProps) {
   const summary = useResumeSlice(resumeId, (r) => r.summary);
   const update = useResumeUpdate(resumeId);
+  const setSummary = (text: string) => update((r) => ({ ...r, summary: text }));
+  const polish = usePolish({ value: summary ?? '', kind: 'summary', label: 'Summary', onApply: setSummary });
 
   if (summary === undefined) return null;
 
@@ -38,10 +41,15 @@ export function SummaryForm({ resumeId }: SummaryFormProps) {
           autoResize
           value={summary}
           placeholder="Marketing operations leader with 8+ years building pipelines that turn leads into booked appointments…"
-          onChange={(e) => update((r) => ({ ...r, summary: e.target.value }))}
+          onChange={(e) => setSummary(e.target.value)}
+          onBlur={polish.onBlur}
         />
       </Field>
-      <SummaryAiButton resumeId={resumeId} onApply={(text) => update((r) => ({ ...r, summary: text }))} />
+      {polish.card}
+      <div className="re-summary__tools">
+        <DictateButton value={summary} onChange={setSummary} label="Talk instead of type" />
+        <SummaryAiButton resumeId={resumeId} onApply={setSummary} />
+      </div>
     </div>
   );
 }

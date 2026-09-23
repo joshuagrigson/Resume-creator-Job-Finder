@@ -7,6 +7,7 @@
  *   POST /tailor          → AiTailorResponse
  *   POST /cover-letter    → AiCoverLetterResponse
  *   POST /parse-resume    → AiParseResumeResponse
+ *   POST /polish          → AiPolishResponse
  *
  * Every POST goes through: AI enabled? → per-IP rate limit → size caps + zod → handler.
  * Failures answer with the shared ApiError shape: 503 ai_disabled, 400 bad_request,
@@ -22,6 +23,7 @@ import {
   CoverLetterRequestSchema,
   ImproveBulletRequestSchema,
   ParseResumeRequestSchema,
+  PolishRequestSchema,
   REQUEST_CAPS,
   SummaryRequestSchema,
   TailorRequestSchema,
@@ -33,6 +35,7 @@ import { summary } from '../ai/handlers/summary';
 import { tailor } from '../ai/handlers/tailor';
 import { coverLetter } from '../ai/handlers/cover-letter';
 import { parseResume } from '../ai/handlers/parse-resume';
+import { polish } from '../ai/handlers/polish';
 
 export const aiRouter = Router();
 
@@ -89,6 +92,7 @@ aiRouter.post('/summary', endpoint(SummaryRequestSchema, REQUEST_CAPS.summary, s
 aiRouter.post('/tailor', endpoint(TailorRequestSchema, REQUEST_CAPS.tailor, tailor));
 aiRouter.post('/cover-letter', endpoint(CoverLetterRequestSchema, REQUEST_CAPS.coverLetter, coverLetter));
 aiRouter.post('/parse-resume', endpoint(ParseResumeRequestSchema, REQUEST_CAPS.parseResume, parseResume));
+aiRouter.post('/polish', endpoint(PolishRequestSchema, REQUEST_CAPS.polish, polish));
 
 /** Anything else under /api/ai is a 404 with the shared error shape. */
 aiRouter.use((_req: Request, res: Response) => {
