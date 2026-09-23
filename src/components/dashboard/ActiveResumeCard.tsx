@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { CircleAlert, CircleCheckBig, FileText, Lightbulb, TriangleAlert, Wand } from 'lucide-react';
 import type { AtsIssue, AtsSeverity, Resume } from '@shared/types';
 import { analyzeResume } from '@/lib/resume/ats';
-import { Badge, Button, Card, ScoreRing } from '@/components/ui';
+import { Badge, Button, Card, ScoreRing, scoreLabel } from '@/components/ui';
 import { formatRelativeTime } from './utils';
 import './dashboard.css';
 
@@ -76,7 +76,7 @@ export function ActiveResumeCard({ resume, otherCount = 0, className }: ActiveRe
     >
       <div className="db-resume">
         <div className="db-resume__ring">
-          <ScoreRing name="ATS score" value={report.score} size={78} />
+          <ScoreRing name="ATS score" value={report.score} size={78} label={scoreLabel(report.score)} />
           <span className="db-resume__ring-label">ATS score</span>
         </div>
 

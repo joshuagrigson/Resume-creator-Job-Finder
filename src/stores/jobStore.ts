@@ -9,6 +9,17 @@ import type { ApplicationStatus, Job, JobSearchQuery, JobSearchResponse, Tracked
 import { api, ApiClientError } from '@/lib/api';
 import { nowIso, uid } from '@/lib/id';
 
+/** Days after applying before the tracker nudges him to follow up (Joshua's pick: 7). */
+export const FOLLOW_UP_AFTER_DAYS = 7;
+
+/** Local calendar date `days` after an ISO timestamp, as YYYY-MM-DD. */
+export function followUpDateFrom(iso: string, days = FOLLOW_UP_AFTER_DAYS): string {
+  const d = new Date(iso);
+  d.setDate(d.getDate() + days);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
 export interface SavedSearch {
   id: string;
   name: string;
@@ -101,6 +112,7 @@ export const useJobStore = create<JobStoreState>()(
             ? { ...existing, status, updatedAt: ts, resumeId: resumeId ?? existing.resumeId }
             : { job, status, notes: '', resumeId, savedAt: ts, updatedAt: ts };
           if (status === 'applied' && !entry.appliedAt) entry.appliedAt = ts;
+          if (status === 'applied' && !entry.followUpOn) entry.followUpOn = followUpDateFrom(entry.appliedAt ?? ts);
           return { tracked: { ...s.tracked, [job.id]: entry } };
         });
       },
@@ -119,6 +131,7 @@ export const useJobStore = create<JobStoreState>()(
           const ts = nowIso();
           const next: TrackedJob = { ...t, status, updatedAt: ts };
           if (status === 'applied' && !next.appliedAt) next.appliedAt = ts;
+          if (status === 'applied' && !next.followUpOn) next.followUpOn = followUpDateFrom(next.appliedAt ?? ts);
           return { tracked: { ...s.tracked, [jobId]: next } };
         }),
 

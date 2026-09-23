@@ -2,7 +2,7 @@
 import type { ReactNode } from 'react';
 import { AlertTriangle, CheckCircle2, Info, XCircle } from 'lucide-react';
 import type { AtsReport, AtsSeverity } from '@shared/types';
-import { Badge, ScoreRing } from '@/components/ui';
+import { Badge, ScoreRing, scoreLabel } from '@/components/ui';
 import { atsScoreLabel, atsScoreTone } from '@/lib/resume/ats';
 import './editor.css';
 
@@ -24,7 +24,7 @@ export function AtsPanel({ report }: AtsPanelProps) {
   return (
     <div className="re-ats stack-6">
       <div className="re-ats__head">
-        <ScoreRing name="ATS score" value={report.score} size={84} thickness={8} label="ATS" tone={tone} />
+        <ScoreRing name="ATS score" value={report.score} size={84} thickness={8} label={scoreLabel(report.score)} tone={tone} />
         <div className="stack-1">
           <p className="re-ats__verdict">{atsScoreLabel(report.score)}</p>
           <p className="subtle small">

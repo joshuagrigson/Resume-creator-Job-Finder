@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { AlertTriangle, CircleAlert, Lightbulb, ThumbsUp } from 'lucide-react';
 import type { AtsIssue, Resume } from '@shared/types';
 import { analyzeResume } from '@/lib/resume/ats';
-import { Badge, Card, ScoreRing } from '@/components/ui';
+import { Badge, Card, ScoreRing, scoreLabel } from '@/components/ui';
 
 export interface AtsVsJobProps {
   resume: Resume;
@@ -24,7 +24,7 @@ export function AtsVsJob({ resume, jobText }: AtsVsJobProps) {
     <div className="tl-ats stack-4">
       <Card padding="sm">
         <div className="tl-ats-top">
-          <ScoreRing name="ATS score against this job" value={report.score} size={84} label="ATS" />
+          <ScoreRing name="ATS score against this job" value={report.score} size={84} label={scoreLabel(report.score)} />
           <div className="stack-2 grow">
             <p className="tl-ats-head">
               {report.score >= 80

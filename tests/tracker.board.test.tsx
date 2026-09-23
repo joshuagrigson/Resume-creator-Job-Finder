@@ -5,7 +5,7 @@ import { MemoryRouter } from 'react-router-dom';
 import type { Job, TrackedJob } from '@shared/types';
 import { ToastProvider } from '@/components/ui';
 import TrackerPage from '@/pages/Tracker';
-import { useJobStore } from '@/stores/jobStore';
+import { followUpDateFrom, useJobStore } from '@/stores/jobStore';
 import { useResumeStore } from '@/stores/resumeStore';
 import { createSampleResume } from '@/lib/resume/defaults';
 import { daysSince, followUpLabel, groupByStatus, isFollowUpOverdue, matchesFilter } from '@/components/tracker';
@@ -158,6 +158,10 @@ describe('Tracker board', () => {
     renderTracker();
     fireEvent.change(screen.getByLabelText('Status for Senior React Engineer'), { target: { value: 'applied' } });
     expect(useJobStore.getState().tracked[react.id].appliedAt).toBeTruthy();
+    // A 7-day follow-up is set for him; he can still change or clear it in the detail panel.
+    const entry = useJobStore.getState().tracked[react.id];
+    expect(entry.followUpOn).toBe(followUpDateFrom(entry.appliedAt!));
+    expect(followUpDateFrom('2026-09-23T15:00:00')).toBe('2026-09-30');
   });
 
   it('flags an overdue follow-up on the card', () => {
