@@ -6,3 +6,6 @@ dist/
 .DS_Store
 coverage/
 .vite/
+
+# TypeScript incremental build cache
+*.tsbuildinfo
