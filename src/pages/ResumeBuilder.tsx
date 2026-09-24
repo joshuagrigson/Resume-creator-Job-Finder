@@ -149,7 +149,11 @@ export default function ResumeBuilderPage() {
         className="no-print"
         eyebrow="Resume"
         title={resume.name}
-        description="Edit on the left; the sheet on the right is exactly what prints."
+        description={
+          narrow
+            ? 'Edit here, then tap Preview to see the sheet exactly as it prints.'
+            : 'Edit on the left; the sheet on the right is exactly what prints.'
+        }
         badge={<SavedIndicator updatedAt={resume.updatedAt} />}
         actions={toolbar}
       />

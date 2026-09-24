@@ -292,7 +292,10 @@
 }
 
 .ui-pageheader__actions {
-  flex: none;
+  /* Shrinks to the row on a phone so a long toolbar wraps instead of widening the page. */
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
   display: flex;
   align-items: center;
   gap: var(--space-2);
