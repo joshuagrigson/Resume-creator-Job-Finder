@@ -20,7 +20,14 @@
   max-width: 240px;
 }
 
+/* Working screen: the résumé's name at a working size, not a magazine cover. */
+.re-page .ui-pageheader__title {
+  font-size: clamp(1.625rem, 1.3rem + 0.9vw, 2.125rem);
+}
+
 .re-saved {
+  font-family: var(--font-sans);
+  letter-spacing: 0;
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);

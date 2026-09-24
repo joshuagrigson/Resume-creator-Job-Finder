@@ -242,13 +242,14 @@
     --color-text-subtle: #767e89;
     --color-text-inverse: #111317;
 
-    --color-accent: #8fa8c9;
-    --color-accent-hover: #a6bad5;
-    --color-accent-active: #92a5c4;
+    /* In the dark, ink inverts to bone: buttons and selected chips read like ivory card stock. */
+    --color-accent: #e6dfcf;
+    --color-accent-hover: #f2ecdf;
+    --color-accent-active: #d6cdb9;
     --color-accent-text: #b9c8dc;
     --color-accent-soft: rgba(143, 168, 201, 0.12);
     --color-accent-soft-border: rgba(143, 168, 201, 0.3);
-    --color-on-accent: #131a22;
+    --color-on-accent: #161b23;
 
     --color-success: #7fb08e;
     --color-success-text: #a3c9ae;
@@ -307,13 +308,14 @@
   --color-text-subtle: #767e89;
   --color-text-inverse: #111317;
 
-  --color-accent: #8fa8c9;
-  --color-accent-hover: #a6bad5;
-  --color-accent-active: #92a5c4;
+  /* In the dark, ink inverts to bone: buttons and selected chips read like ivory card stock. */
+  --color-accent: #e6dfcf;
+  --color-accent-hover: #f2ecdf;
+  --color-accent-active: #d6cdb9;
   --color-accent-text: #b9c8dc;
   --color-accent-soft: rgba(143, 168, 201, 0.12);
   --color-accent-soft-border: rgba(143, 168, 201, 0.3);
-  --color-on-accent: #131a22;
+  --color-on-accent: #161b23;
 
   --color-success: #7fb08e;
   --color-success-text: #a3c9ae;

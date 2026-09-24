@@ -107,13 +107,16 @@ ol[class] {
 img,
 picture,
 video,
-canvas,
-svg {
+canvas {
   display: block;
   max-width: 100%;
 }
 
+/* Icons sit on the text line they belong to (block SVGs broke "icon + label" runs everywhere). */
 svg {
+  display: inline-block;
+  vertical-align: -0.15em;
+  max-width: 100%;
   flex: none;
 }
 

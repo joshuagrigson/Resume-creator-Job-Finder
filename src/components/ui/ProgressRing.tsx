@@ -149,8 +149,8 @@ export interface MatchToneProps {
 export function MatchTone({ score, label, tone, showScore = true, size = 'sm', className }: MatchToneProps) {
   const v = Math.round(clamp(score, 0, 100));
   const auto = tone ?? scoreTone(v);
-  // A strong score wears the house metal rather than a traffic-light green.
-  const resolvedTone: BadgeTone = auto === 'success' ? 'metal' : auto;
+  // A strong match wears the house metal; a weak one is information, not an alarm, so it stays grey.
+  const resolvedTone: BadgeTone = auto === 'success' ? 'metal' : auto === 'danger' ? 'neutral' : auto;
   const text = label ?? scoreLabel(v);
   return (
     <Badge tone={resolvedTone} variant="soft" size={size} dot className={className}>

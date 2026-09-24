@@ -5,35 +5,47 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <link rel="icon" href="/icon.svg" type="image/svg+xml">
 <title>Privacy Policy · Launchpad</title>
-<meta name="description" content="How Launchpad handles your résumé, job searches and connected email.">
+<meta name="description" content="How Launchpad handles your resume, job searches and connected email.">
 <style>
-:root{--bg:#f5efe1;--text:#1d1b17;--muted:#5d574c;--line:#d9cfb8;--acc:#2d3e5c}
-@media (prefers-color-scheme:dark){:root{--bg:#111317;--text:#e7e9ec;--muted:#a3aab4;--line:#2d323a;--acc:#8fa8c9}}
+@font-face{font-family:'Newsreader';src:url(/fonts/newsreader-latin.woff2) format('woff2');font-weight:200 800;font-display:swap}
+@font-face{font-family:'Inter';src:url(/fonts/inter-latin.woff2) format('woff2');font-weight:100 900;font-display:swap}
+:root{--bg:#f5efe1;--paper:#fffdf8;--text:#211e18;--muted:#5f5749;--line:#e4dac5;--ink:#22334a;--brass:#a8894f;--brass-text:#6c5631}
+@media (prefers-color-scheme:dark){:root{--bg:#111317;--paper:#181b20;--text:#e7e9ec;--muted:#a3aab4;--line:#2d323a;--ink:#e6dfcf;--brass:#c9ab6e;--brass-text:#dcc59a}}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
-main{max-width:720px;margin:0 auto;padding:40px 16px 64px}
-h1{font-size:28px;margin:0 0 4px}h2{font-size:18px;margin:32px 0 8px}
-p,li{color:var(--text)}.meta{color:var(--muted);margin:0 0 24px}
-a{color:var(--acc)}ul{padding-left:20px}
-nav{display:flex;gap:16px;margin-bottom:32px;font-size:14px}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.7 Inter,system-ui,-apple-system,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}
+main{max-width:720px;margin:0 auto;padding:40px 16px 80px}
+nav{display:flex;align-items:center;gap:20px;margin-bottom:48px;font-size:14px}
+nav a:first-child{display:flex;align-items:center;gap:10px;margin-right:auto;font:500 22px Newsreader,Georgia,serif;color:var(--ink);text-decoration:none}
+nav svg{width:24px;height:24px;color:var(--brass)}
+.eyebrow{display:flex;align-items:center;gap:12px;margin:0 0 10px;font:600 11px Inter,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:var(--brass-text)}
+.eyebrow:before{content:'';width:22px;height:1px;background:var(--brass)}
+h1{margin:0;font:400 44px/1.06 Newsreader,Georgia,serif;letter-spacing:-.02em;color:var(--ink)}
+h2{margin:40px 0 8px;font:500 22px/1.25 Newsreader,Georgia,serif;letter-spacing:-.01em}
+.meta{color:var(--muted);margin:12px 0 32px;font-size:14px}
+p,li{color:var(--text)}
+a{color:var(--ink);text-decoration-color:var(--brass);text-underline-offset:3px}
+code{font-size:.85em;background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+ul{padding-left:20px}
+li{margin:6px 0}
 </style>
 </head>
 <body>
 <main>
-<nav><a href="/">Launchpad</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></nav>
+<nav><a href="/"><svg viewBox="84 72 344 352" aria-hidden="true"><g fill="currentColor"><rect x="96" y="120" width="40" height="292"/><rect x="96" y="372" width="252" height="40"/><polygon points="152,350 198,350 404,130 404,84"/><polygon points="376,126 416,84 416,412 376,412"/></g></svg>Launchpad</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></nav>
 
+<p class="eyebrow">Launchpad</p>
 <h1>Privacy Policy</h1>
 <p class="meta">Effective September 23, 2026</p>
 
-<p>Launchpad helps you build a résumé, find jobs near you, and apply to them. This page says exactly what information that involves, where it goes, and what we never do with it.</p>
+<p>Launchpad helps you build a resume, find jobs near you, and apply to them. This page says exactly what information that involves, where it goes, and what we never do with it.</p>
 
 <h2>What stays on your device</h2>
-<p>Your résumés, saved and tracked jobs, notes, settings, your home ZIP code, and the original wording you replaced with a "Polish" suggestion are stored in your browser's local storage on your device. They are not uploaded to or stored on our servers. Clearing your browser data, or using Settings → Data → Delete everything, removes them.</p>
+<p>Your resumes, saved and tracked jobs, notes, settings, your home ZIP code, and the original wording you replaced with a "Polish" suggestion are stored in your browser's local storage on your device. They are not uploaded to or stored on our servers. Clearing your browser data, or using Settings → Your data → Clear all data, removes them.</p>
 
 <h2>What our server handles, and does not keep</h2>
 <ul>
 <li><strong>Job searches.</strong> The keywords, location or ZIP code, and filters you search with are sent to public job boards (for example Adzuna, USAJOBS, The Muse, Remotive and Google Jobs via JSearch) to fetch listings. Results are cached briefly (about 15 minutes) so repeated searches are fast. Searches are not tied to you and are not logged with any identifier.</li>
-<li><strong>Writing help.</strong> When you use Polish, AI drafts, tailoring or cover letters, the text involved (for example a résumé bullet, your résumé, or a job description) is sent to Anthropic's Claude API to produce the suggestion, and the answer is returned to your browser. We do not store that text. Anthropic processes it under its commercial terms, which do not permit training on it.</li>
+<li><strong>Writing help.</strong> When you use Polish, AI drafts, tailoring or cover letters, the text involved (for example a resume bullet, your resume, or a job description) is sent to Anthropic's Claude API to produce the suggestion, and the answer is returned to your browser. We do not store that text. Anthropic processes it under its commercial terms, which do not permit training on it.</li>
 <li><strong>Talk instead of type.</strong> The microphone button uses your browser's built-in speech recognition. Your browser vendor (for example Google in Chrome, Apple in Safari) may process the audio; Launchpad never receives audio.</li>
 </ul>
 
@@ -43,7 +55,7 @@ nav{display:flex;gap:16px;margin-bottom:32px;font-size:14px}
 <li>We use it only to send job applications that you reviewed and approved on the "check what goes out" screen. Nothing is sent without that screen.</li>
 <li>We cannot read, search, delete or organize your email. We never access your inbox, contacts or calendar.</li>
 <li>We store the sign-in token needed to send, encrypted, only while your email is connected. Disconnecting in Settings, or removing Launchpad from your Google or Microsoft account's connected apps, deletes it.</li>
-<li>We keep a record of what we sent (to which employer, when, and which résumé) so you can track your applications. You can delete it at any time.</li>
+<li>We keep a record of what we sent (to which employer, when, and which resume) so you can track your applications. You can delete it at any time.</li>
 </ul>
 <p>Launchpad's use and transfer of information received from Google APIs will adhere to the <a href="https://developers.google.com/terms/api-services-user-data-policy">Google API Services User Data Policy</a>, including the Limited Use requirements. We do not sell Google user data, use it for advertising, transfer it to others except as needed to send the email you approved, or use it to train AI models. No person reads it unless you ask us to for support, or the law requires it.</p>
 

@@ -24,7 +24,7 @@ export function PageHeader({ title, eyebrow, description, badge, actions, classN
       <div className="ui-pageheader__main">
         {eyebrow ? <div className="ui-pageheader__eyebrow">{eyebrow}</div> : null}
         <Heading className="ui-pageheader__title">
-          <span className="truncate">{title}</span>
+          <span className="ui-pageheader__text">{title}</span>
           {badge}
         </Heading>
         {description ? <p className="ui-pageheader__desc">{description}</p> : null}

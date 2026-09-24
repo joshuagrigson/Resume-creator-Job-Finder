@@ -106,7 +106,7 @@ export default function ResumeBuilderPage() {
       >
         <span className="re-atschip__num">{report ? Math.round(report.score) : '—'}</span>
         <span className="re-atschip__text">
-          ATS
+          Score
           <span className="re-atschip__label">{report ? atsScoreLabel(report.score) : 'Checking'}</span>
         </span>
       </button>

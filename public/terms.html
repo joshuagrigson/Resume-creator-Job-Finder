@@ -7,31 +7,43 @@
 <title>Terms of Use · Launchpad</title>
 <meta name="description" content="The terms for using Launchpad.">
 <style>
-:root{--bg:#f5efe1;--text:#1d1b17;--muted:#5d574c;--line:#d9cfb8;--acc:#2d3e5c}
-@media (prefers-color-scheme:dark){:root{--bg:#111317;--text:#e7e9ec;--muted:#a3aab4;--line:#2d323a;--acc:#8fa8c9}}
+@font-face{font-family:'Newsreader';src:url(/fonts/newsreader-latin.woff2) format('woff2');font-weight:200 800;font-display:swap}
+@font-face{font-family:'Inter';src:url(/fonts/inter-latin.woff2) format('woff2');font-weight:100 900;font-display:swap}
+:root{--bg:#f5efe1;--paper:#fffdf8;--text:#211e18;--muted:#5f5749;--line:#e4dac5;--ink:#22334a;--brass:#a8894f;--brass-text:#6c5631}
+@media (prefers-color-scheme:dark){:root{--bg:#111317;--paper:#181b20;--text:#e7e9ec;--muted:#a3aab4;--line:#2d323a;--ink:#e6dfcf;--brass:#c9ab6e;--brass-text:#dcc59a}}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
-main{max-width:720px;margin:0 auto;padding:40px 16px 64px}
-h1{font-size:28px;margin:0 0 4px}h2{font-size:18px;margin:32px 0 8px}
-p,li{color:var(--text)}.meta{color:var(--muted);margin:0 0 24px}
-a{color:var(--acc)}ul{padding-left:20px}
-nav{display:flex;gap:16px;margin-bottom:32px;font-size:14px}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.7 Inter,system-ui,-apple-system,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}
+main{max-width:720px;margin:0 auto;padding:40px 16px 80px}
+nav{display:flex;align-items:center;gap:20px;margin-bottom:48px;font-size:14px}
+nav a:first-child{display:flex;align-items:center;gap:10px;margin-right:auto;font:500 22px Newsreader,Georgia,serif;color:var(--ink);text-decoration:none}
+nav svg{width:24px;height:24px;color:var(--brass)}
+.eyebrow{display:flex;align-items:center;gap:12px;margin:0 0 10px;font:600 11px Inter,sans-serif;letter-spacing:.18em;text-transform:uppercase;color:var(--brass-text)}
+.eyebrow:before{content:'';width:22px;height:1px;background:var(--brass)}
+h1{margin:0;font:400 44px/1.06 Newsreader,Georgia,serif;letter-spacing:-.02em;color:var(--ink)}
+h2{margin:40px 0 8px;font:500 22px/1.25 Newsreader,Georgia,serif;letter-spacing:-.01em}
+.meta{color:var(--muted);margin:12px 0 32px;font-size:14px}
+p,li{color:var(--text)}
+a{color:var(--ink);text-decoration-color:var(--brass);text-underline-offset:3px}
+code{font-size:.85em;background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+ul{padding-left:20px}
+li{margin:6px 0}
 </style>
 </head>
 <body>
 <main>
-<nav><a href="/">Launchpad</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></nav>
+<nav><a href="/"><svg viewBox="84 72 344 352" aria-hidden="true"><g fill="currentColor"><rect x="96" y="120" width="40" height="292"/><rect x="96" y="372" width="252" height="40"/><polygon points="152,350 198,350 404,130 404,84"/><polygon points="376,126 416,84 416,412 376,412"/></g></svg>Launchpad</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></nav>
 
+<p class="eyebrow">Launchpad</p>
 <h1>Terms of Use</h1>
 <p class="meta">Effective September 23, 2026</p>
 
 <p>By using Launchpad you agree to these terms. If you do not agree, do not use it.</p>
 
 <h2>What Launchpad does</h2>
-<p>Launchpad helps you write a résumé, finds job listings from public job boards, estimates how well you match them, and, if you connect your email and approve each one, sends applications for you. Listings come from third parties; we do not employ, recommend or vouch for any employer, and we cannot guarantee a listing is accurate, current or still open.</p>
+<p>Launchpad helps you write a resume, finds job listings from public job boards, estimates how well you match them, and, if you connect your email and approve each one, sends applications for you. Listings come from third parties; we do not employ, recommend or vouch for any employer, and we cannot guarantee a listing is accurate, current or still open.</p>
 
 <h2>Your content and your approval</h2>
-<p>You own your résumé and everything you write. Suggestions from Polish and other writing tools reword what you gave; they are designed never to add facts, but you are responsible for checking that everything you send is true. Nothing is sent to an employer until you approve it.</p>
+<p>You own your resume and everything you write. Suggestions from Polish and other writing tools reword what you gave; they are designed never to add facts, but you are responsible for checking that everything you send is true. Nothing is sent to an employer until you approve it.</p>
 
 <h2>Fair use</h2>
 <ul>
