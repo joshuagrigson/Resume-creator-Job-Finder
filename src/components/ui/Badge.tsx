@@ -2,7 +2,7 @@ import type { HTMLAttributes, ReactNode } from 'react';
 import { cx } from './utils';
 import './surfaces.css';
 
-export type BadgeTone = 'neutral' | 'accent' | 'success' | 'warning' | 'danger' | 'info';
+export type BadgeTone = 'neutral' | 'accent' | 'success' | 'warning' | 'danger' | 'info' | 'metal';
 export type BadgeVariant = 'soft' | 'solid' | 'outline';
 
 export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {

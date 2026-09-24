@@ -151,7 +151,7 @@ export function JobDetail({ job, match, onBack, bare = false }: JobDetailProps) 
           ) : null}
         </span>
         {job.remote ? (
-          <Badge tone="info" variant="soft">
+          <Badge tone="accent" variant="soft">
             Remote
           </Badge>
         ) : null}

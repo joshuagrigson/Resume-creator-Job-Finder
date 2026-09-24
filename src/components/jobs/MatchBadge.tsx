@@ -18,10 +18,21 @@ export interface MatchBadgeProps {
 export function MatchBadge({ match, variant = 'badge', size = 64, className }: MatchBadgeProps) {
   if (!match) return null;
   const { label, tone } = matchLabel(match.score);
+  // A low match is information, not an alarm: it stays quiet grey instead of red.
+  const quiet = tone === 'danger';
 
   if (variant === 'ring') {
-    return <ScoreRing name="Resume match" value={match.score} tone={tone} size={size} label={label} className={className} />;
+    return (
+      <ScoreRing
+        name="Resume match"
+        value={match.score}
+        tone={quiet ? 'muted' : tone}
+        size={size}
+        label={label}
+        className={className}
+      />
+    );
   }
 
-  return <MatchTone score={match.score} label={label} tone={tone} className={className} />;
+  return <MatchTone score={match.score} label={label} tone={quiet ? 'neutral' : tone} className={className} />;
 }

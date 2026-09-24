@@ -43,7 +43,7 @@ export function QuickSearchCard({ className }: QuickSearchCardProps) {
     <Card
       className={className}
       title="Find jobs"
-      subtitle="Searches eight boards at once and scores each result against your resume."
+      subtitle="Nine job boards at once, each result scored against your resume."
     >
       <form className="db-search" onSubmit={onSubmit}>
         <div className="db-search__row">

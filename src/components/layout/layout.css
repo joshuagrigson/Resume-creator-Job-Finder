@@ -24,7 +24,26 @@
   width: 100%;
   max-width: var(--content-max);
   margin: 0 auto;
-  padding: var(--space-6);
+  padding: var(--space-10) var(--space-10) var(--space-6);
+  animation: app-enter var(--dur-slow) var(--ease-out) both;
+}
+
+/* Pages settle in rather than snap: a short rise and fade on every route change. */
+@keyframes app-enter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (max-width: 1100px) {
+  .app-content {
+    padding: var(--space-8) var(--space-6) var(--space-6);
+  }
 }
 
 /* ---------------------------------------------------------------- skip link */
@@ -61,8 +80,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  padding: var(--space-4) var(--space-3);
-  background: var(--color-surface);
+  padding: var(--space-5) var(--space-3) var(--space-4);
+  background: var(--color-bg-elevated);
   border-right: 1px solid var(--color-border);
   transition: width var(--dur-base) var(--ease);
 }
@@ -77,8 +96,8 @@
 .app-brand {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
-  padding: var(--space-1) var(--space-2);
+  gap: 10px;
+  padding: var(--space-1) var(--space-2) var(--space-3);
   color: var(--color-text);
   min-width: 0;
 }
@@ -91,16 +110,19 @@
   flex: none;
   display: grid;
   place-items: center;
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
   /* Brass mark from the Canva logo (Ink & Brass colorway). */
-  color: #a8894f;
+  color: var(--color-metal);
 }
 
+/* The wordmark, as on the logo: Newsreader in ink. */
 .app-brand__name {
-  font-size: var(--text-base);
-  font-weight: var(--weight-semibold);
-  letter-spacing: var(--tracking-tight);
+  font-family: var(--font-display);
+  font-size: 1.375rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--color-accent-text);
   white-space: nowrap;
 }
 
@@ -132,9 +154,30 @@
   text-decoration: none;
 }
 
+.app-nav__link {
+  position: relative;
+}
+
 .app-nav__link--active {
-  background: var(--color-accent-soft);
-  color: var(--color-accent-text);
+  background: var(--color-surface-active);
+  color: var(--color-text);
+  font-weight: var(--weight-semibold);
+}
+
+/* A brass rule marks where you are. */
+.app-nav__link--active::before {
+  content: '';
+  position: absolute;
+  left: -12px;
+  top: 9px;
+  bottom: 9px;
+  width: 2px;
+  border-radius: 2px;
+  background: var(--color-metal);
+}
+
+.app-sidebar--collapsed .app-nav__link--active::before {
+  left: -8px;
 }
 
 .app-sidebar--collapsed .app-nav__link {
@@ -224,15 +267,18 @@
   gap: var(--space-3);
   height: var(--topbar-height);
   padding: 0 var(--space-6);
-  background: color-mix(in srgb, var(--color-bg) 88%, transparent);
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid var(--color-border);
+  background: color-mix(in srgb, var(--color-bg) 82%, transparent);
+  backdrop-filter: saturate(1.2) blur(14px);
+  -webkit-backdrop-filter: saturate(1.2) blur(14px);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
 }
 
+/* The page's own header carries the title; the bar only says where you are, quietly. */
 .app-topbar__title {
-  font-size: var(--text-base);
-  font-weight: var(--weight-semibold);
-  letter-spacing: var(--tracking-tight);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-muted);
+  letter-spacing: 0.01em;
   margin: 0;
   min-width: 0;
 }
@@ -302,6 +348,10 @@
   color: var(--color-accent-text);
 }
 
+.app-mobilenav__link--active svg {
+  color: var(--color-metal);
+}
+
 .app-mobilenav__label {
   max-width: 100%;
   overflow: hidden;
@@ -326,7 +376,7 @@
   }
 
   .app-content {
-    padding: var(--space-4);
+    padding: var(--space-6) var(--space-4) var(--space-4);
   }
 
   .app-topbar {
@@ -335,6 +385,17 @@
 
   .app-topbar__brand {
     display: flex;
+    flex: none;
+    padding-bottom: var(--space-1);
+  }
+
+  .app-topbar__brand .app-brand__name {
+    font-size: 1.25rem;
+  }
+
+  /* Page shortcuts in the bar duplicate the bottom tabs on a phone, and crowd the wordmark. */
+  .app-topbar__slot {
+    display: none;
   }
 
   .app-topbar__title {

@@ -4,7 +4,7 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Compass, FileText, MapPin, SearchX, X } from 'lucide-react';
+import { FileText, MapPin, SearchX, X } from 'lucide-react';
 import type { Job, JobSearchQuery, JobSearchResponse, JobSource } from '@shared/types';
 import { api } from '@/lib/api';
 import { useJobStore, type SavedSearch } from '@/stores/jobStore';
@@ -297,7 +297,7 @@ export default function JobFinderPage() {
   const emptyPrompt =
     !hasSearched && !query.q.trim() ? (
       <EmptyState
-        icon={<Compass size={20} />}
+        art="compass"
         title="Search thousands of openings at once"
         description="One search hits every job board we can reach and scores each posting against your resume."
         actions={

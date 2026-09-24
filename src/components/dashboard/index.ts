@@ -6,3 +6,4 @@ export { FollowUpsCard, type FollowUpsCardProps } from './FollowUpsCard';
 export { BestMatchesCard, type BestMatchesCardProps } from './BestMatchesCard';
 export { TipsCard, TIPS, type TipsCardProps, type Tip } from './TipsCard';
 export { formatRelativeTime, parseDateOnly, daysUntil, formatDueLabel, isFollowUpDue } from './utils';
+export { DashboardBanner, pipelineLine } from './DashboardBanner';

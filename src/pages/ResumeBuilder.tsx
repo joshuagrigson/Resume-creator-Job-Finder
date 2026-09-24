@@ -15,6 +15,7 @@ import { ResumeEditor } from '@/components/resume-editor/ResumeEditor';
 import { ResumeSwitcher } from '@/components/resume-editor/ResumeSwitcher';
 import { StylePanel } from '@/components/resume-editor/StylePanel';
 import '@/components/resume-editor/editor.css';
+import { ArtImage } from '@/components/ui/ArtImage';
 import {
   Button,
   Card,
@@ -211,6 +212,13 @@ function WelcomeCard({ onSample, onBlank, onImport, importOpen, onCloseImport, o
       />
 
       <Card className="re-welcome" padding="lg">
+        <ArtImage
+          className="re-welcome__art"
+          name="pen"
+          widths={[360, 720]}
+          sizes="(min-width: 900px) 260px, 60vw"
+          alt="A brass fountain pen resting on a blank cream page"
+        />
         <ul className="re-welcome__grid">
           <li>
             <button type="button" className="re-welcome__card" onClick={onSample}>

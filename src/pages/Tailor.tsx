@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { FilePlus2, Gauge, KeyRound, PenLine, Sparkles } from 'lucide-react';
+import { Gauge, KeyRound, PenLine, Sparkles } from 'lucide-react';
 import type { Job } from '@shared/types';
 import { matchLabel, scoreJobMatch, type MatchableJob } from '@shared/match';
 import { resumeProfile } from '@/lib/resume/profile';
@@ -129,7 +129,7 @@ export default function TailorPage() {
       <div className="tl-page">
         <PageHeader title="Tailor" eyebrow="Match" description="Line a resume up against one specific job." />
         <EmptyState
-          icon={<FilePlus2 size={20} />}
+          art="pen"
           title="You need a resume first"
           description="Tailoring compares a resume against a posting — keyword gap, ATS score and match all need one."
           actions={

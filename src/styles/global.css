@@ -32,6 +32,9 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  /* Inter: single-storey a and disambiguated digits read calmer at small sizes. */
+  font-feature-settings: 'cv11' 1, 'cv05' 1;
+  font-optical-sizing: auto;
 }
 
 h1,
@@ -58,6 +61,19 @@ h6 {
   line-height: var(--leading-tight);
   letter-spacing: var(--tracking-tight);
   color: var(--color-text);
+  text-wrap: balance;
+}
+
+/* Display headings in Newsreader; working headings (h3 and below) stay in Inter. */
+h1,
+h2 {
+  font-family: var(--font-display);
+  font-weight: 450;
+  letter-spacing: -0.015em;
+}
+
+p {
+  text-wrap: pretty;
 }
 
 h1 {

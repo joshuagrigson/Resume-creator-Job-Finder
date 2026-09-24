@@ -1,5 +1,6 @@
-import { FileUp, FilePlus, Rocket, Search, Sparkles, Target, Kanban } from 'lucide-react';
+import { FilePlus, FileUp, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui';
+import { ArtImage } from '@/components/ui/ArtImage';
 import './dashboard.css';
 
 export interface WelcomeHeroProps {
@@ -11,79 +12,92 @@ export interface WelcomeHeroProps {
   onImport: () => void;
 }
 
-const HIGHLIGHTS = [
+const FACTS = [
+  { value: '9', label: 'job boards, one search' },
+  { value: '5', label: 'resume templates' },
+  { value: '0', label: 'accounts to create' },
+];
+
+const PILLARS = [
   {
-    icon: <Sparkles size={16} aria-hidden="true" />,
-    title: 'ATS-ready resumes',
-    body: 'Five templates, a live preview and a score that tells you what to fix.',
+    n: '01',
+    title: 'Written for you',
+    body: 'Say it the way you would to a friend. Polish rewrites it clean, and never adds a fact you didn’t give.',
   },
   {
-    icon: <Search size={16} aria-hidden="true" />,
-    title: 'Eight job boards, one search',
-    body: 'Results are de-duplicated and ranked, not scattered across tabs.',
+    n: '02',
+    title: 'Found near home',
+    body: 'Nine job boards searched around your ZIP code, with the distance on every posting.',
   },
   {
-    icon: <Target size={16} aria-hidden="true" />,
-    title: 'A match score for every job',
-    body: 'Scored against your resume in your browser — nothing is uploaded.',
-  },
-  {
-    icon: <Kanban size={16} aria-hidden="true" />,
-    title: 'Applications you can track',
-    body: 'A kanban board with notes, follow-up dates and the resume you sent.',
+    n: '03',
+    title: 'Tracked to the offer',
+    body: 'Every application, follow-up and resume version kept in one place, on your device.',
   },
 ];
 
-/** First-run screen: three ways to get a resume into the app. */
+/** First-run screen: an editorial welcome and three ways to get a resume into the app. */
 export function WelcomeHero({ onStartSample, onStartBlank, onImport }: WelcomeHeroProps) {
   return (
-    <section className="db-hero" aria-labelledby="db-hero-title">
-      <div>
-        <p className="db-hero__eyebrow">
-          <Rocket size={14} aria-hidden="true" />
-          Welcome to Launchpad
-        </p>
-        <h1 className="db-hero__title" id="db-hero-title">
-          Build the resume first. The job search gets easier from there.
-        </h1>
-        <p className="db-hero__lede">
-          Launchpad keeps your resume and your job hunt in one place: write it, score it against the roles you actually
-          want, and track every application. Start with the example if you want to see the whole thing working in ten
-          seconds.
-        </p>
+    <>
+      <section className="db-hero" aria-labelledby="db-hero-title">
+        <div className="db-hero__copy">
+          <p className="db-hero__eyebrow">Welcome to Launchpad</p>
+          <h1 className="db-hero__title" id="db-hero-title">
+            Write it once. <em>We’ll find where it belongs.</em>
+          </h1>
+          <p className="db-hero__lede">
+            Tell us what you’ve done, in your own words. Launchpad turns it into a polished resume, then finds jobs near
+            home you already qualify for — and a few worth reaching for.
+          </p>
 
-        <div className="db-hero__ctas">
-          <Button variant="primary" size="lg" leftIcon={<Sparkles size={16} />} onClick={onStartSample}>
-            Start from sample
-          </Button>
-          <Button size="lg" leftIcon={<FilePlus size={16} />} onClick={onStartBlank}>
-            Start blank
-          </Button>
-          <Button variant="ghost" size="lg" leftIcon={<FileUp size={16} />} onClick={onImport}>
-            Import a resume
-          </Button>
+          <div className="db-hero__ctas">
+            <Button variant="primary" size="lg" leftIcon={<FilePlus size={17} />} onClick={onStartBlank}>
+              Build my resume
+            </Button>
+            <Button size="lg" leftIcon={<Sparkles size={17} />} onClick={onStartSample}>
+              See a finished example
+            </Button>
+            <Button variant="ghost" size="lg" leftIcon={<FileUp size={17} />} onClick={onImport}>
+              Import a resume
+            </Button>
+          </div>
+
+          <dl className="db-hero__facts">
+            {FACTS.map((fact) => (
+              <div key={fact.label}>
+                <dt>{fact.value}</dt>
+                <dd>{fact.label}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
 
-        <p className="db-hero__note">
-          Everything stays in this browser. No account, no upload — clear it any time from Settings.
-        </p>
-      </div>
+        <figure className="db-hero__art">
+          <ArtImage
+            name="desk"
+            widths={[960, 1600]}
+            sizes="(min-width: 1100px) 560px, 100vw"
+            alt="A cream sheet of paper, a brass fountain pen and compass, and a navy notebook on an ivory desk in morning light"
+            priority
+          />
+        </figure>
+      </section>
 
-      <div className="db-hero__aside">
-        <h2>What you get</h2>
-        <ul className="db-hero__list">
-          {HIGHLIGHTS.map((item) => (
-            <li key={item.title}>
-              {item.icon}
-              <div>
-                <strong>{item.title}</strong>
-                <span>{item.body}</span>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </section>
+      <ol className="db-pillars" aria-label="How Launchpad works">
+        {PILLARS.map((pillar) => (
+          <li key={pillar.n}>
+            <span className="db-pillars__n" aria-hidden="true">
+              {pillar.n}
+            </span>
+            <h2>{pillar.title}</h2>
+            <p>{pillar.body}</p>
+          </li>
+        ))}
+      </ol>
+
+      <p className="db-hero__note">Everything stays in this browser. No account, no upload — clear it any time from Settings.</p>
+    </>
   );
 }
 

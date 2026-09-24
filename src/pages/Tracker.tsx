@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Briefcase, KanbanSquare, Rows3, Search } from 'lucide-react';
+import { KanbanSquare, Rows3, Search } from 'lucide-react';
 import type { ApplicationStatus } from '@shared/types';
 import { APPLICATION_STATUSES, APPLICATION_STATUS_LABELS } from '@shared/types';
 import { scoreJobMatch } from '@shared/match';
@@ -87,7 +87,7 @@ export default function TrackerPage() {
 
       {entries.length === 0 ? (
         <EmptyState
-          icon={<Briefcase size={20} />}
+          art="envelopes"
           title="No applications tracked yet"
           description="Save a job from the job finder and it lands here, with your match score, notes and follow-up date."
           actions={

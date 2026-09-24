@@ -38,9 +38,9 @@ describe('Dashboard', () => {
   it('shows the first-run welcome with three ways to start when no resume exists', () => {
     renderPage();
 
-    expect(screen.getByRole('heading', { level: 1, name: /build the resume first/i })).toBeTruthy();
-    expect(screen.getByRole('button', { name: /start from sample/i })).toBeTruthy();
-    expect(screen.getByRole('button', { name: /start blank/i })).toBeTruthy();
+    expect(screen.getByRole('heading', { level: 1, name: /write it once/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /see a finished example/i })).toBeTruthy();
+    expect(screen.getByRole('button', { name: /build my resume/i })).toBeTruthy();
     expect(screen.getByRole('button', { name: /import a resume/i })).toBeTruthy();
 
     // The welcome screen has no resume card.
@@ -60,7 +60,7 @@ describe('Dashboard', () => {
 
     renderPage();
 
-    expect(screen.queryByRole('button', { name: /start from sample/i })).toBeNull();
+    expect(screen.queryByRole('button', { name: /see a finished example/i })).toBeNull();
 
     expect(screen.getByText('Active resume')).toBeTruthy();
     expect(screen.getByText('Jordan Rivera')).toBeTruthy();

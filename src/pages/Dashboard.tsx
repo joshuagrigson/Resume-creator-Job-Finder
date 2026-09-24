@@ -6,11 +6,12 @@
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Settings2 } from 'lucide-react';
-import { Button, PageHeader } from '@/components/ui';
+import { Button } from '@/components/ui';
 import { TopBarActions } from '@/components/layout';
 import {
   ActiveResumeCard,
   BestMatchesCard,
+  DashboardBanner,
   FollowUpsCard,
   PipelineCard,
   QuickSearchCard,
@@ -78,11 +79,7 @@ export default function DashboardPage() {
         </Button>
       </TopBarActions>
 
-      <PageHeader
-        eyebrow="Dashboard"
-        title={firstName ? `${greeting()}, ${firstName}` : greeting()}
-        description="Your resume, your pipeline and the roles worth applying to next — all in one view."
-      />
+      <DashboardBanner greeting={greeting()} firstName={firstName} tracked={tracked} />
 
       <div className="db-grid">
         {resume ? <ActiveResumeCard className="db-card db-grid__wide" resume={resume} otherCount={otherCount} /> : null}

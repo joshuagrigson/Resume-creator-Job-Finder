@@ -65,7 +65,7 @@ export const JobCard = forwardRef<HTMLButtonElement, JobCardProps>(function JobC
           ) : null}
         </span>
         {job.remote ? (
-          <Badge tone="info" variant="soft">
+          <Badge tone="accent" variant="soft">
             Remote
           </Badge>
         ) : null}

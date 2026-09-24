@@ -24,8 +24,10 @@ export function scoreLabel(score: number): 'Excellent' | 'Strong' | 'Good' | 'Fa
   return 'Low';
 }
 
-const TONE_VAR: Record<ScoreTone, string> = {
-  success: 'var(--color-success)',
+/** Rings: brass for a strong score (the house metal), ink for good, amber for fair, red for real problems. */
+const TONE_VAR: Record<ScoreTone | 'muted', string> = {
+  muted: 'var(--color-text-subtle)',
+  success: 'var(--color-metal)',
   info: 'var(--color-info)',
   warning: 'var(--color-warning)',
   danger: 'var(--color-danger)',
@@ -41,7 +43,7 @@ export interface ProgressRingProps {
   /** Small caption under the number, e.g. "ATS". */
   label?: ReactNode;
   /** Override the automatic colour. */
-  tone?: ScoreTone | 'accent';
+  tone?: ScoreTone | 'accent' | 'muted';
   /** Hide the number in the middle (e.g. when rendering your own content). */
   hideValue?: boolean;
   /** Custom center content, replaces the number + label. */
@@ -76,6 +78,7 @@ export function ProgressRing({
     height: size,
     '--ring-color': color,
     '--ring-font': fontSize,
+    '--ring-size': `${size}px`,
     ...style,
   } as CSSProperties;
 
@@ -135,7 +138,7 @@ export interface MatchToneProps {
   /** Override the computed label (e.g. from `matchLabel()` in shared/match). */
   label?: string;
   /** Override the computed tone. */
-  tone?: ScoreTone;
+  tone?: ScoreTone | 'neutral';
   /** Show the numeric score next to the label. */
   showScore?: boolean;
   size?: 'sm' | 'lg';
@@ -145,7 +148,9 @@ export interface MatchToneProps {
 /** Badge that turns a 0–100 match score into "82% · Strong" with a matching tone. */
 export function MatchTone({ score, label, tone, showScore = true, size = 'sm', className }: MatchToneProps) {
   const v = Math.round(clamp(score, 0, 100));
-  const resolvedTone: BadgeTone = tone ?? scoreTone(v);
+  const auto = tone ?? scoreTone(v);
+  // A strong score wears the house metal rather than a traffic-light green.
+  const resolvedTone: BadgeTone = auto === 'success' ? 'metal' : auto;
   const text = label ?? scoreLabel(v);
   return (
     <Badge tone={resolvedTone} variant="soft" size={size} dot className={className}>

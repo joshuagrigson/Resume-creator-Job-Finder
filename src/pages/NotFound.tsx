@@ -19,7 +19,7 @@ export default function NotFoundPage() {
   return (
     <div className="stack-6" style={{ display: 'flex', flexDirection: 'column', paddingTop: 'var(--space-8)' }}>
       <EmptyState
-        icon={<Compass size={22} aria-hidden="true" />}
+        art="compass"
         title="That page does not exist"
         description={
           <>

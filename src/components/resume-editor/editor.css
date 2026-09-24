@@ -1171,3 +1171,43 @@
   max-height: min(70vh, 620px);
   overflow-y: auto;
 }
+
+/* Welcome: the pen still-life beside the three ways in. */
+.re-welcome .ui-card__body {
+  display: grid;
+  gap: var(--space-6);
+  align-items: center;
+}
+
+.re-welcome__art {
+  display: block;
+  width: min(220px, 60%);
+  aspect-ratio: 1;
+  margin: 0 auto;
+  border-radius: 50%;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  outline: 1px solid var(--color-metal-line);
+  outline-offset: 6px;
+}
+
+@media (min-width: 900px) {
+  .re-welcome .ui-card__body {
+    grid-template-columns: 240px minmax(0, 1fr);
+    gap: var(--space-10);
+  }
+
+  .re-welcome__art {
+    width: 100%;
+  }
+}
+
+.re-welcome__card svg {
+  color: var(--color-metal);
+}
+
+.re-welcome__title {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 450;
+}
