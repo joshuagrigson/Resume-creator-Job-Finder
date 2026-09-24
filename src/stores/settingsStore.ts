@@ -9,8 +9,20 @@ import { api } from '@/lib/api';
 
 export type ThemeMode = 'system' | 'light' | 'dark';
 
+/** The five house colorways: one accent, one metal, all on the same ivory. Ink & Brass is the default. */
+export type Colorway = 'ink-brass' | 'bordeaux' | 'hunter' | 'graphite' | 'verdigris';
+
+export const COLORWAYS: { value: Colorway; label: string; accent: string; metal: string }[] = [
+  { value: 'ink-brass', label: 'Ink & Brass', accent: '#22334a', metal: '#a8894f' },
+  { value: 'bordeaux', label: 'Bordeaux & Rose Gold', accent: '#6e2f3c', metal: '#b08d6e' },
+  { value: 'hunter', label: 'Hunter & Antique Gold', accent: '#2e4a3d', metal: '#9c8a5a' },
+  { value: 'graphite', label: 'Graphite & Gold', accent: '#2c2c30', metal: '#b3945b' },
+  { value: 'verdigris', label: 'Verdigris & Copper', accent: '#2f5f66', metal: '#a26b4a' },
+];
+
 export interface SettingsState {
   theme: ThemeMode;
+  colorway: Colorway;
   /** Whether the user has dismissed the first-run welcome. */
   onboarded: boolean;
   /** Last known server health (not persisted). */
@@ -21,6 +33,7 @@ export interface SettingsState {
   homeZip: string | null;
 
   setTheme: (theme: ThemeMode) => void;
+  setColorway: (colorway: Colorway) => void;
   setOnboarded: (v: boolean) => void;
   setHomeZip: (zip: string | null) => void;
   /** Fetch /api/health once; safe to call repeatedly. */
@@ -31,6 +44,7 @@ export const useSettingsStore = create<SettingsState>()(
   persist(
     (set) => ({
       theme: 'system',
+      colorway: 'ink-brass',
       onboarded: false,
       health: null,
       ai: null,
@@ -38,6 +52,7 @@ export const useSettingsStore = create<SettingsState>()(
       homeZip: null,
 
       setTheme: (theme) => set({ theme }),
+      setColorway: (colorway) => set({ colorway: COLORWAYS.some((c) => c.value === colorway) ? colorway : 'ink-brass' }),
       setHomeZip: (zip) => set({ homeZip: zip && /^\d{5}$/.test(zip.trim()) ? zip.trim() : null }),
       setOnboarded: (v) => set({ onboarded: v }),
 
@@ -54,7 +69,7 @@ export const useSettingsStore = create<SettingsState>()(
       name: 'launchpad.settings.v1',
       storage: createSafeStorage(),
       version: 1,
-      partialize: (s) => ({ theme: s.theme, onboarded: s.onboarded, homeZip: s.homeZip }),
+      partialize: (s) => ({ theme: s.theme, colorway: s.colorway, onboarded: s.onboarded, homeZip: s.homeZip }),
     },
   ),
 );

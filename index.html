@@ -22,6 +22,15 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <title>Launchpad — Resume Builder + Job Finder</title>
+    <script>
+      // Paint the saved theme and colorway before the app loads, so nothing flashes.
+      try {
+        var saved = JSON.parse(localStorage.getItem('launchpad.settings.v1') || '{}').state || {};
+        var cw = saved.colorway;
+        if (cw && cw !== 'ink-brass' && /^[a-z-]+$/.test(cw)) document.documentElement.setAttribute('data-colorway', cw);
+        if (saved.theme === 'light' || saved.theme === 'dark') document.documentElement.setAttribute('data-theme', saved.theme);
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

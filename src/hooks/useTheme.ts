@@ -23,6 +23,7 @@ const MODES: ThemeMode[] = ['light', 'dark', 'system'];
 export function useTheme(): UseThemeResult {
   const mode = useSettingsStore((s) => s.theme);
   const setMode = useSettingsStore((s) => s.setTheme);
+  const colorway = useSettingsStore((s) => s.colorway);
   const [resolved, setResolved] = useState<'light' | 'dark'>(() => resolveTheme(mode));
 
   useEffect(() => {
@@ -43,6 +44,13 @@ export function useTheme(): UseThemeResult {
     mql.addEventListener('change', apply);
     return () => mql.removeEventListener('change', apply);
   }, [mode]);
+
+  // The colorway lives on <html data-colorway> next to the theme; index.html sets it before first paint.
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    if (colorway && colorway !== 'ink-brass') document.documentElement.setAttribute('data-colorway', colorway);
+    else document.documentElement.removeAttribute('data-colorway');
+  }, [colorway]);
 
   const cycle = useCallback(() => {
     const i = MODES.indexOf(mode);

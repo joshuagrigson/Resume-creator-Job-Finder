@@ -1,7 +1,7 @@
 import { Monitor, Moon, Sun } from 'lucide-react';
 import { Badge, Card, Field, Select } from '@/components/ui';
 import { useTheme } from '@/hooks';
-import type { ThemeMode } from '@/stores/settingsStore';
+import { COLORWAYS, useSettingsStore, type ThemeMode } from '@/stores/settingsStore';
 import './settings.css';
 
 const THEME_OPTIONS: { value: ThemeMode; label: string }[] = [
@@ -17,6 +17,8 @@ export interface AppearancePanelProps {
 /** Theme selection. `useTheme()` writes `<html data-theme>` and follows the OS while on "system". */
 export function AppearancePanel({ className }: AppearancePanelProps) {
   const { mode, resolved, setMode } = useTheme();
+  const colorway = useSettingsStore((s) => s.colorway);
+  const setColorway = useSettingsStore((s) => s.setColorway);
   const Icon = resolved === 'dark' ? Moon : Sun;
 
   return (
@@ -48,6 +50,28 @@ export function AppearancePanel({ className }: AppearancePanelProps) {
           </Field>
         </div>
       </div>
+
+      <fieldset className="set-colorways">
+        <legend className="set-colorways__legend">Colorway</legend>
+        <div className="set-colorways__grid" role="radiogroup" aria-label="Colorway">
+          {COLORWAYS.map((c) => (
+            <label key={c.value} className="set-colorway" data-selected={colorway === c.value || undefined}>
+              <input
+                type="radio"
+                name="colorway"
+                value={c.value}
+                checked={colorway === c.value}
+                onChange={() => setColorway(c.value)}
+              />
+              <span className="set-colorway__swatch" aria-hidden="true">
+                <span style={{ background: c.accent }} />
+                <span style={{ background: c.metal }} />
+              </span>
+              <span className="set-colorway__name">{c.label}</span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
 
       <p className="set-note" style={{ marginTop: 'var(--space-4)' }}>
         <Monitor size={13} aria-hidden="true" style={{ verticalAlign: '-2px', marginRight: 6 }} />

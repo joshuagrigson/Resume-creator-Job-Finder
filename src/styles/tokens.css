@@ -356,6 +356,248 @@
   color-scheme: light;
 }
 
+/* ================================================================ colorways
+ * Ink & Brass is the default above. Each alternative swaps the accent ramp and the metal ramp
+ * (light) and the semantic accent/metal tokens (dark). Neutrals — the ivory — never change.
+ * Set by <html data-colorway> (useTheme + the inline script in index.html). Values from the
+ * concierge colorways mock (docs/DESIGN-CONCIERGE.md). */
+
+/* Bordeaux & Rose Gold */
+:root[data-colorway='bordeaux'] {
+  --accent-50: #f5f0f1;
+  --accent-100: #ebe2e4;
+  --accent-200: #d6c5c8;
+  --accent-300: #b99ba1;
+  --accent-400: #976973;
+  --accent-500: #7f4853;
+  --accent-600: #6e2f3c;
+  --accent-700: #57242f;
+  --accent-800: #471e27;
+  --accent-900: #38171e;
+  --brass-100: #f2e9e0;
+  --brass-200: #dfd1c5;
+  --brass-300: #ceb8a5;
+  --brass-400: #bc9e84;
+  --brass-500: #b08d6e;
+  --brass-600: #92755b;
+  --brass-700: #7a5c42;
+  --color-accent-soft: #f3e6e6;
+  --color-accent-soft-border: #d9bcbc;
+  --color-accent-text: #5b2732;
+  --shadow-focus: 0 0 0 3px rgba(176, 141, 110, 0.32);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light'])[data-colorway='bordeaux'] {
+    --color-accent: #d19aa4;
+    --color-accent-hover: #dfb1b9;
+    --color-accent-active: #bc8b94;
+    --color-accent-text: #e2b8c0;
+    --color-accent-soft: #251e22;
+    --color-accent-soft-border: #443840;
+    --color-on-accent: #1f1215;
+    --color-metal: #b4aa9d;
+    --color-metal-strong: #bfb7ac;
+    --color-metal-text: #cbc2b6;
+    --color-metal-soft: rgba(180, 170, 157, 0.12);
+    --color-metal-line: rgba(180, 170, 157, 0.4);
+    --color-focus-ring: #b4aa9d;
+    --shadow-focus: 0 0 0 3px rgba(180, 170, 157, 0.34);
+  }
+}
+:root[data-theme='dark'][data-colorway='bordeaux'] {
+  --color-accent: #d19aa4;
+  --color-accent-hover: #dfb1b9;
+  --color-accent-active: #bc8b94;
+  --color-accent-text: #e2b8c0;
+  --color-accent-soft: #251e22;
+  --color-accent-soft-border: #443840;
+  --color-on-accent: #1f1215;
+  --color-metal: #b4aa9d;
+  --color-metal-strong: #bfb7ac;
+  --color-metal-text: #cbc2b6;
+  --color-metal-soft: rgba(180, 170, 157, 0.12);
+  --color-metal-line: rgba(180, 170, 157, 0.4);
+  --color-focus-ring: #b4aa9d;
+  --shadow-focus: 0 0 0 3px rgba(180, 170, 157, 0.34);
+}
+
+/* Hunter & Antique Gold */
+:root[data-colorway='hunter'] {
+  --accent-50: #f0f2f1;
+  --accent-100: #e2e6e4;
+  --accent-200: #c4ccc9;
+  --accent-300: #9ba8a2;
+  --accent-400: #697d73;
+  --accent-500: #476054;
+  --accent-600: #2e4a3d;
+  --accent-700: #233a30;
+  --accent-800: #1d3027;
+  --accent-900: #16251f;
+  --brass-100: #f0ecdc;
+  --brass-200: #d7d0bd;
+  --brass-300: #c2b699;
+  --brass-400: #ab9c73;
+  --brass-500: #9c8a5a;
+  --brass-600: #81734b;
+  --brass-700: #6d5f3a;
+  --color-accent-soft: #e6ece7;
+  --color-accent-soft-border: #bccbc0;
+  --color-accent-text: #2a4236;
+  --shadow-focus: 0 0 0 3px rgba(156, 138, 90, 0.32);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light'])[data-colorway='hunter'] {
+    --color-accent: #9dbfa9;
+    --color-accent-hover: #b3cfbd;
+    --color-accent-active: #8dac98;
+    --color-accent-text: #b7d2c0;
+    --color-accent-soft: #1b2320;
+    --color-accent-soft-border: #303d36;
+    --color-on-accent: #101913;
+    --color-metal: #b1ab93;
+    --color-metal-strong: #bdb8a3;
+    --color-metal-text: #cac5ae;
+    --color-metal-soft: rgba(177, 171, 147, 0.12);
+    --color-metal-line: rgba(177, 171, 147, 0.4);
+    --color-focus-ring: #b1ab93;
+    --shadow-focus: 0 0 0 3px rgba(177, 171, 147, 0.34);
+  }
+}
+:root[data-theme='dark'][data-colorway='hunter'] {
+  --color-accent: #9dbfa9;
+  --color-accent-hover: #b3cfbd;
+  --color-accent-active: #8dac98;
+  --color-accent-text: #b7d2c0;
+  --color-accent-soft: #1b2320;
+  --color-accent-soft-border: #303d36;
+  --color-on-accent: #101913;
+  --color-metal: #b1ab93;
+  --color-metal-strong: #bdb8a3;
+  --color-metal-text: #cac5ae;
+  --color-metal-soft: rgba(177, 171, 147, 0.12);
+  --color-metal-line: rgba(177, 171, 147, 0.4);
+  --color-focus-ring: #b1ab93;
+  --shadow-focus: 0 0 0 3px rgba(177, 171, 147, 0.34);
+}
+
+/* Graphite & Gold */
+:root[data-colorway='graphite'] {
+  --accent-50: #f0f0f1;
+  --accent-100: #e1e1e2;
+  --accent-200: #c4c4c5;
+  --accent-300: #9a9a9c;
+  --accent-400: #67676a;
+  --accent-500: #454549;
+  --accent-600: #2c2c30;
+  --accent-700: #1c1c1f;
+  --accent-800: #171719;
+  --accent-900: #121214;
+  --brass-100: #f4ecdc;
+  --brass-200: #e1d4bd;
+  --brass-300: #d0bd99;
+  --brass-400: #bea474;
+  --brass-500: #b3945b;
+  --brass-600: #957b4c;
+  --brass-700: #836a3c;
+  --color-accent-soft: #ebe9e5;
+  --color-accent-soft-border: #c9c4bb;
+  --color-accent-text: #2c2c30;
+  --shadow-focus: 0 0 0 3px rgba(179, 148, 91, 0.32);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light'])[data-colorway='graphite'] {
+    --color-accent: #e3e6ea;
+    --color-accent-hover: #f1f3f5;
+    --color-accent-active: #cccfd3;
+    --color-accent-text: #e3e6ea;
+    --color-accent-soft: #23272d;
+    --color-accent-soft-border: #3c424b;
+    --color-on-accent: #111317;
+    --color-metal: #b9ad92;
+    --color-metal-strong: #c4b9a2;
+    --color-metal-text: #d0c7b0;
+    --color-metal-soft: rgba(185, 173, 146, 0.12);
+    --color-metal-line: rgba(185, 173, 146, 0.4);
+    --color-focus-ring: #b9ad92;
+    --shadow-focus: 0 0 0 3px rgba(185, 173, 146, 0.34);
+  }
+}
+:root[data-theme='dark'][data-colorway='graphite'] {
+  --color-accent: #e3e6ea;
+  --color-accent-hover: #f1f3f5;
+  --color-accent-active: #cccfd3;
+  --color-accent-text: #e3e6ea;
+  --color-accent-soft: #23272d;
+  --color-accent-soft-border: #3c424b;
+  --color-on-accent: #111317;
+  --color-metal: #b9ad92;
+  --color-metal-strong: #c4b9a2;
+  --color-metal-text: #d0c7b0;
+  --color-metal-soft: rgba(185, 173, 146, 0.12);
+  --color-metal-line: rgba(185, 173, 146, 0.4);
+  --color-focus-ring: #b9ad92;
+  --shadow-focus: 0 0 0 3px rgba(185, 173, 146, 0.34);
+}
+
+/* Verdigris & Copper */
+:root[data-colorway='verdigris'] {
+  --accent-50: #f0f4f4;
+  --accent-100: #e2e9ea;
+  --accent-200: #c5d2d4;
+  --accent-300: #9bb2b6;
+  --accent-400: #698c91;
+  --accent-500: #487278;
+  --accent-600: #2f5f66;
+  --accent-700: #254c52;
+  --accent-800: #1e3e43;
+  --accent-900: #183134;
+  --brass-100: #f3e7df;
+  --brass-200: #dac4b7;
+  --brass-300: #c5a38f;
+  --brass-400: #b08165;
+  --brass-500: #a26b4a;
+  --brass-600: #86593d;
+  --brass-700: #7a4f34;
+  --color-accent-soft: #e5eeef;
+  --color-accent-soft-border: #b8cfd2;
+  --color-accent-text: #294f55;
+  --shadow-focus: 0 0 0 3px rgba(162, 107, 74, 0.32);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light'])[data-colorway='verdigris'] {
+    --color-accent: #8fc0c6;
+    --color-accent-hover: #a9d0d5;
+    --color-accent-active: #81adb2;
+    --color-accent-text: #acd3d8;
+    --color-accent-soft: #1c2628;
+    --color-accent-soft-border: #314246;
+    --color-on-accent: #0f1a1c;
+    --color-metal: #b3a49a;
+    --color-metal-strong: #beb2a9;
+    --color-metal-text: #cbbfb6;
+    --color-metal-soft: rgba(179, 164, 154, 0.12);
+    --color-metal-line: rgba(179, 164, 154, 0.4);
+    --color-focus-ring: #b3a49a;
+    --shadow-focus: 0 0 0 3px rgba(179, 164, 154, 0.34);
+  }
+}
+:root[data-theme='dark'][data-colorway='verdigris'] {
+  --color-accent: #8fc0c6;
+  --color-accent-hover: #a9d0d5;
+  --color-accent-active: #81adb2;
+  --color-accent-text: #acd3d8;
+  --color-accent-soft: #1c2628;
+  --color-accent-soft-border: #314246;
+  --color-on-accent: #0f1a1c;
+  --color-metal: #b3a49a;
+  --color-metal-strong: #beb2a9;
+  --color-metal-text: #cbbfb6;
+  --color-metal-soft: rgba(179, 164, 154, 0.12);
+  --color-metal-line: rgba(179, 164, 154, 0.4);
+  --color-focus-ring: #b3a49a;
+  --shadow-focus: 0 0 0 3px rgba(179, 164, 154, 0.34);
+}
+
 @media (prefers-reduced-motion: reduce) {
   :root {
     --dur-instant: 0.01ms;
