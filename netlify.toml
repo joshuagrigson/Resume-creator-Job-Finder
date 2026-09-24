@@ -1,0 +1,23 @@
+# Netlify: the SPA from dist/ on the CDN, /api/* in one function (netlify/functions/api.mts).
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+[functions]
+  node_bundler = "esbuild"
+  included_files = ["server/geo/data/*.tsv"]
+
+# Hashed build assets never change.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Client-side routes (/jobs, /resume, …) all load the app.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

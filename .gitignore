@@ -13,3 +13,6 @@ coverage/
 # Cloudflare
 .wrangler/
 .dev.vars
+
+# Netlify
+.netlify/

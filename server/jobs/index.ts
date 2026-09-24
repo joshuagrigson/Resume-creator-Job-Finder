@@ -29,6 +29,12 @@ import { ALL_SOURCES } from './sources/index';
 import type { FetchLike, JobSourceAdapter, SourceEnv } from './types';
 
 export const PER_SOURCE_TIMEOUT_MS = 8_000;
+
+/** JOB_SOURCE_TIMEOUT_MS shortens the per-source timeout on hosts with a hard request limit (Netlify: 10 s). */
+function envTimeoutMs(env: NodeJS.ProcessEnv): number | undefined {
+  const ms = Number(env.JOB_SOURCE_TIMEOUT_MS);
+  return Number.isFinite(ms) && ms >= 1_000 ? ms : undefined;
+}
 export const OVERALL_BUDGET_MS = 12_000;
 
 export interface SearchOptions {
@@ -182,7 +188,7 @@ export async function searchJobs(query: JobSearchQuery, options: SearchOptions =
     env: options.env ?? process.env,
     now,
     useCache: options.useCache ?? true,
-    perSourceTimeoutMs: options.perSourceTimeoutMs ?? PER_SOURCE_TIMEOUT_MS,
+    perSourceTimeoutMs: options.perSourceTimeoutMs ?? envTimeoutMs(options.env ?? process.env) ?? PER_SOURCE_TIMEOUT_MS,
   };
   const adapters = options.adapters ?? ALL_SOURCES;
   const { selected, unknownSources } = resolveAdapters(query, adapters);
