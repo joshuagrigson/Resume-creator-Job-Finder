@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Launchpad">
+  <rect width="512" height="512" rx="112" fill="#f5efe1"/>
+  <g fill="#a8894f">
+    <!-- L -->
+    <rect x="96" y="120" width="40" height="292"/>
+    <rect x="96" y="372" width="252" height="40"/>
+    <!-- the rise: a stroke climbing from the L to the right-hand post -->
+    <polygon points="152,350 198,350 404,130 404,84"/>
+    <!-- right-hand post -->
+    <polygon points="376,126 416,84 416,412 376,412"/>
+  </g>
+</svg>
